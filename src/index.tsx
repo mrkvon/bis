@@ -1,4 +1,5 @@
 import { StrictMode } from 'react'
+import { ConfigProvider } from 'antd'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
@@ -6,12 +7,19 @@ import App from './App'
 import { store } from './app/store'
 import './index.css'
 import * as serviceWorker from './serviceWorker'
+import cs from 'antd/lib/locale/cs_CZ'
+import moment from 'moment'
+import 'moment/locale/cs'
+
+moment.locale('cs')
 
 ReactDOM.render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-        <App />
+        <ConfigProvider locale={cs}>
+          <App />
+        </ConfigProvider>
       </BrowserRouter>
     </Provider>
   </StrictMode>,
