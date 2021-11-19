@@ -6,30 +6,36 @@ import {
   InputNumber,
   Radio,
   Select,
+  Slider,
   Space,
   Steps,
   TimePicker,
+  Upload,
 } from 'antd'
 import React, { ReactElement, useState } from 'react'
+import { Event } from './types'
 
 const { Option } = Select
 
-const eventOptions: {
+const basicPurposeOptions: {
   name: string
-  value: EventType
+  value: Event['basic_purpose']
 }[] = [
   {
     name: 'Víkendovka nebo pravidelná akce s adresářem',
-    value: 'short-addressbook',
+    value: 'action-with-attendee-list',
   },
   {
     name: 'Jednorázová nebo pravidelná akce bez povinného adresáře',
-    value: 'short-without-addressbook',
+    value: 'action',
   },
-  { name: 'Vícedenní akce (tábory)', value: 'long' },
+  { name: 'Vícedenní akce (tábory)', value: 'camp' },
 ]
 
-const eventTypeDetails = [
+/*
+change to name: name, value: slug
+*/
+const eventTypes = [
   'Dobrovolnická',
   'Zážitková',
   'Sportovní',
@@ -48,149 +54,321 @@ const eventTypeDetails = [
   'Oddílová, družinová schůzka',
 ]
 
-const programs = [
-  'Akce památky',
-  'Akce příroda',
-  'BRĎO',
-  'Ekostan',
-  'PsB (Prázdniny s Brontosaurem = vícedenní letní akce)',
-  'Vzdělávání',
-  'International',
-  'Žádný',
+const programs: {
+  name: string
+  value: Event['program']
+}[] = [
+  { name: 'Akce památky', value: 'monuments' },
+  { name: 'Akce příroda', value: 'nature' },
+  { name: 'BRĎO', value: 'children_section' },
+  { name: 'Ekostan', value: 'eco_consulting' },
+  {
+    name: 'PsB (Prázdniny s Brontosaurem = vícedenní letní akce)',
+    value: 'PsB',
+  },
+  { name: 'Vzdělávání', value: 'education' },
+  { name: 'International', value: 'international' },
+  { name: 'Žádný', value: '' },
 ]
 
-const audiences = [
-  'Pro všechny',
-  'Pro mládež a dospělé',
-  'Pro děti',
-  'Pro rodiče s dětmi',
-  'Pro prvoúčastníky',
+const audiences: {
+  name: string
+  value: Event['intended_for']
+}[] = [
+  { name: 'Pro všechny', value: 'everyone' },
+  { name: 'Pro mládež a dospělé', value: 'adolescents_and_adults' },
+  { name: 'Pro děti', value: 'children' },
+  { name: 'Pro rodiče s dětmi', value: 'parents_and_children' },
+  { name: 'Pro prvoúčastníky', value: 'newcomers' },
+]
+
+const diets: {
+  name: string
+  value: Event['diet']
+}[] = [
+  { name: 's masem', value: 'non_vegetarian' },
+  { name: 'vegetariánska', value: 'vegetarian' },
+  { name: 'veganská', value: 'vegan' },
+  { name: 'košer', value: 'kosher' },
+  { name: 'halal', value: 'halal' },
+  { name: 'bezlepková', value: 'gluten_free' },
 ]
 
 const { Step } = Steps
 
-type StepConfig = {
-  items: {
-    element: ReactElement
-    label?: string
-    required?: boolean
-    help?: string
-  }[]
+type FormItemConfig = {
+  element: ReactElement
+  label?: string
+  required?: boolean
+  help?: string
 }
 
-type EventType = 'short-addressbook' | 'short-without-addressbook' | 'long'
+const formItems: { [name: string]: FormItemConfig } = {
+  basic_purpose: {
+    element: (
+      <Radio.Group>
+        <Space direction="vertical">
+          {basicPurposeOptions.map(({ name, value }) => (
+            <Radio.Button value={value} key={value}>
+              {name}
+            </Radio.Button>
+          ))}
+        </Space>
+      </Radio.Group>
+    ),
+  },
+  name: {
+    label: 'Název',
+    required: true,
+    element: <Input />,
+  },
+  date_from_to: {
+    label: 'Od - Do',
+    required: true,
+    element: <DatePicker.RangePicker />,
+  },
+  start_date: {
+    label: 'Začátek akce',
+    required: true,
+    element: <TimePicker format="HH:mm" />,
+  },
+  repetitions: {
+    // @TODO not defined in API
+    label: 'Počet akcí v uvedeném období',
+    required: true,
+    help: 'Používá se u opakovaných akcí (typicky oddílové schůzky). U klasické jednorázové akce zde nechte jedničku.',
+    element: <InputNumber />,
+  },
+  event_type: {
+    label: 'Typ akce',
+    required: true,
+    element: (
+      <Select>
+        {eventTypes.map(type => (
+          <Option key={type} value={type}>
+            {type}
+          </Option>
+        ))}
+      </Select>
+    ),
+  },
+  program: {
+    label: 'Program',
+    required: true,
+    element: (
+      <Select>
+        {programs.map(({ name, value }) => (
+          <Option key={value} value={value}>
+            {name}
+          </Option>
+        ))}
+      </Select>
+    ),
+  },
+  intended_for: {
+    label: 'Pro koho',
+    required: true,
+    element: (
+      <Select>
+        {audiences.map(({ name, value }) => (
+          <Option key={value} value={value}>
+            {name}
+          </Option>
+        ))}
+      </Select>
+    ),
+  },
+  administrative_unit: {
+    label: 'Pořádající ZČ/Klub/RC/ústředí',
+    required: true,
+    element: (
+      <Select>
+        <Option value="a">moznost 1</Option>
+        <Option value="b">here we need api that would download</Option>
+        <Option value="c">all of this for</Option>
+        <Option value="d">us</Option>
+      </Select>
+    ),
+  },
+  participation_fee: {
+    label: 'Účastnický poplatek (CZK)',
+    required: true,
+    element: <InputNumber />,
+  },
+  age: {
+    label: 'Věk',
+    required: true,
+    element: (
+      <Slider range defaultValue={[0, 100]} marks={{ 0: 0, 100: 100 }} />
+    ),
+  },
+  accommodation: {
+    label: 'Ubytování',
+    required: true,
+    element: <Input />,
+  },
+  diet: {
+    label: 'Strava',
+    required: true,
+    element: (
+      <Select mode="multiple">
+        {diets.map(({ name, value }) => (
+          <Option key={value} value={value}>
+            {name}
+          </Option>
+        ))}
+      </Select>
+    ),
+  },
+  working_hours: {
+    label: 'Pracovní doba',
+    element: <InputNumber />,
+  },
+  working_days: {
+    label: 'Počet pracovních dní na akci',
+    element: <InputNumber />,
+  },
+  contact_person_name: {
+    label: 'Jméno kontaktní osoby',
+    required: true,
+    element: <Input />,
+  },
+  contact_person_email: {
+    label: 'Kontaktní email',
+    required: true,
+    element: <Input />,
+  },
+  contact_person_telephone: {
+    label: 'Kontaktní telefon',
+    element: <Input />,
+  },
+  web_url: {
+    label: 'Web o akci',
+    help: 'Web akce (v případě že nějaký existuje)',
+    element: <Input />,
+  },
+  note: {
+    label: 'Poznámka',
+    help: 'vidí jenom lidé s přístupem do BISu, kteří si akci prohlížejí přímo v systému',
+    element: <Input.TextArea />,
+  },
+  team: {
+    label: 'Organizační tým',
+    element: (
+      <Select mode="multiple">
+        <Option value="a">Fine</Option>
+      </Select>
+    ),
+  },
+  invitation_text_1: {
+    label: 'Zvací text: Co nás čeká',
+    required: true,
+    element: <Input.TextArea />,
+  },
+  invitation_text_2: {
+    label: 'Zvací text: Co, kde a jak',
+    required: true,
+    element: <Input.TextArea />,
+  },
+  invitation_text_3: {
+    label: 'Zvací text: dobrovolnická pomoc',
+    required: true,
+    element: <Input.TextArea />,
+  },
+  invitation_text_4: {
+    label: 'Zvací text: Malá ochutnávka',
+    required: true,
+    element: <Input.TextArea />,
+  },
+  main_photo: {
+    label: 'Hlavní fotka',
+    help: 'Foto se zobrazí v rámečku akce, jako hlavní fotka',
+    required: true,
+    element: <Upload listType="picture-card">+</Upload>,
+    // @TODO or allow adding url to a picture
+  },
+  additional_photos: {
+    label: 'Fotky k malé ochutnávce',
+    help: 'Zobrazí se pod textem „Zvací text: Malá ochutnávka“',
+    element: <Upload listType="picture-card">+</Upload>,
+    // @TODO or allow adding url to a picture
+  },
+}
+
+const stepConfig: { items: string[] }[] = [
+  { items: ['basic_purpose'] },
+  {
+    items: ['name', 'date_from_to', 'start_date', 'repetitions'],
+  },
+  { items: ['team'] },
+  { items: ['event_type', 'program', 'intended_for', 'administrative_unit'] },
+  {
+    items: [
+      'participation_fee',
+      'age',
+      'diet',
+      'working_hours',
+      'working_days',
+    ],
+  },
+  {
+    items: [
+      'contact_person_name',
+      'contact_person_email',
+      'contact_person_telephone',
+      'web_url',
+      'note',
+    ],
+  },
+  {
+    items: [
+      'invitation_text_1',
+      'invitation_text_2',
+      'invitation_text_3',
+      'invitation_text_4',
+      'main_photo',
+      'additional_photos',
+    ],
+  },
+]
 const CreateEvent = () => {
   const [step, setStep] = useState(0)
-  const [eventType, setEventType] = useState<EventType>()
-
-  const stepConfig: StepConfig[] = [
-    {
-      items: [
-        {
-          element: (
-            <Radio.Group
-              onChange={e => setEventType(e.target.value)}
-              value={eventType}
-            >
-              <Space direction="vertical">
-                {eventOptions.map(({ name, value }) => (
-                  <Radio.Button value={value} key={value}>
-                    {name}
-                  </Radio.Button>
-                ))}
-              </Space>
-            </Radio.Group>
-          ),
-        },
-      ],
-    },
-    {
-      items: [
-        {
-          label: 'Název',
-          required: true,
-          element: <Input />,
-        },
-        {
-          label: 'Od - Do',
-          required: true,
-          element: <DatePicker.RangePicker />,
-        },
-        {
-          label: 'Začátek akce',
-          required: true,
-          element: <TimePicker format="HH:mm" />,
-        },
-        {
-          label: 'Počet akcí v uvedeném období',
-          required: true,
-          help: 'Používá se u opakovaných akcí (typicky oddílové schůzky). U klasické jednorázové akce zde nechte jedničku.',
-          element: <InputNumber />,
-        },
-      ],
-    },
-    {
-      items: [
-        {
-          label: 'Typ akce',
-          required: true,
-          element: (
-            <Select>
-              {eventTypeDetails.map(type => (
-                <Option key={type} value={type}>
-                  {type}
-                </Option>
-              ))}
-            </Select>
-          ),
-        },
-        {
-          label: 'Program',
-          required: true,
-          element: (
-            <Select>
-              {programs.map(program => (
-                <Option key={program} value={program}>
-                  {program}
-                </Option>
-              ))}
-            </Select>
-          ),
-        },
-        {
-          label: 'Pro koho',
-          required: true,
-          element: (
-            <Select>
-              {audiences.map(audience => (
-                <Option key={audience} value={audience}>
-                  {audience}
-                </Option>
-              ))}
-            </Select>
-          ),
-        },
-      ],
-    },
-  ]
+  const [form] = Form.useForm()
 
   const steps = stepConfig.map(({ items }) =>
-    items.map((item, index) => (
-      <Form.Item
-        key={index}
-        label={item?.label}
-        tooltip={item?.help}
-        required={item?.required ?? false}
-      >
-        {item.element}
-      </Form.Item>
-    )),
+    items.map(name => {
+      const item = formItems[name]
+      return (
+        <Form.Item
+          key={name}
+          name={name}
+          label={item?.label}
+          tooltip={item?.help}
+          required={item?.required ?? false}
+        >
+          {item.element}
+        </Form.Item>
+      )
+    }),
   )
 
   return (
     <>
-      <Form>
-        {steps[step]}
+      <Form
+        form={form}
+        onFieldsChange={a => console.log(a)}
+        onValuesChange={b => console.log(b)}
+      >
+        {steps.map((children, index) => (
+          <div
+            style={{
+              display: step === index ? 'block' : 'none',
+            }}
+            key={index}
+          >
+            {children}
+          </div>
+        ))}
         <div className="steps-action">
           {step > 0 && (
             <Button
