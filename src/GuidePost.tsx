@@ -6,15 +6,15 @@ import { Button } from 'antd'
  *
  */
 const GuidePost = () => (
-  <div>
+  <div className="grid grid-cols-2 gap-4">
     <Link to="/create">
-      <Button>Nová akce</Button>
+      <Button className="h-32 w-32">Nová akce</Button>
     </Link>
     <Link to="/events/id/close">
-      <Button>Po akci</Button>
+      <Button className="h-32 w-32">Po akci</Button>
     </Link>
     <Link to="/events">
-      <Button>Moje akce</Button>
+      <Button className="h-32 w-32">Moje akce</Button>
     </Link>
   </div>
 )
