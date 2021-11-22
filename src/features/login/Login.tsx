@@ -18,7 +18,7 @@ const Login = () => {
   return (
     <>
       {' '}
-      <h1>Brontosaurus Panel organizátora</h1>
+      <h1>Brontosaurus Panel uživatele</h1>
       <Form
         name="basic"
         form={form}
