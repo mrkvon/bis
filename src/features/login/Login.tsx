@@ -16,15 +16,11 @@ const Login = () => {
   }
 
   return (
-    <>
-      {' '}
-      <h1>Brontosaurus Panel uživatele</h1>
+    <div className="flex flex-col items-center">
       <Form
         name="basic"
         form={form}
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        initialValues={{ remember: true }}
+        layout="vertical"
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
         autoComplete="off"
@@ -47,7 +43,7 @@ const Login = () => {
           <Input.Password />
         </Form.Item>
 
-        <Form.Item shouldUpdate wrapperCol={{ offset: 8, span: 16 }}>
+        <Form.Item shouldUpdate>
           {() => (
             <Button
               type="primary"
@@ -63,7 +59,7 @@ const Login = () => {
           )}
         </Form.Item>
       </Form>
-    </>
+    </div>
   )
 }
 
