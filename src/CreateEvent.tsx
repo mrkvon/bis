@@ -295,14 +295,19 @@ const formItems: { [name: string]: FormItemConfig } = {
   },
 }
 
-const stepConfig: { items: string[] }[] = [
-  { items: ['basic_purpose'] },
+const stepConfig: { title: string; items: string[] }[] = [
+  { title: 'Druh', items: ['basic_purpose'] },
   {
+    title: 'Info',
     items: ['name', 'date_from_to', 'start_date', 'repetitions'],
   },
-  { items: ['team'] },
-  { items: ['event_type', 'program', 'intended_for', 'administrative_unit'] },
+  { title: 'Tým', items: ['team'] },
   {
+    title: 'Typ',
+    items: ['event_type', 'program', 'intended_for', 'administrative_unit'],
+  },
+  {
+    title: 'Podrobnosti',
     items: [
       'participation_fee',
       'age',
@@ -312,6 +317,7 @@ const stepConfig: { items: string[] }[] = [
     ],
   },
   {
+    title: 'Kontakt',
     items: [
       'contact_person_name',
       'contact_person_email',
@@ -321,6 +327,7 @@ const stepConfig: { items: string[] }[] = [
     ],
   },
   {
+    title: 'Pozvánka',
     items: [
       'invitation_text_1',
       'invitation_text_2',
@@ -356,9 +363,15 @@ const CreateEvent = () => {
     <>
       <Form
         form={form}
+        layout="vertical"
         onFieldsChange={a => console.log(a)}
         onValuesChange={b => console.log(b)}
       >
+        <Steps size="small" current={step} className="mb-8">
+          {stepConfig.map(({ title }, index) => (
+            <Step title={title} key={index} />
+          ))}
+        </Steps>
         {steps.map((children, index) => (
           <div
             style={{
@@ -385,11 +398,6 @@ const CreateEvent = () => {
           )}
           {step === steps.length - 1 && <Button type="primary">Hotovo</Button>}
         </div>
-        <Steps current={step}>
-          {steps.map((_, index) => (
-            <Step key={index} />
-          ))}
-        </Steps>
       </Form>
     </>
   )
