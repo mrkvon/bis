@@ -13,7 +13,7 @@ import {
   Upload,
 } from 'antd'
 import React, { ReactElement, useState } from 'react'
-import { Event } from './types'
+import { Event } from '../../types'
 
 const { Option } = Select
 
