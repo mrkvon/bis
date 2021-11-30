@@ -11,6 +11,7 @@ import {
   Steps,
   TimePicker,
   Upload,
+  FormInstance,
 } from 'antd'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { ReactElement, useState } from 'react'
@@ -170,12 +171,13 @@ const additionalQuestions: {
   [name in AdditionalQuestionType]: FormItemConfig<CreateEventForm>
 }
 
-const formItems: {
-  [name in
-    | keyof CreateEventForm
-    | 'newcomerInfo']: FormItemConfig<CreateEventForm>
-} = {
+type FormConfig<FormType, AdditionalFields extends string> = {
+  [name in keyof FormType | AdditionalFields]: FormItemConfig<FormType>
+}
+
+const formItems: FormConfig<CreateEventForm, 'newcomerInfo'> = {
   basicPurpose: {
+    required: true,
     element: (
       <Radio.Group>
         <Space direction="vertical">
@@ -409,12 +411,7 @@ const formItems: {
     label: 'Věk',
     required: true,
     element: (
-      <Slider
-        tooltipVisible
-        range
-        defaultValue={[0, 100]}
-        marks={{ 0: 0, 100: 100 }}
-      />
+      <Slider range defaultValue={[0, 100]} marks={{ 0: 0, 100: 100 }} />
     ),
   },
   accommodation: {
@@ -647,11 +644,7 @@ const CreateEvent = () => {
             name={name}
             label={item?.label}
             tooltip={item?.help}
-            required={
-              typeof item.required === 'function'
-                ? item.required(form.getFieldsValue())
-                : item?.required ?? false
-            }
+            required={isRequired(item.required, form)}
             rules={[...required, ...(item?.rules ?? [])]}
           >
             {item.element}
@@ -680,11 +673,30 @@ const CreateEvent = () => {
         onValuesChange={b => console.log(b)}
         onFinish={form => console.log(form)}
       >
-        <Steps size="small" current={step} className="mb-8">
-          {stepConfig.map(({ title }, index) => (
-            <Step title={title} key={index} />
-          ))}
-        </Steps>
+        <Form.Item shouldUpdate>
+          {() => (
+            <Steps size="small" current={step} className="mb-8">
+              {stepConfig.map(({ title, items }, index) => (
+                <Step
+                  title={title}
+                  key={index}
+                  onStepClick={i => setStep(i)}
+                  status={
+                    index === step
+                      ? 'process'
+                      : isStepValid<CreateEventForm>(
+                          items as (keyof CreateEventForm)[],
+                          formItems,
+                          form,
+                        )
+                      ? 'finish'
+                      : 'error'
+                  }
+                />
+              ))}
+            </Steps>
+          )}
+        </Form.Item>
         {steps.map((children, index) => (
           <div
             style={{
@@ -721,6 +733,42 @@ const CreateEvent = () => {
 }
 
 export default CreateEvent
+const isRequired = function <T>(
+  required: FormItemConfig<T>['required'],
+  form: FormInstance<T>,
+) {
+  return typeof required === 'function'
+    ? required(form.getFieldsValue())
+    : required ?? false
+}
+
+const isItemValid = function <T>(
+  name: keyof T,
+  formConfig: FormConfig<T, never>,
+  form: FormInstance<T>,
+) {
+  const itemExists = !!form.getFieldInstance(name as string)
+  const isItemTouched = form.isFieldTouched(name as string)
+  const isItemRequired = isRequired(formConfig[name].required, form)
+  const hasItemErrors = form.getFieldError(name as string).length > 0
+
+  // success
+  // item doesn't exist (nothing to validate)
+  // OR
+  // item exists and doesn't have errors AND (is touched OR is not required)
+  // because we want every required field touched
+  const isValid =
+    !itemExists || (!hasItemErrors && (isItemTouched || !isItemRequired))
+
+  return isValid
+}
+const isStepValid = function <T>(
+  step: (keyof T)[],
+  formConfig: FormConfig<T, never>,
+  form: FormInstance<T>,
+) {
+  return step.every(name => isItemValid(name, formConfig, form))
+}
 
 /*
 Zadání Nové akce_17.4.
