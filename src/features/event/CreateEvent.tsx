@@ -12,103 +12,174 @@ import {
   TimePicker,
   Upload,
 } from 'antd'
+import { Rule } from 'rc-field-form/lib/interface'
 import React, { ReactElement, useState } from 'react'
-import { Event } from '../../types'
+import Location from './Location'
 
 const { Option } = Select
 
-const basicPurposeOptions: {
-  name: string
-  value: Event['basic_purpose']
-}[] = [
-  {
-    name: 'Víkendovka nebo pravidelná akce s adresářem',
-    value: 'action-with-attendee-list',
-  },
-  {
-    name: 'Jednorázová nebo pravidelná akce bez povinného adresáře',
-    value: 'action',
-  },
-  { name: 'Vícedenní akce (tábory)', value: 'camp' },
-]
+const basicPurposes = {
+  'action-with-attendee-list': 'Víkendovka nebo pravidelná akce s adresářem',
+  action: 'Jednorázová nebo pravidelná akce bez povinného adresáře',
+  camp: 'Vícedenní akce (tábory)',
+}
 
 /*
 change to name: name, value: slug
 */
-const eventTypes = [
-  'Dobrovolnická',
-  'Zážitková',
-  'Sportovní',
-  'Vzdělávací – přednášky',
-  'Vzdělávací – kurzy, školení',
-  'Vzdělávací – kurz OHB',
-  'Výukový program',
-  'Pobytový výukový program',
-  'Klub – setkání',
-  'Klub – přednáška',
-  'Akce pro veřejnost (velká)',
-  'Ekostan',
-  'Výstava',
-  'Schůzka dobrovolníků/týmovka',
-  'Interní akce (VH a jiné)',
-  'Oddílová, družinová schůzka',
-]
+const eventTypes = {
+  dobrovolnicka: 'Dobrovolnická',
+  zazitkova: 'Zážitková',
+  sportovni: 'Sportovní',
+  vzdelavaci_prednasky: 'Vzdělávací – přednášky',
+  vzdelavaci_kurzy_skoleni: 'Vzdělávací – kurzy, školení',
+  vzdelavaci_ohb: 'Vzdělávací – kurz OHB',
+  vyukovy_program: 'Výukový program',
+  pobytovy_vyukovy_program: 'Pobytový výukový program',
+  klub_setkani: 'Klub – setkání',
+  klub_prednaska: 'Klub – přednáška',
+  akce_verejnost: 'Akce pro veřejnost (velká)',
+  ekostan: 'Ekostan',
+  vystava: 'Výstava',
+  tymovka: 'Schůzka dobrovolníků/týmovka',
+  interni: 'Interní akce (VH a jiné)',
+  oddilovka: 'Oddílová, družinová schůzka',
+}
 
-const programs: {
-  name: string
-  value: Event['program']
-}[] = [
-  { name: 'Akce památky', value: 'monuments' },
-  { name: 'Akce příroda', value: 'nature' },
-  { name: 'BRĎO', value: 'children_section' },
-  { name: 'Ekostan', value: 'eco_consulting' },
-  {
-    name: 'PsB (Prázdniny s Brontosaurem = vícedenní letní akce)',
-    value: 'PsB',
-  },
-  { name: 'Vzdělávání', value: 'education' },
-  { name: 'International', value: 'international' },
-  { name: 'Žádný', value: '' },
-]
+const programs = {
+  monuments: 'Akce památky',
+  nature: 'Akce příroda',
+  children_section: 'BRĎO',
+  eco_consulting: 'Ekostan',
+  PsB: 'PsB (Prázdniny s Brontosaurem = vícedenní letní akce)',
+  education: 'Vzdělávání',
+  international: 'International',
+  '': 'Žádný',
+}
 
-const audiences: {
-  name: string
-  value: Event['intended_for']
-}[] = [
-  { name: 'Pro všechny', value: 'everyone' },
-  { name: 'Pro mládež a dospělé', value: 'adolescents_and_adults' },
-  { name: 'Pro děti', value: 'children' },
-  { name: 'Pro rodiče s dětmi', value: 'parents_and_children' },
-  { name: 'Pro prvoúčastníky', value: 'newcomers' },
-]
+const audiences = {
+  everyone: 'Pro všechny',
+  adolescents_and_adults: 'Pro mládež a dospělé',
+  children: 'Pro děti',
+  parents_and_children: 'Pro rodiče s dětmi',
+  newcomers: 'Pro prvoúčastníky',
+}
 
-const diets: {
-  name: string
-  value: Event['diet']
-}[] = [
-  { name: 's masem', value: 'non_vegetarian' },
-  { name: 'vegetariánska', value: 'vegetarian' },
-  { name: 'veganská', value: 'vegan' },
-  { name: 'košer', value: 'kosher' },
-  { name: 'halal', value: 'halal' },
-  { name: 'bezlepková', value: 'gluten_free' },
-]
+const diets = {
+  non_vegetarian: 's masem',
+  vegetarian: 'vegetariánska',
+  vegan: 'veganská',
+  kosher: 'košer',
+  halal: 'halal',
+  gluten_free: 'bezlepková',
+}
+
+const registrationMethods = {
+  standard: 'Standardní přihláška na brontowebu',
+  other_electronic: 'Jiná elektronická přihláška',
+  by_email: 'Účastníci se přihlašují na mail organizátora',
+  not_required: 'Registrace není potřeba, stačí přijít',
+  full: 'Máme bohužel plno, zkuste jinou z našich akcí',
+}
 
 const { Step } = Steps
 
-type FormItemConfig = {
+type FormItemConfig<Form> = {
   element: ReactElement
   label?: string
-  required?: boolean
+  required?: boolean | ((form: Form) => boolean)
+  display?: (form: Form) => boolean
   help?: string
+  rules?: Rule[]
+  excluded?: boolean
 }
 
-const formItems: { [name: string]: FormItemConfig } = {
-  basic_purpose: {
+interface CreateEventForm {
+  basicPurpose: keyof typeof basicPurposes
+  eventType: keyof typeof eventTypes
+  name: string
+  dateFromTo: [string, string]
+  startTime: string
+  repetitions: number
+  program: keyof typeof programs
+  intendedFor: keyof typeof audiences
+  newcomerText1: string
+  newcomerText2: string
+  newcomerText3: string
+  administrativeUnit: string
+  location: [number, number]
+  locationInfo: string
+  targetMembers: boolean
+  advertiseInRoverskyKmen: boolean
+  advertiseInBrontoWeb: boolean
+  registrationMethod: keyof typeof registrationMethods
+  registrationMethodFormUrl: string
+  registrationMethodEmail: string
+  additionalQuestion1: string
+  additionalQuestion2: string
+  additionalQuestion3: string
+  additionalQuestion4: string
+  additionalQuestion5: string
+  additionalQuestion6: string
+  additionalQuestion7: string
+  additionalQuestion8: string
+  participationFee: string
+  age: [number, number]
+  accommodation: string
+  diet: keyof typeof diets
+  workingHours: number
+  workingDays: number
+  contactPersonName: string
+  contactPersonEmail: string
+  contactPersonTelephone: string
+  webUrl: string
+  note: string
+  responsiblePerson: string
+  team: [string]
+  invitationText1: string
+  invitationText2: string
+  invitationText3: string
+  invitationText4: string
+  mainPhoto: string
+  additionalPhotos: string[]
+}
+
+type AdditionalQuestionType =
+  | 'additionalQuestion1'
+  | 'additionalQuestion2'
+  | 'additionalQuestion3'
+  | 'additionalQuestion4'
+  | 'additionalQuestion5'
+  | 'additionalQuestion6'
+  | 'additionalQuestion7'
+  | 'additionalQuestion8'
+
+const additionalQuestions: {
+  [name in AdditionalQuestionType]: FormItemConfig<CreateEventForm>
+} = Object.fromEntries(
+  [1, 2, 3, 4, 5, 6, 7, 8].map(i => [
+    `additionalQuestion${i}` as AdditionalQuestionType,
+    {
+      label: `Otázka ${i}`,
+      required: true,
+      display: form => form.registrationMethod === 'standard',
+      element: <Input />,
+    },
+  ]),
+) as {
+  [name in AdditionalQuestionType]: FormItemConfig<CreateEventForm>
+}
+
+const formItems: {
+  [name in
+    | keyof CreateEventForm
+    | 'newcomerInfo']: FormItemConfig<CreateEventForm>
+} = {
+  basicPurpose: {
     element: (
       <Radio.Group>
         <Space direction="vertical">
-          {basicPurposeOptions.map(({ name, value }) => (
+          {Object.entries(basicPurposes).map(([value, name]) => (
             <Radio.Button value={value} key={value}>
               {name}
             </Radio.Button>
@@ -122,12 +193,12 @@ const formItems: { [name: string]: FormItemConfig } = {
     required: true,
     element: <Input />,
   },
-  date_from_to: {
+  dateFromTo: {
     label: 'Od - Do',
     required: true,
     element: <DatePicker.RangePicker />,
   },
-  start_date: {
+  startTime: {
     label: 'Začátek akce',
     required: true,
     element: <TimePicker format="HH:mm" />,
@@ -139,14 +210,14 @@ const formItems: { [name: string]: FormItemConfig } = {
     help: 'Používá se u opakovaných akcí (typicky oddílové schůzky). U klasické jednorázové akce zde nechte jedničku.',
     element: <InputNumber />,
   },
-  event_type: {
+  eventType: {
     label: 'Typ akce',
     required: true,
     element: (
       <Select>
-        {eventTypes.map(type => (
-          <Option key={type} value={type}>
-            {type}
+        {Object.entries(eventTypes).map(([value, label]) => (
+          <Option key={value} value={value}>
+            {label}
           </Option>
         ))}
       </Select>
@@ -157,7 +228,7 @@ const formItems: { [name: string]: FormItemConfig } = {
     required: true,
     element: (
       <Select>
-        {programs.map(({ name, value }) => (
+        {Object.entries(programs).map(([value, name]) => (
           <Option key={value} value={value}>
             {name}
           </Option>
@@ -165,12 +236,12 @@ const formItems: { [name: string]: FormItemConfig } = {
       </Select>
     ),
   },
-  intended_for: {
+  intendedFor: {
     label: 'Pro koho',
     required: true,
     element: (
       <Select>
-        {audiences.map(({ name, value }) => (
+        {Object.entries(audiences).map(([value, name]) => (
           <Option key={value} value={value}>
             {name}
           </Option>
@@ -178,7 +249,70 @@ const formItems: { [name: string]: FormItemConfig } = {
       </Select>
     ),
   },
-  administrative_unit: {
+  // the exluded stuff doesn't become a part of the form
+  newcomerInfo: {
+    excluded: true,
+    display: form => form.intendedFor === 'newcomers',
+    element: (
+      <small>
+        <p className="mb-4">
+          Hnutí Brontosaurus pravidelně vytváří nabídku výběrových
+          dobrovolnických akcí, kterými oslovujeme nové účastníky, zejména
+          středoškolskou mládež a začínající vysokoškoláky (15 - 26 let). Cílem
+          akce je oslovit tyto prvoúčastníky a mít jich nejlépe polovinu, (min.
+          třetinu) z celkového počtu účastníků.
+        </p>
+        <p className="mb-4">Zadáním akce pro prvoúčastníky získáte:</p>
+        <p className="mb-4">
+          <ul className="list-disc ml-6">
+            <li>
+              Širší propagaci skrze letáky, osobní kontakty apod. Zveřejnění na
+              letáku VIP propagace.
+            </li>
+            <li>
+              Propagaci na programech pro střední školy - lektoři budou osobně
+              na akce zvát.
+            </li>
+            <li>
+              Zveřejnění na Facebooku a Instagramu HB a reklamu na Facebooku
+            </li>
+            <li>Reklamu v Google vyhledávání</li>
+            <li>Služby grafika HB (dle dohodnutého rozsahu)</li>
+            <li>Přidání do webových katalogů akcí </li>
+            <li>Slevu na inzerci v Roverském kmenu (pro tábory)</li>
+            <li>Zpětnou vazbu k webu a Facebooku akce</li>
+            <li>Metodickou pomoc a pomoc s agendou akce</li>
+            <li>Propagace na novém webu HB v sekci Jedu poprvé</li>
+          </ul>
+        </p>
+      </small>
+    ),
+  },
+  newcomerText1: {
+    label: 'Cíle akce a přínos pro prvoúčastníky',
+    help: 'Jaké je hlavní téma vaší akce? Jaké jsou hlavní cíle akce? Co nejvýstižněji popište, co akce přináší účastníkům, co zajímavého si zkusí, co se dozví, naučí, v čem se rozvinou…',
+    display: form => form.intendedFor === 'newcomers',
+    element: <Input.TextArea />,
+  },
+  newcomerText2: {
+    label: 'Programové pojetí akce pro prvoúčastníky',
+    help: 'V základu uveďte, jak bude vaše akce programově a dramaturgicky koncipována (motivační příběh, zaměření programu – hry, diskuse, řemesla,...). Uveďte, jak náplň a program akce reflektují potřeby vaší cílové skupiny prvoúčastníků.',
+    display: form => form.intendedFor === 'newcomers',
+    element: <Input.TextArea />,
+  },
+  newcomerText3: {
+    label: 'Krátký zvací text do propagace',
+    help: 'Ve 2-4 větách nalákejte na vaši akci a zdůrazněte osobní přínos pro účastníky (max. 200 znaků)',
+    display: form => form.intendedFor === 'newcomers',
+    element: <Input.TextArea />,
+    rules: [
+      {
+        max: 200,
+        message: 'max 200 znaků',
+      },
+    ],
+  },
+  administrativeUnit: {
     label: 'Pořádající ZČ/Klub/RC/ústředí',
     required: true,
     element: (
@@ -190,29 +324,116 @@ const formItems: { [name: string]: FormItemConfig } = {
       </Select>
     ),
   },
-  participation_fee: {
+  location: {
+    required: form => form.basicPurpose === 'camp',
+    element: <Location />,
+  },
+  locationInfo: {
+    label: 'Místo konání akce',
+    help: 'název/popis místa, kde se akce koná',
+    required: true,
+    element: <Input.TextArea />,
+  },
+  targetMembers: {
+    label: 'Na koho je akce zaměřená',
+    required: true,
+    element: (
+      <Radio.Group
+        options={[
+          { label: 'Na členy', value: true },
+          { label: 'Na nečleny', value: false },
+        ]}
+        optionType="button"
+      />
+    ),
+  },
+  advertiseInRoverskyKmen: {
+    label: 'Propagovat akci v Roverském kmeni',
+    display: form => form.basicPurpose === 'camp',
+    required: true,
+    element: (
+      <Radio.Group
+        options={[
+          { label: 'Ano', value: true },
+          { label: 'Ne', value: false },
+        ]}
+        optionType="button"
+      />
+    ),
+  },
+  advertiseInBrontoWeb: {
+    label: 'Zveřejnit na brontosauřím webu',
+    required: true,
+    element: (
+      <Radio.Group
+        options={[
+          { label: 'Ano', value: true },
+          { label: 'Ne', value: false },
+        ]}
+        optionType="button"
+      />
+    ),
+  },
+  registrationMethod: {
+    label: 'Způsob přihlášení',
+    required: true,
+    element: (
+      <Select>
+        {Object.entries(registrationMethods).map(([value, label]) => (
+          <Option key={value} value={value}>
+            {label}
+          </Option>
+        ))}
+      </Select>
+    ),
+  },
+  registrationMethodFormUrl: {
+    label: 'Odkaz na elektronickou přihlášku',
+    required: true,
+    display: form => form.registrationMethod === 'other_electronic',
+    element: <Input />,
+  },
+  registrationMethodEmail: {
+    label: 'Přihlašovací email',
+    required: true,
+    display: form => form.registrationMethod === 'by_email',
+    element: <Input type="email" />,
+  },
+  ...additionalQuestions,
+  participationFee: {
     label: 'Účastnický poplatek (CZK)',
     required: true,
-    element: <InputNumber />,
+    element: <Input />,
   },
   age: {
     label: 'Věk',
     required: true,
     element: (
-      <Slider range defaultValue={[0, 100]} marks={{ 0: 0, 100: 100 }} />
+      <Slider
+        tooltipVisible
+        range
+        defaultValue={[0, 100]}
+        marks={{ 0: 0, 100: 100 }}
+      />
     ),
   },
   accommodation: {
     label: 'Ubytování',
     required: true,
+    display: form =>
+      form.basicPurpose === 'camp' ||
+      form.basicPurpose === 'action-with-attendee-list',
     element: <Input />,
   },
   diet: {
     label: 'Strava',
     required: true,
+    display: form =>
+      form.basicPurpose === 'camp' ||
+      form.basicPurpose === 'action-with-attendee-list',
     element: (
       <Select mode="multiple">
-        {diets.map(({ name, value }) => (
+        {Object.entries(diets).map(([value, name]) => (
           <Option key={value} value={value}>
             {name}
           </Option>
@@ -220,29 +441,31 @@ const formItems: { [name: string]: FormItemConfig } = {
       </Select>
     ),
   },
-  working_hours: {
+  workingHours: {
     label: 'Pracovní doba',
+    display: form => form.basicPurpose === 'camp',
     element: <InputNumber />,
   },
-  working_days: {
+  workingDays: {
     label: 'Počet pracovních dní na akci',
+    display: form => form.basicPurpose === 'camp',
     element: <InputNumber />,
   },
-  contact_person_name: {
+  contactPersonName: {
     label: 'Jméno kontaktní osoby',
     required: true,
     element: <Input />,
   },
-  contact_person_email: {
+  contactPersonEmail: {
     label: 'Kontaktní email',
     required: true,
     element: <Input />,
   },
-  contact_person_telephone: {
+  contactPersonTelephone: {
     label: 'Kontaktní telefon',
     element: <Input />,
   },
-  web_url: {
+  webUrl: {
     label: 'Web o akci',
     help: 'Web akce (v případě že nějaký existuje)',
     element: <Input />,
@@ -252,42 +475,54 @@ const formItems: { [name: string]: FormItemConfig } = {
     help: 'vidí jenom lidé s přístupem do BISu, kteří si akci prohlížejí přímo v systému',
     element: <Input.TextArea />,
   },
+  responsiblePerson: {
+    label: 'Hlavní organizátor/ka',
+    required: true,
+    element: (
+      <Select>
+        <Option value="id">Dana &bdquo;Darko&ldquo; Horáková</Option>
+        <Option disabled value="id2">
+          Johann &bdquo;Bach&ldquo; Basovník <i>nedostatečná kvalifikace</i>
+        </Option>
+      </Select>
+    ),
+  },
   team: {
     label: 'Organizační tým',
     element: (
       <Select mode="multiple">
-        <Option value="a">Fine</Option>
+        <Option value="a">Jana Nováková</Option>
       </Select>
     ),
   },
-  invitation_text_1: {
+  invitationText1: {
     label: 'Zvací text: Co nás čeká',
     required: true,
     element: <Input.TextArea />,
   },
-  invitation_text_2: {
+  invitationText2: {
     label: 'Zvací text: Co, kde a jak',
     required: true,
     element: <Input.TextArea />,
   },
-  invitation_text_3: {
+  invitationText3: {
     label: 'Zvací text: dobrovolnická pomoc',
-    required: true,
+    required: form => form.eventType === 'dobrovolnicka',
     element: <Input.TextArea />,
   },
-  invitation_text_4: {
+  invitationText4: {
     label: 'Zvací text: Malá ochutnávka',
     required: true,
     element: <Input.TextArea />,
   },
-  main_photo: {
+  mainPhoto: {
     label: 'Hlavní fotka',
     help: 'Foto se zobrazí v rámečku akce, jako hlavní fotka',
     required: true,
     element: <Upload listType="picture-card">+</Upload>,
     // @TODO or allow adding url to a picture
   },
-  additional_photos: {
+  additionalPhotos: {
     label: 'Fotky k malé ochutnávce',
     help: 'Zobrazí se pod textem „Zvací text: Malá ochutnávka“',
     element: <Upload listType="picture-card">+</Upload>,
@@ -295,65 +530,142 @@ const formItems: { [name: string]: FormItemConfig } = {
   },
 }
 
-const stepConfig: { title: string; items: string[] }[] = [
-  { title: 'Druh', items: ['basic_purpose'] },
-  {
-    title: 'Info',
-    items: ['name', 'date_from_to', 'start_date', 'repetitions'],
-  },
-  { title: 'Tým', items: ['team'] },
+const stepConfig: {
+  title: string
+  items: (keyof CreateEventForm | 'newcomerInfo')[]
+}[] = [
+  { title: 'Druh', items: ['basicPurpose'] },
   {
     title: 'Typ',
-    items: ['event_type', 'program', 'intended_for', 'administrative_unit'],
+    items: [
+      'eventType',
+      'program',
+      'administrativeUnit',
+      'intendedFor',
+      'newcomerInfo',
+      'newcomerText1',
+      'newcomerText2',
+      'newcomerText3',
+    ],
+  },
+  {
+    title: 'Info',
+    items: ['name', 'dateFromTo', 'startTime', 'repetitions'],
+  },
+  { title: 'Místo', items: ['location', 'locationInfo'] },
+
+  { title: 'Tým', items: ['responsiblePerson', 'team'] },
+  {
+    title: 'Registrace',
+    items: [
+      'registrationMethod',
+      'registrationMethodEmail',
+      'registrationMethodFormUrl',
+      'additionalQuestion1',
+      'additionalQuestion2',
+      'additionalQuestion3',
+      'additionalQuestion4',
+      'additionalQuestion5',
+      'additionalQuestion6',
+      'additionalQuestion7',
+      'additionalQuestion8',
+    ],
   },
   {
     title: 'Podrobnosti',
     items: [
-      'participation_fee',
+      'targetMembers',
+      'advertiseInRoverskyKmen',
+      'advertiseInBrontoWeb',
+      'participationFee',
       'age',
+      'accommodation',
       'diet',
-      'working_hours',
-      'working_days',
+      'workingHours',
+      'workingDays',
     ],
   },
   {
     title: 'Kontakt',
     items: [
-      'contact_person_name',
-      'contact_person_email',
-      'contact_person_telephone',
-      'web_url',
+      'contactPersonName',
+      'contactPersonEmail',
+      'contactPersonTelephone',
+      'webUrl',
       'note',
     ],
   },
   {
     title: 'Pozvánka',
     items: [
-      'invitation_text_1',
-      'invitation_text_2',
-      'invitation_text_3',
-      'invitation_text_4',
-      'main_photo',
-      'additional_photos',
+      'invitationText1',
+      'invitationText2',
+      'invitationText3',
+      'invitationText4',
+      'mainPhoto',
+      'additionalPhotos',
     ],
   },
 ]
+
+const findUnusedFields = () => {
+  const defined = Object.keys(formItems) as (keyof typeof formItems)[]
+  const used = stepConfig.map(({ items }) => items).flat()
+  const unused = defined.filter(a => !used.includes(a))
+  return unused
+}
+
+console.log(findUnusedFields())
+
 const CreateEvent = () => {
   const [step, setStep] = useState(0)
-  const [form] = Form.useForm()
+  const [form] = Form.useForm<CreateEventForm>()
 
   const steps = stepConfig.map(({ items }) =>
     items.map(name => {
       const item = formItems[name]
+      const shouldUpdate =
+        typeof item.display === 'function' ||
+        typeof item.required === 'function'
+      const required = item.required
+        ? [
+            {
+              required: true,
+              message: 'Povinné pole',
+            },
+          ]
+        : []
+      // @TODO Format the wrapper Form.Item in a way that it doesn't have margin bottom and min-height (so it is invisible when not displayed)
+
+      type FormType = typeof form
+
+      const getFormItem = (form: FormType) =>
+        item.excluded ? (
+          item.element
+        ) : (
+          <Form.Item
+            name={name}
+            label={item?.label}
+            tooltip={item?.help}
+            required={
+              typeof item.required === 'function'
+                ? item.required(form.getFieldsValue())
+                : item?.required ?? false
+            }
+            rules={[...required, ...(item?.rules ?? [])]}
+          >
+            {item.element}
+          </Form.Item>
+        )
+
       return (
-        <Form.Item
-          key={name}
-          name={name}
-          label={item?.label}
-          tooltip={item?.help}
-          required={item?.required ?? false}
-        >
-          {item.element}
+        <Form.Item key={name} shouldUpdate={shouldUpdate} className="mb-0">
+          {shouldUpdate
+            ? () =>
+                (typeof item.display === 'function'
+                  ? item.display(form.getFieldsValue())
+                  : item?.display ?? true) && getFormItem(form)
+            : getFormItem(form)}
         </Form.Item>
       )
     }),
@@ -366,6 +678,7 @@ const CreateEvent = () => {
         layout="vertical"
         onFieldsChange={a => console.log(a)}
         onValuesChange={b => console.log(b)}
+        onFinish={form => console.log(form)}
       >
         <Steps size="small" current={step} className="mb-8">
           {stepConfig.map(({ title }, index) => (
@@ -396,7 +709,11 @@ const CreateEvent = () => {
               Dál
             </Button>
           )}
-          {step === steps.length - 1 && <Button type="primary">Hotovo</Button>}
+          {step === steps.length - 1 && (
+            <Button type="primary" htmlType="submit">
+              Hotovo
+            </Button>
+          )}
         </div>
       </Form>
     </>
