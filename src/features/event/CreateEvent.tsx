@@ -9,7 +9,7 @@ import {
   TimePicker,
   Upload,
 } from 'antd'
-import Location from './Location'
+import EditLocation from './EditLocation'
 import StepForm, { FormConfig, FormItemConfig, StepConfig } from './StepForm'
 
 const { Option } = Select
@@ -306,8 +306,9 @@ const formItems: FormConfig<CreateEventForm, 'newcomerInfo'> = {
     ),
   },
   location: {
+    label: 'Vybrat místo akce na mapě',
     required: form => form.basicPurpose === 'camp',
-    element: <Location />,
+    element: <EditLocation className="h-56 w-56" />,
   },
   locationInfo: {
     label: 'Místo konání akce',
