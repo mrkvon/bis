@@ -1,3 +1,8 @@
+export interface Entity<Type extends { id: string | number }> {
+  byId: Record<Type['id'], Type>
+  allIds: Type['id'][]
+}
+
 type Location = {
   name: string
   place: string

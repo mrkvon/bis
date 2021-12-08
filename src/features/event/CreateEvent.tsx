@@ -10,6 +10,7 @@ import {
   Upload,
 } from 'antd'
 import EditLocation from './EditLocation'
+import SelectPerson from './SelectPerson'
 import StepForm, { FormConfig, FormItemConfig, StepConfig } from './StepForm'
 
 const { Option } = Select
@@ -455,22 +456,11 @@ const formItems: FormConfig<CreateEventForm, 'newcomerInfo'> = {
   responsiblePerson: {
     label: 'Hlavní organizátor/ka',
     required: true,
-    element: (
-      <Select>
-        <Option value="id">Dana &bdquo;Darko&ldquo; Horáková</Option>
-        <Option disabled value="id2">
-          Johann &bdquo;Bach&ldquo; Basovník <i>nedostatečná kvalifikace</i>
-        </Option>
-      </Select>
-    ),
+    element: <SelectPerson />,
   },
   team: {
     label: 'Organizační tým',
-    element: (
-      <Select mode="multiple">
-        <Option value="a">Jana Nováková</Option>
-      </Select>
-    ),
+    element: <SelectPerson multiple />,
   },
   invitationText1: {
     label: 'Zvací text: Co nás čeká',
