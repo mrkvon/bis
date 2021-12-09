@@ -1,10 +1,17 @@
 import { Input, InputNumber, Upload } from 'antd'
-import { useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { CreateEventForm } from './CreateEvent'
-import { selectEvent, updateEvent } from './eventSlice'
+import {
+  readEvent,
+  selectEvent,
+  selectStatus,
+  setStatus,
+  updateEvent,
+} from './eventSlice'
 import StepForm, { FormConfig, StepConfig } from './StepForm'
-import { AfterEventProps } from './types'
+import { AfterEventProps, EventProps } from './types'
 
 const formItems: FormConfig<AfterEventProps, never> = {
   photos: {
@@ -32,7 +39,7 @@ const formItems: FormConfig<AfterEventProps, never> = {
     label: 'Odpracováno člověkohodin',
     element: <InputNumber />,
     required: (form, initialData) =>
-      (initialData as CreateEventForm).eventType === 'dobrovolnicka',
+      (initialData as EventProps).eventType === 'dobrovolnicka',
   },
   workDoneNote: {
     label: 'Komentáře k vykonané práci',
@@ -90,20 +97,36 @@ const stepConfig: StepConfig<AfterEventProps, never>[] = [
 
 const CloseEvent = () => {
   const dispatch = useAppDispatch()
-  const { eventId } = useParams()
-  const eventData = useAppSelector(state => selectEvent(state, Number(eventId)))
+  const eventId = Number(useParams().eventId)
+  const eventData = useAppSelector(state => selectEvent(state, eventId))
+  const status = useAppSelector(selectStatus)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    dispatch(readEvent(eventId))
+  }, [eventId, dispatch])
+
+  useEffect(() => {
+    if (status === 'finished') {
+      dispatch(setStatus('input'))
+      navigate('/events')
+    }
+  }, [status, eventId, dispatch, navigate])
 
   if (!eventData) return <div>Event Not Found</div>
 
   return (
-    <StepForm
-      steps={stepConfig}
-      formItems={formItems}
-      initialData={eventData}
-      onFinish={(values: AfterEventProps) =>
-        dispatch(updateEvent({ id: Number(eventId), ...values }))
-      }
-    />
+    <>
+      <h2 className="mb-8 text-xl font-bold">Uzavřít akci {eventData.name}</h2>
+      <StepForm
+        steps={stepConfig}
+        formItems={formItems}
+        initialData={eventData}
+        onFinish={(values: AfterEventProps) =>
+          dispatch(updateEvent({ id: eventId, ...values }))
+        }
+      />
+    </>
   )
 }
 

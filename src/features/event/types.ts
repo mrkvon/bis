@@ -91,7 +91,7 @@ export type BeforeEventProps = {
   participationFee: string
   age: [number, number]
   accommodation: string
-  diet: keyof typeof diets
+  diet: (keyof typeof diets)[]
   workingHours: number
   workingDays: number
   contactPersonName: string
@@ -100,7 +100,7 @@ export type BeforeEventProps = {
   webUrl: string
   note: string
   responsiblePerson: string
-  team: [string]
+  team: string[]
   invitationText1: string
   invitationText2: string
   invitationText3: string
