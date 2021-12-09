@@ -1,10 +1,11 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice, createSelector } from '@reduxjs/toolkit'
+import { RootState } from '../../app/store'
 import { Entity } from '../../types'
 import * as api from './eventAPI'
-import { Event } from './types'
+import { BeforeEventProps, EventProps } from './types'
 
 export interface EventState {
-  entities: Entity<Event>
+  entities: Entity<EventProps>
 }
 
 const initialState: EventState = {
@@ -13,8 +14,15 @@ const initialState: EventState = {
 
 export const createEvent = createAsyncThunk(
   'event/create',
-  async (event: Event) => {
+  async (event: BeforeEventProps) => {
     return await api.createEvent(event)
+  },
+)
+
+export const updateEvent = createAsyncThunk(
+  'event/update',
+  async ({ id, ...values }: Partial<EventProps> & Pick<EventProps, 'id'>) => {
+    return await api.updateEvent(id, values)
   },
 )
 
@@ -42,7 +50,20 @@ export const eventSlice = createSlice({
         state.entities.byId = Object.fromEntries(
           events.map(event => [event.id, event]),
         )
+      })
+      .addCase(updateEvent.fulfilled, (state, action) => {
+        const updatedEvent = action.payload
+        Object.assign(state.entities.byId[updatedEvent.id], updatedEvent)
       }),
 })
+
+const selectNumberParam = (_: RootState, param: number) => param
+const selectEventDict = (state: RootState) => state.event.entities.byId
+
+export const selectEvent = createSelector(
+  selectNumberParam,
+  selectEventDict,
+  (param, eventDict) => eventDict[param],
+)
 
 export default eventSlice.reducer

@@ -1,21 +1,12 @@
 import { Input, InputNumber, Upload } from 'antd'
+import { useParams } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { CreateEventForm } from './CreateEvent'
+import { selectEvent, updateEvent } from './eventSlice'
 import StepForm, { FormConfig, StepConfig } from './StepForm'
+import { AfterEventProps } from './types'
 
-interface CloseEventForm {
-  photos: string[]
-  feedbackLink: string
-  participantListScan: string
-  documentsScan: string[]
-  bankAccount: string
-  workDoneHours: number
-  workDoneNote: string
-  participantNumberTotal: number
-  participantNumberBelow26: number
-  participantList: string[]
-}
-
-const formItems: FormConfig<CloseEventForm, never> = {
+const formItems: FormConfig<AfterEventProps, never> = {
   photos: {
     label: 'Fotky z akce',
     element: <Upload listType="picture-card">+</Upload>,
@@ -72,7 +63,7 @@ const formItems: FormConfig<CloseEventForm, never> = {
   },
 }
 
-const stepConfig: StepConfig<CloseEventForm, never>[] = [
+const stepConfig: StepConfig<AfterEventProps, never>[] = [
   {
     title: 'Účastníci',
     items: [
@@ -97,12 +88,23 @@ const stepConfig: StepConfig<CloseEventForm, never>[] = [
   },
 ]
 
-const CloseEvent = () => (
-  <StepForm
-    steps={stepConfig}
-    formItems={formItems}
-    initialData={{ eventType: 'dobrovolnicka', basicPurpose: 'action' }}
-  />
-)
+const CloseEvent = () => {
+  const dispatch = useAppDispatch()
+  const { eventId } = useParams()
+  const eventData = useAppSelector(state => selectEvent(state, Number(eventId)))
+
+  if (!eventData) return <div>Event Not Found</div>
+
+  return (
+    <StepForm
+      steps={stepConfig}
+      formItems={formItems}
+      initialData={eventData}
+      onFinish={(values: AfterEventProps) =>
+        dispatch(updateEvent({ id: Number(eventId), ...values }))
+      }
+    />
+  )
+}
 
 export default CloseEvent

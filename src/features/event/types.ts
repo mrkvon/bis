@@ -4,9 +4,6 @@ export const basicPurposes = {
   camp: 'Vícedenní akce (tábory)',
 }
 
-/*
-change to name: name, value: slug
-*/
 export const eventTypes = {
   dobrovolnicka: 'Dobrovolnická',
   zazitkova: 'Zážitková',
@@ -62,8 +59,7 @@ export const registrationMethods = {
   full: 'Máme bohužel plno, zkuste jinou z našich akcí',
 }
 
-export type Event = {
-  id: number
+export type BeforeEventProps = {
   basicPurpose: keyof typeof basicPurposes
   eventType: keyof typeof eventTypes
   name: string
@@ -112,3 +108,18 @@ export type Event = {
   mainPhoto: string
   additionalPhotos: string[]
 }
+
+export type AfterEventProps = {
+  photos: string[]
+  feedbackLink: string
+  participantListScan: string
+  documentsScan: string[]
+  bankAccount: string
+  workDoneHours: number
+  workDoneNote: string
+  participantNumberTotal: number
+  participantNumberBelow26: number
+  participantList: string[]
+}
+
+export type EventProps = BeforeEventProps & AfterEventProps & { id: number }

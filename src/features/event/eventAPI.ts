@@ -1,12 +1,28 @@
 import { wait } from '../../helpers'
-import { Event } from './types'
+import { BeforeEventProps, EventProps } from './types'
 
-export const createEvent = async (event: Event): Promise<Event> => {
+export const createEvent = async (
+  event: BeforeEventProps,
+): Promise<EventProps> => {
   await wait(500)
-  return event
+  return {
+    ...(event as EventProps) /* TODO this is just a lazy fix. Should return full event data (or figure out a better way) */,
+    id: Math.random(),
+  }
 }
 
-export const readLoggedUserEvents = async (): Promise<Event[]> => {
+export const updateEvent = async (
+  id: EventProps['id'],
+  values: Partial<EventProps>,
+) => {
+  await wait(500)
+  return {
+    id,
+    ...values,
+  }
+}
+
+export const readLoggedUserEvents = async (): Promise<EventProps[]> => {
   await wait(500)
   return []
 }

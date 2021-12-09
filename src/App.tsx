@@ -28,7 +28,7 @@ function App() {
             <Routes>
               <Route path="/" element={<GuidePost />} />
               <Route path="/create" element={<CreateEvent />} />
-              <Route path="/events/:id/close" element={<CloseEvent />} />
+              <Route path="/events/:eventId/close" element={<CloseEvent />} />
               <Route path="/events" element={<EventList />} />
             </Routes>
           ) : (

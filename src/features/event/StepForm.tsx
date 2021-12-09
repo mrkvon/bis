@@ -103,9 +103,9 @@ const StepForm = function <FormType, AdditionalFields extends string>({
         : []
       // @TODO Format the wrapper Form.Item in a way that it doesn't have margin bottom and min-height (so it is invisible when not displayed)
 
-      type FormType = typeof form
+      type FormInstanceType = typeof form
 
-      const getFormItem = (form: FormType) =>
+      const getFormItem = (form: FormInstanceType) =>
         item.excluded ? (
           item.element
         ) : (

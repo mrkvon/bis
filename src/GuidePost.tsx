@@ -16,7 +16,7 @@ const GuidePost = () => (
           Upravit akci
         </Button>
       </Link>
-      <Link to="/events/id/close">
+      <Link to="/events?close">
         <Button className="h-32 w-32 bg-indigo-200">Po akci</Button>
       </Link>
       <Link to="">
