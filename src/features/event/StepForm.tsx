@@ -91,7 +91,7 @@ const StepForm = function <FormType, AdditionalFields extends string>({
       const shouldUpdate =
         typeof item.display === 'function' ||
         typeof item.required === 'function'
-      const required = item.required
+      const requiredRule = isRequired(item.required, form, initialData)
         ? [
             {
               required: true,
@@ -112,7 +112,7 @@ const StepForm = function <FormType, AdditionalFields extends string>({
             label={item?.label}
             tooltip={item?.help}
             required={isRequired(item.required, form, initialData)}
-            rules={[...required, ...(item?.rules ?? [])]}
+            rules={[...requiredRule, ...(item?.rules ?? [])]}
           >
             {item.element}
           </Form.Item>
