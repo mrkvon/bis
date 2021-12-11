@@ -9,71 +9,43 @@ import {
   TimePicker,
   Upload,
 } from 'antd'
-import { useAppDispatch } from '../../app/hooks'
+import moment from 'moment'
+import { FC, useEffect } from 'react'
+import { useParams } from 'react-router'
+import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import EditLocation from './EditLocation'
-import { createEvent } from './eventSlice'
+import { createEvent, readEvent, selectEvent } from './eventSlice'
 import SelectPerson from './SelectPerson'
 import StepForm, { FormConfig, FormItemConfig, StepConfig } from './StepForm'
 import {
+  audiences,
   basicPurposes,
+  BeforeEventProps,
+  diets,
   eventTypes,
   programs,
-  audiences,
   registrationMethods,
-  diets,
 } from './types'
 
-const { Option } = Select
-
-export interface CreateEventForm {
-  basicPurpose: keyof typeof basicPurposes
-  eventType: keyof typeof eventTypes
-  name: string
-  dateFromTo: [string, string]
-  startTime: string
-  repetitions: number
-  program: keyof typeof programs
-  intendedFor: keyof typeof audiences
-  newcomerText1: string
-  newcomerText2: string
-  newcomerText3: string
-  administrativeUnit: string
-  location: [number, number]
-  locationInfo: string
-  targetMembers: boolean
-  advertiseInRoverskyKmen: boolean
-  advertiseInBrontoWeb: boolean
-  registrationMethod: keyof typeof registrationMethods
-  registrationMethodFormUrl: string
-  registrationMethodEmail: string
-  additionalQuestion1: string
-  additionalQuestion2: string
-  additionalQuestion3: string
-  additionalQuestion4: string
-  additionalQuestion5: string
-  additionalQuestion6: string
-  additionalQuestion7: string
-  additionalQuestion8: string
-  participationFee: string
-  age: [number, number]
-  accommodation: string
-  diet: keyof typeof diets
-  workingHours: number
-  workingDays: number
-  contactPersonName: string
-  contactPersonEmail: string
-  contactPersonTelephone: string
-  webUrl: string
-  note: string
-  responsiblePerson: string
-  team: [string]
-  invitationText1: string
-  invitationText2: string
-  invitationText3: string
-  invitationText4: string
-  mainPhoto: string
-  additionalPhotos: string[]
+const DateRangeStringPicker: FC<{
+  value?: [string, string] | null
+  onChange?: (range: [string, string] | null) => void
+}> = ({ value = null, onChange = () => null }) => {
+  return (
+    <DatePicker.RangePicker
+      value={value ? [moment(value[0]), moment(value[1])] : null}
+      onChange={range =>
+        onChange(
+          range && range[0] && range[1]
+            ? [range[0].format('YYYY-MM-DD'), range[1].format('YYYY-MM-DD')]
+            : null,
+        )
+      }
+    />
+  )
 }
+
+const { Option } = Select
 
 type AdditionalQuestionType =
   | 'additionalQuestion1'
@@ -86,7 +58,7 @@ type AdditionalQuestionType =
   | 'additionalQuestion8'
 
 const additionalQuestions: {
-  [name in AdditionalQuestionType]: FormItemConfig<CreateEventForm>
+  [name in AdditionalQuestionType]: FormItemConfig<BeforeEventProps>
 } = Object.fromEntries(
   [1, 2, 3, 4, 5, 6, 7, 8].map(i => [
     `additionalQuestion${i}` as AdditionalQuestionType,
@@ -98,10 +70,10 @@ const additionalQuestions: {
     },
   ]),
 ) as {
-  [name in AdditionalQuestionType]: FormItemConfig<CreateEventForm>
+  [name in AdditionalQuestionType]: FormItemConfig<BeforeEventProps>
 }
 
-const formItems: FormConfig<CreateEventForm, 'newcomerInfo'> = {
+const formItems: FormConfig<BeforeEventProps, 'newcomerInfo'> = {
   basicPurpose: {
     required: true,
     element: (
@@ -124,7 +96,7 @@ const formItems: FormConfig<CreateEventForm, 'newcomerInfo'> = {
   dateFromTo: {
     label: 'Od - Do',
     required: true,
-    element: <DatePicker.RangePicker />,
+    element: <DateRangeStringPicker />,
   },
   startTime: {
     label: 'Začátek akce',
@@ -443,7 +415,7 @@ const formItems: FormConfig<CreateEventForm, 'newcomerInfo'> = {
   },
 }
 
-const stepConfig: StepConfig<CreateEventForm, 'newcomerInfo'>[] = [
+const stepConfig: StepConfig<BeforeEventProps, 'newcomerInfo'>[] = [
   { title: 'Druh', items: ['basicPurpose'] },
   {
     title: 'Typ',
@@ -529,11 +501,23 @@ console.log(findUnusedFields())
 
 const CreateEvent = () => {
   const dispatch = useAppDispatch()
+  const eventId = Number(useParams()?.eventId ?? -1)
+
+  const event = useAppSelector(state => selectEvent(state, eventId))
+  const status = useAppSelector(state => state.event.loadingStatus)
+
+  useEffect(() => {
+    if (eventId >= 0) dispatch(readEvent(eventId))
+  }, [eventId, dispatch])
+
+  if (status === 'loading') return <div>Loading</div>
+
   return (
     <StepForm
       steps={stepConfig}
       formItems={formItems}
       onFinish={values => dispatch(createEvent(values))}
+      initialFormData={eventId > -1 ? event : undefined}
     />
   )
 }

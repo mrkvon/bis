@@ -2,7 +2,6 @@ import { Input, InputNumber, Upload } from 'antd'
 import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { CreateEventForm } from './CreateEvent'
 import {
   readEvent,
   selectEvent,
@@ -11,7 +10,7 @@ import {
   updateEvent,
 } from './eventSlice'
 import StepForm, { FormConfig, StepConfig } from './StepForm'
-import { AfterEventProps, EventProps } from './types'
+import { AfterEventProps, BeforeEventProps, EventProps } from './types'
 
 const formItems: FormConfig<AfterEventProps, never> = {
   photos: {
@@ -58,14 +57,14 @@ const formItems: FormConfig<AfterEventProps, never> = {
     label: 'Počet účastníků celkem',
     required: true,
     display: (form, initialData) =>
-      (initialData as CreateEventForm).basicPurpose === 'action',
+      (initialData as BeforeEventProps).basicPurpose === 'action',
     element: <InputNumber />,
   },
   participantNumberBelow26: {
     label: 'Z toho počet účastníků do 26 let',
     required: true,
     display: (form, initialData) =>
-      (initialData as CreateEventForm).basicPurpose === 'action',
+      (initialData as BeforeEventProps).basicPurpose === 'action',
     element: <InputNumber />,
   },
 }

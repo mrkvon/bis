@@ -12,11 +12,13 @@ import { BeforeEventProps, EventProps } from './types'
 export interface EventState {
   entities: Entity<EventProps>
   status: 'input' | 'saving' | 'finished'
+  loadingStatus: 'loading' | 'ready'
 }
 
 const initialState: EventState = {
   entities: { byId: {}, allIds: [] },
   status: 'input',
+  loadingStatus: 'ready',
 }
 
 export const createEvent = createAsyncThunk(
@@ -75,8 +77,12 @@ export const eventSlice = createSlice({
         Object.assign(state.entities.byId[updatedEvent.id], updatedEvent)
         state.status = 'finished'
       })
+      .addCase(readEvent.pending, state => {
+        state.loadingStatus = 'loading'
+      })
       .addCase(readEvent.fulfilled, (state, action) => {
         const event = action.payload
+        state.loadingStatus = 'ready'
         state.entities.byId[event.id] = event
         if (!state.entities.allIds.includes(event.id))
           state.entities.allIds.push(event.id)

@@ -1,6 +1,6 @@
 import { Button, Form, FormInstance, FormProps, Steps } from 'antd'
 import { Rule } from 'rc-field-form/lib/interface'
-import { ReactElement, useState } from 'react'
+import { ReactElement, useEffect, useState } from 'react'
 
 const { Step } = Steps
 
@@ -75,17 +75,25 @@ interface StepFormProps<FormType, AdditionalFields extends string>
   steps: StepConfig<FormType, AdditionalFields>[]
   formItems: FormConfig<FormType, AdditionalFields>
   initialData?: unknown
-  initialFormData?: Partial<FormType>
+  initialFormData?: Parameters<FormInstance<FormType>['setFieldsValue']>[0]
 }
 
 const StepForm = function <FormType, AdditionalFields extends string>({
   steps: stepConfig,
   formItems,
   initialData,
+  initialFormData,
   ...props
 }: StepFormProps<FormType, AdditionalFields>) {
   const [step, setStep] = useState(0)
   const [form] = Form.useForm<FormType>()
+
+  useEffect(() => {
+    if (initialFormData) {
+      form.setFieldsValue(initialFormData)
+      form.validateFields()
+    }
+  }, [initialFormData, form])
 
   const steps = stepConfig.map(({ items }) =>
     items.map(name => {

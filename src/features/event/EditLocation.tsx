@@ -67,6 +67,12 @@ const EditLocation: React.FC<IEditLocation> = ({
     if (isVisible) map?.invalidateSize()
   }, [map, isVisible])
 
+  useEffect(() => {
+    if (map) {
+      map.setView(value)
+    }
+  }, [value, map])
+
   return (
     <div ref={ref} className="flex flex-col w-56">
       <section className="bg-yellow-200 p-2 text-sm italic">

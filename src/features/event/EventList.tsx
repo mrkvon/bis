@@ -8,6 +8,9 @@ import { EventProps } from './types'
 const EventItem: FC<{ event: EventProps }> = ({ event }) => (
   <div>
     {event.name}
+    <Link to={`/events/${event.id}/edit`}>
+      <Button>Upravit</Button>
+    </Link>
     <Link to={`/events/${event.id}/close`}>
       <Button>Uzavřít</Button>
     </Link>

@@ -8,10 +8,10 @@ import { Link } from 'react-router-dom'
 const GuidePost = () => (
   <div className="flex justify-between items-end gap-20">
     <nav className="grid grid-cols-2 gap-4">
-      <Link to="/create">
+      <Link to="/events/create">
         <Button className="h-32 w-32 bg-yellow-200">Nová akce</Button>
       </Link>
-      <Link to="">
+      <Link to="/events?edit">
         <Button className="h-32 w-32 bg-green-200 rounded-full">
           Upravit akci
         </Button>
