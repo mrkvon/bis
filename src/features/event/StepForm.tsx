@@ -1,6 +1,6 @@
-import { Button, Form, FormInstance, Steps } from 'antd'
+import { Button, Form, FormInstance, FormProps, Steps } from 'antd'
 import { Rule } from 'rc-field-form/lib/interface'
-import { ReactElement, useState } from 'react'
+import { ReactElement, useEffect, useState } from 'react'
 
 const { Step } = Steps
 
@@ -70,20 +70,30 @@ const isStepValid = function <T>(
   return step.every(name => isItemValid(name, formConfig, form, initialData))
 }
 
-interface StepFormProps<FormType, AdditionalFields extends string> {
+interface StepFormProps<FormType, AdditionalFields extends string>
+  extends FormProps {
   steps: StepConfig<FormType, AdditionalFields>[]
   formItems: FormConfig<FormType, AdditionalFields>
   initialData?: unknown
-  initialFormData?: Partial<FormType>
+  initialFormData?: Parameters<FormInstance<FormType>['setFieldsValue']>[0]
 }
 
 const StepForm = function <FormType, AdditionalFields extends string>({
   steps: stepConfig,
   formItems,
   initialData,
+  initialFormData,
+  ...props
 }: StepFormProps<FormType, AdditionalFields>) {
   const [step, setStep] = useState(0)
   const [form] = Form.useForm<FormType>()
+
+  useEffect(() => {
+    if (initialFormData) {
+      form.setFieldsValue(initialFormData)
+      form.validateFields()
+    }
+  }, [initialFormData, form])
 
   const steps = stepConfig.map(({ items }) =>
     items.map(name => {
@@ -101,9 +111,9 @@ const StepForm = function <FormType, AdditionalFields extends string>({
         : []
       // @TODO Format the wrapper Form.Item in a way that it doesn't have margin bottom and min-height (so it is invisible when not displayed)
 
-      type FormType = typeof form
+      type FormInstanceType = typeof form
 
-      const getFormItem = (form: FormType) =>
+      const getFormItem = (form: FormInstanceType) =>
         item.excluded ? (
           item.element
         ) : (
@@ -139,6 +149,7 @@ const StepForm = function <FormType, AdditionalFields extends string>({
         onFieldsChange={a => console.log(a)}
         onValuesChange={b => console.log(b)}
         onFinish={form => console.log(form)}
+        {...props}
       >
         <Form.Item shouldUpdate>
           {() => (

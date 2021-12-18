@@ -27,8 +27,9 @@ function App() {
           ) : currentRole === 'org' ? (
             <Routes>
               <Route path="/" element={<GuidePost />} />
-              <Route path="/create" element={<CreateEvent />} />
-              <Route path="/events/:id/close" element={<CloseEvent />} />
+              <Route path="/events/create" element={<CreateEvent />} />
+              <Route path="/events/:eventId/edit" element={<CreateEvent />} />
+              <Route path="/events/:eventId/close" element={<CloseEvent />} />
               <Route path="/events" element={<EventList />} />
             </Routes>
           ) : (
