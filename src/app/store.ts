@@ -3,6 +3,7 @@ import counterReducer from '../features/counter/counterSlice'
 import loginReducer from '../features/login/loginSlice'
 import personReducer from '../features/person/personSlice'
 import eventReducer from '../features/event/eventSlice'
+import administrativeUnitReducer from '../features/administrativeUnit/administrativeUnitSlice'
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     login: loginReducer,
     person: personReducer,
     event: eventReducer,
+    administrativeUnit: administrativeUnitReducer,
   },
 })
 

@@ -26,6 +26,7 @@ import {
   programs,
   registrationMethods,
 } from './types'
+import SelectAdministrativeUnit from './SelectAdministrativeUnit'
 
 const DateRangeStringPicker: FC<{
   value?: [string, string] | null
@@ -215,14 +216,7 @@ const formItems: FormConfig<BeforeEventProps, 'newcomerInfo'> = {
   administrativeUnit: {
     label: 'Pořádající ZČ/Klub/RC/ústředí',
     required: true,
-    element: (
-      <Select>
-        <Option value="a">moznost 1</Option>
-        <Option value="b">here we need api that would download</Option>
-        <Option value="c">all of this for</Option>
-        <Option value="d">us</Option>
-      </Select>
-    ),
+    element: <SelectAdministrativeUnit />,
   },
   location: {
     label: 'Vybrat místo akce na mapě',
