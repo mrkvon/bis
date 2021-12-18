@@ -4,8 +4,10 @@ import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { sortCzechItem } from '../../helpers'
+import FindOrCreatePerson from '../person/FindOrCreatePerson'
 import { Person } from '../person/types'
 import {
+  addEventParticipant,
   readEventParticipants,
   selectEvent,
   selectEventParticipants,
@@ -48,13 +50,25 @@ const EventParticipants = () => {
   const participantComponent = !participants ? (
     <span>Čekejte prosím...</span>
   ) : (
-    <Table<Person>
-      size="small"
-      columns={columns}
-      dataSource={participants}
-      rowKey="id"
-      pagination={{ hideOnSinglePage: true }}
-    />
+    <>
+      <FindOrCreatePerson
+        onPerson={person => {
+          dispatch(
+            addEventParticipant({
+              eventId,
+              participant: { ...person, participated: false },
+            }),
+          )
+        }}
+      />
+      <Table<Person>
+        size="small"
+        columns={columns}
+        dataSource={participants}
+        rowKey="id"
+        pagination={{ hideOnSinglePage: true }}
+      />
+    </>
   )
 
   return (

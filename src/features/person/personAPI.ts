@@ -9,6 +9,27 @@ export const searchPeople = async (query: string): Promise<Person[]> => {
   return fakePeople
 }
 
+export const findPerson = async ({
+  givenName,
+  familyName,
+  birthdate,
+}: {
+  givenName: string
+  familyName: string
+  birthdate: string
+}): Promise<Person | null> => {
+  await wait(800)
+  return birthdate === '2021-01-01'
+    ? null
+    : {
+        id: Math.random(),
+        givenName,
+        familyName,
+        nickname: '',
+        qualifications: [],
+      }
+}
+
 export const fakePeople: Person[] = [
   {
     id: 1,

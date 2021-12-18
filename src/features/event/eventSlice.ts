@@ -6,11 +6,13 @@ import {
 } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
 import { Entity } from '../../types'
+import { Person } from '../person/types'
 import * as api from './eventAPI'
 import {
   BeforeEventProps,
   EventProps,
   EventWithParticipantsProps,
+  Participant,
 } from './types'
 
 export interface EventState {
@@ -57,6 +59,21 @@ export const readEventParticipants = createAsyncThunk(
     const participants = await api.readEventParticipants(id)
     const event = await api.readEvent(id)
     return { event, participants }
+  },
+)
+
+export const addEventParticipant = createAsyncThunk(
+  'event/addParticipant',
+  async ({
+    participant,
+    eventId,
+  }: {
+    participant: Participant & Person
+    eventId: number
+  }) => {
+    await api.addEventParticipant(eventId, participant)
+
+    return { eventId, participant }
   },
 )
 
@@ -112,6 +129,18 @@ export const eventSlice = createSlice({
             participated,
           })),
         }
+      })
+      .addCase(addEventParticipant.fulfilled, (state, action) => {
+        const {
+          eventId,
+          participant: { id, participated },
+        } = action.payload
+        ;(
+          state.entities.byId[eventId] as EventWithParticipantsProps
+        ).participants.push({
+          id,
+          participated,
+        })
       }),
 })
 

@@ -4,6 +4,7 @@ import { Person } from './types'
 import * as api from './personAPI'
 import { RootState } from '../../app/store'
 import { readEventParticipants } from '../event/eventSlice'
+import { addEventParticipant } from '../event/eventSlice'
 
 export interface PersonState {
   entities: Entity<Person>
@@ -32,12 +33,14 @@ export const personSlice = createSlice({
         state.inProgress = true
       })
       .addCase(searchPeople.fulfilled, (state, action) => {
-        const byId = Object.fromEntries(
-          action.payload.map(person => [person.id, person]),
-        )
-        const allIds = action.payload.map(({ id }) => id)
+        const foundPeople = action.payload
 
-        state.entities = { byId, allIds }
+        foundPeople.forEach(person => {
+          state.entities.byId[person.id] = person
+          if (!state.entities.allIds.includes(person.id))
+            state.entities.allIds.push(person.id)
+        })
+
         state.inProgress = false
       })
       .addCase(searchPeople.rejected, state => {
@@ -52,6 +55,17 @@ export const personSlice = createSlice({
             state.entities.allIds.push(person.id)
           }
         })
+      })
+      .addCase(addEventParticipant.fulfilled, (state, action) => {
+        const {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          participant: { participated, ...person },
+        } = action.payload
+
+        if (!state.entities.allIds.includes(person.id)) {
+          state.entities.allIds.push(person.id)
+          state.entities.byId[person.id] = person
+        }
       })
   },
 })

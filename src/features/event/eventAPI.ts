@@ -43,6 +43,15 @@ export const readEventParticipants = async (
   return fakeEventParticipants
 }
 
+export const addEventParticipant = async (
+  eventId: number,
+  participant: Participant,
+) => {
+  eventId
+  participant
+  await wait(700)
+}
+
 const fakeEventParticipants: (Participant & Person)[] = fakePeople.map(
   person => ({ ...person, participated: false }),
 )
