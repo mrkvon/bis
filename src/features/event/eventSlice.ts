@@ -7,10 +7,14 @@ import {
 import { RootState } from '../../app/store'
 import { Entity } from '../../types'
 import * as api from './eventAPI'
-import { BeforeEventProps, EventProps } from './types'
+import {
+  BeforeEventProps,
+  EventProps,
+  EventWithParticipantsProps,
+} from './types'
 
 export interface EventState {
-  entities: Entity<EventProps>
+  entities: Entity<EventWithParticipantsProps | EventProps>
   status: 'input' | 'saving' | 'finished'
   loadingStatus: 'loading' | 'ready'
 }
@@ -44,6 +48,15 @@ export const readLoggedUserEvents = createAsyncThunk(
   'event/readLoggedUserEvents',
   async () => {
     return await api.readLoggedUserEvents()
+  },
+)
+
+export const readEventParticipants = createAsyncThunk(
+  'event/readParticipants',
+  async (id: number) => {
+    const participants = await api.readEventParticipants(id)
+    const event = await api.readEvent(id)
+    return { event, participants }
   },
 )
 
@@ -86,6 +99,19 @@ export const eventSlice = createSlice({
         state.entities.byId[event.id] = event
         if (!state.entities.allIds.includes(event.id))
           state.entities.allIds.push(event.id)
+      })
+      .addCase(readEventParticipants.fulfilled, (state, action) => {
+        const { event, participants } = action.payload
+        if (!state.entities.allIds.includes(event.id)) {
+          state.entities.allIds.push(event.id)
+        }
+        state.entities.byId[event.id] = {
+          ...event,
+          participants: participants.map(({ id, participated }) => ({
+            id,
+            participated,
+          })),
+        }
       }),
 })
 
@@ -102,6 +128,26 @@ export const selectEvent = createSelector(
 
 export const selectEvents = (state: RootState) =>
   Object.values(state.event.entities.byId)
+
+const selectPersonDict = (state: RootState) => state.person.entities.byId
+
+export const selectEventParticipants = createSelector(
+  selectEvent,
+  selectPersonDict,
+  (event, personDict) => {
+    if (event && 'participants' in event) {
+      return event.participants.map(({ id, participated }) => ({
+        ...personDict[id],
+        participated,
+      }))
+    }
+  },
+)
+
+/*
+selectEventParticipants: (state, eventId) => Participant[]
+
+*/
 
 export const selectStatus = (state: RootState) => state.event.status
 

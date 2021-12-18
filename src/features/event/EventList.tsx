@@ -14,6 +14,9 @@ const EventItem: FC<{ event: EventProps }> = ({ event }) => (
     <Link to={`/events/${event.id}/close`}>
       <Button>Uzavřít</Button>
     </Link>
+    <Link to={`/events/${event.id}/participants`}>
+      <Button>Přidat účastníky</Button>
+    </Link>
   </div>
 )
 

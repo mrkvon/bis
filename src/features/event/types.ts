@@ -123,3 +123,12 @@ export type AfterEventProps = {
 }
 
 export type EventProps = BeforeEventProps & AfterEventProps & { id: number }
+
+export type Participant = {
+  id: number
+  participated: boolean
+}
+
+export type EventWithParticipantsProps = EventProps & {
+  participants: Participant[]
+}

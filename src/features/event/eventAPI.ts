@@ -1,6 +1,8 @@
 import { wait } from '../../helpers'
-import { BeforeEventProps, EventProps } from './types'
+import { BeforeEventProps, EventProps, Participant } from './types'
 import range from 'lodash/range'
+import { Person } from '../person/types'
+import { fakePeople } from '../person/personAPI'
 
 export const createEvent = async (
   event: BeforeEventProps,
@@ -32,6 +34,18 @@ export const readEvent = async (id: number): Promise<EventProps> => {
   await wait(500)
   return fakeEvents[id]
 }
+
+export const readEventParticipants = async (
+  id: number,
+): Promise<(Participant & Person)[]> => {
+  await wait(500)
+  id
+  return fakeEventParticipants
+}
+
+const fakeEventParticipants: (Participant & Person)[] = fakePeople.map(
+  person => ({ ...person, participated: false }),
+)
 
 const fakeEvents: EventProps[] = range(8).map(i => ({
   id: i,
