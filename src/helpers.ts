@@ -12,3 +12,13 @@ export const sortCzechItem =
   (a: Record<T, string>, b: Record<T, string>) => {
     return sortCzech(a[key], b[key])
   }
+
+export const sortByCount = <T extends string>(a: T[]): T[] => {
+  const map = a.reduce((map, element) => {
+    map[element] = (map[element] ?? 0) + 1
+    return map
+  }, {} as { [key in T]: number })
+  return (Object.keys(map) as T[]).sort(
+    (a: keyof typeof map, b: keyof typeof map) => map[b] - map[a],
+  )
+}
