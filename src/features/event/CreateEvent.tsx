@@ -27,6 +27,7 @@ import {
   registrationMethods,
 } from './types'
 import SelectAdministrativeUnit from './SelectAdministrativeUnit'
+import { useSearchParams } from 'react-router-dom'
 
 const DateRangeStringPicker: FC<{
   value?: [string, string] | null
@@ -493,11 +494,16 @@ const findUnusedFields = () => {
 
 console.log(findUnusedFields())
 
+/*  TODO this just needs more attention. The logic of updating seems a bit broken.
+ */
 const CreateEvent = () => {
   const dispatch = useAppDispatch()
   const eventId = Number(useParams()?.eventId ?? -1)
+  const cloneEventId = Number(useSearchParams()[0].get('cloneEvent') ?? -1)
 
   const event = useAppSelector(state => selectEvent(state, eventId))
+  /* TODO figure out which fields to clone */
+  const cloneEvent = useAppSelector(state => selectEvent(state, cloneEventId))
   const status = useAppSelector(state => state.event.loadingStatus)
 
   useEffect(() => {
@@ -506,12 +512,13 @@ const CreateEvent = () => {
 
   if (status === 'loading') return <div>Loading</div>
 
+  /* TODO when we're updating, we need to dispatch update, not create. */
   return (
     <StepForm
       steps={stepConfig}
       formItems={formItems}
       onFinish={values => dispatch(createEvent(values))}
-      initialFormData={eventId > -1 ? event : undefined}
+      initialFormData={event ?? cloneEvent}
     />
   )
 }

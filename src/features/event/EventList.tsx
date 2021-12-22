@@ -79,6 +79,9 @@ const EventList = () => {
           <Link to={`/events/${eventId}/participants`}>
             <Button>Přidat účastníky</Button>
           </Link>
+          <Link to={`/events/create?cloneEvent=${eventId}`}>
+            <Button>Klonovat</Button>
+          </Link>
         </nav>
       ),
     },
