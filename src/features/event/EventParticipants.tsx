@@ -1,4 +1,4 @@
-import { Table } from 'antd'
+import { Button, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
@@ -9,6 +9,7 @@ import { Person } from '../person/types'
 import {
   addEventParticipant,
   readEventParticipants,
+  removeEventParticipant,
   selectEvent,
   selectEventParticipants,
 } from './eventSlice'
@@ -44,6 +45,24 @@ const EventParticipants = () => {
       title: 'Příjmení',
       dataIndex: 'familyName',
       sorter: sortCzechItem('familyName'),
+    },
+    {
+      title: 'Akce',
+      dataIndex: 'id',
+      render: personId => (
+        <Button
+          onClick={() => {
+            dispatch(
+              removeEventParticipant({
+                personId,
+                eventId,
+              }),
+            )
+          }}
+        >
+          Smazat
+        </Button>
+      ),
     },
   ]
 

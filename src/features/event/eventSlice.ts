@@ -1,7 +1,7 @@
 import {
   createAsyncThunk,
-  createSlice,
   createSelector,
+  createSlice,
   PayloadAction,
 } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
@@ -74,6 +74,15 @@ export const addEventParticipant = createAsyncThunk(
     await api.addEventParticipant(eventId, participant)
 
     return { eventId, participant }
+  },
+)
+
+export const removeEventParticipant = createAsyncThunk(
+  'event/removeParticipant',
+  async ({ personId, eventId }: { personId: number; eventId: number }) => {
+    await api.removeEventParticipant(eventId, personId)
+
+    return { eventId, personId }
   },
 )
 
@@ -152,6 +161,13 @@ export const eventSlice = createSlice({
             participated,
           })
         }
+      })
+      .addCase(removeEventParticipant.fulfilled, (state, action) => {
+        const { eventId, personId } = action.payload
+        const event = state.entities.byId[eventId] as EventWithParticipantsProps
+        event.participants = event.participants.filter(
+          ({ id }) => id !== personId,
+        )
       }),
 })
 
