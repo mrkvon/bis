@@ -1,5 +1,5 @@
 import { wait } from '../../helpers'
-import { Person } from './types'
+import { Person, NewPerson } from './types'
 
 export const searchPeople = async (query: string): Promise<Person[]> => {
   if (query.length === 0) return []
@@ -28,6 +28,22 @@ export const findPerson = async ({
         nickname: '',
         qualifications: [],
       }
+}
+
+export const createPerson = async (
+  personData: NewPerson,
+): Promise<Person | null> => {
+  await wait(800)
+  const { nickname, givenName, familyName } = personData
+
+  const person = {
+    id: Math.random(),
+    nickname,
+    givenName,
+    familyName,
+    qualifications: [],
+  }
+  return personData.birthdate === '2021-01-01' ? null : person
 }
 
 export const fakePeople: Person[] = [

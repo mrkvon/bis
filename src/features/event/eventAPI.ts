@@ -52,9 +52,9 @@ export const addEventParticipant = async (
   await wait(700)
 }
 
-const fakeEventParticipants: (Participant & Person)[] = fakePeople.map(
-  person => ({ ...person, participated: false }),
-)
+const fakeEventParticipants: (Participant & Person)[] = fakePeople
+  .slice(0, 3)
+  .map(person => ({ ...person, participated: false }))
 
 const fakeEvents: EventProps[] = range(8).map(i => ({
   id: i,

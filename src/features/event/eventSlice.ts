@@ -135,12 +135,23 @@ export const eventSlice = createSlice({
           eventId,
           participant: { id, participated },
         } = action.payload
-        ;(
+
+        const participants = (
           state.entities.byId[eventId] as EventWithParticipantsProps
-        ).participants.push({
-          id,
-          participated,
-        })
+        ).participants
+
+        const participant = participants.find(
+          participant => participant.id === id,
+        )
+
+        if (participant) {
+          participant.participated = participated
+        } else {
+          participants.unshift({
+            id,
+            participated,
+          })
+        }
       }),
 })
 
