@@ -33,7 +33,7 @@ const GuidePost = () => {
                 Úplně nová akce
               </Button>
             </Link>
-            <Link to="/events?action=clone">
+            <Link to="/events?clone">
               <Button className="h-8 w-32 bg-yellow-300">Klonovat akci</Button>
             </Link>
           </div>

@@ -1,7 +1,7 @@
 import { Button, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { sortByCount, sortCzechItem } from '../../helpers'
 import { readLoggedUserEvents, selectEvents } from './eventSlice'
@@ -13,6 +13,19 @@ const EventList = () => {
   useEffect(() => {
     dispatch(readLoggedUserEvents())
   }, [dispatch])
+
+  // Let's figure out which actions to allow
+  // /events?edit - edit event, manage participants
+  // /events?close - close event with closing form
+  // /events?clone - clone: create event with data copied from another event
+  const [searchParams] = useSearchParams()
+  const requestedActions = Array.from(searchParams.keys())
+  const availableActions = ['edit', 'close', 'clone']
+  let actions = availableActions.filter(action =>
+    requestedActions.includes(action),
+  )
+
+  actions = actions.length === 0 ? availableActions : actions
 
   const columns: ColumnsType<EventProps> = [
     {
@@ -70,18 +83,26 @@ const EventList = () => {
       dataIndex: 'id',
       render: eventId => (
         <nav>
-          <Link to={`/events/${eventId}/edit`}>
-            <Button>Upravit</Button>
-          </Link>
-          <Link to={`/events/${eventId}/close`}>
-            <Button>Uzavřít</Button>
-          </Link>
-          <Link to={`/events/${eventId}/participants`}>
-            <Button>Přidat účastníky</Button>
-          </Link>
-          <Link to={`/events/create?cloneEvent=${eventId}`}>
-            <Button>Klonovat</Button>
-          </Link>
+          {actions.includes('edit') && (
+            <Link to={`/events/${eventId}/edit`}>
+              <Button>Upravit</Button>
+            </Link>
+          )}
+          {actions.includes('close') && (
+            <Link to={`/events/${eventId}/close`}>
+              <Button>Uzavřít</Button>
+            </Link>
+          )}
+          {actions.includes('edit') && (
+            <Link to={`/events/${eventId}/participants`}>
+              <Button>Přidat účastníky</Button>
+            </Link>
+          )}
+          {actions.includes('clone') && (
+            <Link to={`/events/create?cloneEvent=${eventId}`}>
+              <Button>Klonovat</Button>
+            </Link>
+          )}
         </nav>
       ),
     },
