@@ -12,6 +12,16 @@ export type Person = {
   givenName: string
   familyName: string
   qualifications: Qualification[]
+  birthdate: string
+  nationalIdentificationNumber: string
+  permanentAddressStreet: string
+  permanentAddressCity: string
+  permanentAddressPostCode: string
+  contactAddressStreet: string
+  contactAddressCity: string
+  contactAddressPostCode: string
+  phone: string
+  email: string
 }
 
 export interface NewPerson extends Omit<Person, 'id' | 'qualifications'> {

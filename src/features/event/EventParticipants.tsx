@@ -6,6 +6,8 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { sortCzechItem } from '../../helpers'
 import FindOrCreatePerson from '../person/FindOrCreatePerson'
 import { Person } from '../person/types'
+import CsvDownloader from 'react-csv-downloader'
+
 import {
   addEventParticipant,
   readEventParticipants,
@@ -27,6 +29,37 @@ const EventParticipants = () => {
   const participants = useAppSelector(state =>
     selectEventParticipants(state, eventId),
   )
+
+  const csvColumns = [
+    {
+      id: 'givenName',
+      displayName: 'Jméno',
+    },
+    {
+      id: 'familyName',
+      displayName: 'Příjmení',
+    },
+    {
+      id: 'nickname',
+      displayName: 'Přezdívka',
+    },
+    { id: 'email', displayName: 'email' },
+  ]
+
+  const participantsToCSV = () => {
+    if (participants) {
+      return participants?.map(
+        ({ nickname, givenName, familyName, email }) => ({
+          givenName,
+          familyName,
+          nickname,
+          email,
+        }),
+      )
+    } else {
+      return []
+    }
+  }
 
   if (!event) return <span>Nenašly jsme akci</span>
 
@@ -96,6 +129,14 @@ const EventParticipants = () => {
         <h2 className="text-2xl font-bold mb-4">
           Lidé přihlášení na akci: {event.name}
         </h2>
+        <CsvDownloader
+          filename={`Lidé přihlášení na akci: ${event.name}`}
+          datas={participantsToCSV}
+          columns={csvColumns}
+          disabled={!participants || participants.length === 0}
+        >
+          <Button>stáhnout do excelu</Button>
+        </CsvDownloader>
       </header>
       {participantComponent}
     </>
