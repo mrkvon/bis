@@ -3,7 +3,7 @@ import { Entity } from '../../types'
 import { Person } from './types'
 import * as api from './personAPI'
 import { RootState } from '../../app/store'
-import { readEventParticipants } from '../event/eventSlice'
+import { readEvent, readEventParticipants } from '../event/eventSlice'
 import { addEventParticipant } from '../event/eventSlice'
 
 export interface PersonState {
@@ -67,10 +67,25 @@ export const personSlice = createSlice({
           state.entities.byId[person.id] = person
         }
       })
+      .addCase(readEvent.fulfilled, (state, action) => {
+        const { responsiblePerson, team } = action.payload
+        const persons = [responsiblePerson, ...team].filter(
+          a => !!a,
+        ) as Person[]
+
+        persons.forEach(person => {
+          state.entities.byId[person.id] = person
+          if (!state.entities.allIds.includes(person.id)) {
+            state.entities.allIds.push(person.id)
+          }
+        })
+      })
   },
 })
 
 const selectStringParam = (_: RootState, param: string) => param
+const selectNumberParam = (_: RootState, param: number) => param
+const selectNumberArrayParam = (_: RootState, param: number[]) => param
 const selectUsers = (state: RootState) =>
   Object.values(state.person.entities.byId)
 
@@ -86,6 +101,21 @@ export const selectSearchUsers = createSelector(
         .some(value => value.toLowerCase().includes(query.toLowerCase())),
     )
   },
+)
+
+export const selectPersonDict = (state: RootState) => state.person.entities.byId
+
+export const selectPerson = createSelector(
+  selectNumberParam,
+  selectPersonDict,
+  (personId, personDict) => personDict[personId],
+)
+
+export const selectPeople = createSelector(
+  selectNumberArrayParam,
+  selectPersonDict,
+  (personIds, personDict) =>
+    personIds.map(id => personDict[id]).filter(a => !!a) as Person[],
 )
 
 export const selectInProgress = (state: RootState) => state.person.inProgress

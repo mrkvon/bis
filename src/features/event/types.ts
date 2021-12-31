@@ -99,8 +99,8 @@ export type BeforeEventProps = {
   contactPersonTelephone: string
   webUrl: string
   note: string
-  responsiblePerson: string
-  team: string[]
+  responsiblePerson: number
+  team: number[]
   invitationText1: string
   invitationText2: string
   invitationText3: string

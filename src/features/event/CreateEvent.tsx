@@ -12,9 +12,16 @@ import {
 import moment from 'moment'
 import { FC, useEffect } from 'react'
 import { useParams } from 'react-router'
+import { useSearchParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { store } from '../../app/store'
+import { selectPerson } from '../person/personSlice'
+import { Person } from '../person/types'
 import EditLocation from './EditLocation'
 import { createEvent, readEvent, selectEvent } from './eventSlice'
+import { QualifiedPersonLabel } from './PersonOptionLabel'
+import { getIsQualified } from './qualifications'
+import SelectAdministrativeUnit from './SelectAdministrativeUnit'
 import SelectPerson from './SelectPerson'
 import StepForm, { FormConfig, FormItemConfig, StepConfig } from './StepForm'
 import {
@@ -26,8 +33,6 @@ import {
   programs,
   registrationMethods,
 } from './types'
-import SelectAdministrativeUnit from './SelectAdministrativeUnit'
-import { useSearchParams } from 'react-router-dom'
 
 const DateRangeStringPicker: FC<{
   value?: [string, string] | null
@@ -369,7 +374,42 @@ const formItems: FormConfig<BeforeEventProps, 'newcomerInfo'> = {
   responsiblePerson: {
     label: 'Hlavní organizátor/ka',
     required: true,
-    element: <SelectPerson />,
+    element: ({ basicPurpose, eventType, intendedFor }) => (
+      <SelectPerson
+        LabelComponent={QualifiedPersonLabel}
+        getDisabled={(person: Person) =>
+          !getIsQualified(
+            { basicPurpose, eventType, intendedFor },
+            person.qualifications,
+          )
+        }
+      />
+    ),
+    rules: [
+      ({ getFieldValue }) => ({
+        validator: async (_, personId) => {
+          const intendedFor = getFieldValue('intendedFor')
+          const eventType = getFieldValue('eventType')
+          const basicPurpose = getFieldValue('basicPurpose')
+          if (!basicPurpose) throw new Error('Vyplňte nejdřív Druh akce')
+          if (!eventType) throw new Error('Vyplňte nejdřív Typ akce')
+          if (!intendedFor)
+            throw new Error('Vyplňte nejdřív Pro koho je akce určena')
+          // get the person from id
+          const state = store.getState()
+          const person = selectPerson(state, personId)
+          if (!person) throw new Error('Člověk nenalezen')
+          const isQualified = getIsQualified(
+            { basicPurpose, eventType, intendedFor },
+            person.qualifications,
+          )
+          if (!isQualified)
+            throw new Error(
+              `${person.givenName} ${person.familyName} nemá dostatečnou kvalifikaci`,
+            )
+        },
+      }),
+    ],
   },
   team: {
     label: 'Organizační tým',

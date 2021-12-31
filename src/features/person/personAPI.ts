@@ -66,6 +66,11 @@ export const createPerson = async (
   return personData.birthdate === '2021-01-01' ? null : person
 }
 
+export const readPerson = async (id: number) => {
+  await wait(500)
+  return fakePeople.find(person => person.id === id)
+}
+
 export const fakePeople: Person[] = [
   {
     id: 1,

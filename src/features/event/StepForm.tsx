@@ -5,7 +5,7 @@ import { ReactElement, useEffect, useState } from 'react'
 const { Step } = Steps
 
 export type FormItemConfig<Form> = {
-  element: ReactElement
+  element: ReactElement | ((form: Form, initialData?: unknown) => ReactElement)
   label?: string
   required?: boolean | ((form: Form, initialData?: unknown) => boolean)
   display?: (form: Form, initialData?: unknown) => boolean
@@ -33,6 +33,16 @@ const isRequired = function <FormType>(
   return typeof required === 'function'
     ? required(form.getFieldsValue(), initialData)
     : required ?? false
+}
+
+const getElement = function <FormType>(
+  element: FormItemConfig<FormType>['element'],
+  form: FormInstance<FormType>,
+  initialData?: unknown,
+) {
+  return typeof element === 'function'
+    ? element(form.getFieldsValue(), initialData)
+    : element
 }
 
 const isItemValid = function <FormType>(
@@ -100,7 +110,8 @@ const StepForm = function <FormType, AdditionalFields extends string>({
       const item = formItems[name]
       const shouldUpdate =
         typeof item.display === 'function' ||
-        typeof item.required === 'function'
+        typeof item.required === 'function' ||
+        typeof item.element === 'function'
       const requiredRule = isRequired(item.required, form, initialData)
         ? [
             {
@@ -115,7 +126,7 @@ const StepForm = function <FormType, AdditionalFields extends string>({
 
       const getFormItem = (form: FormInstanceType) =>
         item.excluded ? (
-          item.element
+          getElement(item.element, form)
         ) : (
           <Form.Item
             name={name}
@@ -124,7 +135,7 @@ const StepForm = function <FormType, AdditionalFields extends string>({
             required={isRequired(item.required, form, initialData)}
             rules={[...requiredRule, ...(item?.rules ?? [])]}
           >
-            {item.element}
+            {getElement(item.element, form)}
           </Form.Item>
         )
 
@@ -146,8 +157,16 @@ const StepForm = function <FormType, AdditionalFields extends string>({
       <Form
         form={form}
         layout="vertical"
-        onFieldsChange={a => console.log(a)}
-        onValuesChange={b => console.log(b)}
+        onFieldsChange={(...a) => console.log(a)}
+        onValuesChange={(value, ...a) => {
+          console.log(value, ...a)
+          if (
+            ['intendedFor', 'eventType', 'basicPurpose'].some(key =>
+              Object.keys(value).includes(key),
+            )
+          )
+            form.validateFields(['responsiblePerson'])
+        }}
         onFinish={form => console.log(form)}
         {...props}
       >

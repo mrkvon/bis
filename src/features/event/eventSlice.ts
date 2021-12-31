@@ -6,6 +6,7 @@ import {
 } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
 import { Entity } from '../../types'
+import * as personApi from '../person/personAPI'
 import { Person } from '../person/types'
 import * as api from './eventAPI'
 import {
@@ -41,10 +42,18 @@ export const updateEvent = createAsyncThunk(
   },
 )
 
-export const readEvent = createAsyncThunk(
-  'event/read',
-  async (id: number) => await api.readEvent(id),
-)
+export const readEvent = createAsyncThunk('event/read', async (id: number) => {
+  const event = await api.readEvent(id)
+  return {
+    ...event,
+    team: (
+      await Promise.all(
+        event.team.map(async id => await personApi.readPerson(id)),
+      )
+    ).filter(a => !!a) as Person[],
+    responsiblePerson: await personApi.readPerson(event.responsiblePerson),
+  }
+})
 
 export const readLoggedUserEvents = createAsyncThunk(
   'event/readLoggedUserEvents',
@@ -122,7 +131,11 @@ export const eventSlice = createSlice({
       .addCase(readEvent.fulfilled, (state, action) => {
         const event = action.payload
         state.loadingStatus = 'ready'
-        state.entities.byId[event.id] = event
+        state.entities.byId[event.id] = {
+          ...event,
+          team: event.team.map(person => person.id),
+          responsiblePerson: event.responsiblePerson?.id ?? -1,
+        }
         if (!state.entities.allIds.includes(event.id))
           state.entities.allIds.push(event.id)
       })
