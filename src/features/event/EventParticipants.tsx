@@ -1,13 +1,12 @@
 import { Button, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { useEffect } from 'react'
+import CsvDownloader from 'react-csv-downloader'
 import { useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { sortCzechItem } from '../../helpers'
 import FindOrCreatePerson from '../person/FindOrCreatePerson'
 import { Person } from '../person/types'
-import CsvDownloader from 'react-csv-downloader'
-
 import {
   addEventParticipant,
   readEventParticipants,
@@ -15,6 +14,7 @@ import {
   selectEvent,
   selectEventParticipants,
 } from './eventSlice'
+import { generatePdf } from './participantsPdf'
 
 const EventParticipants = () => {
   const dispatch = useAppDispatch()
@@ -59,6 +59,12 @@ const EventParticipants = () => {
     } else {
       return []
     }
+  }
+
+  const generateAndSavePdf = () => {
+    console.log(event)
+    const doc = generatePdf(participants || [], event)
+    doc.save(`Lidé přihlášení na akci: ${event.name}`)
   }
 
   if (!event) return <span>Nenašly jsme akci</span>
@@ -137,6 +143,7 @@ const EventParticipants = () => {
         >
           <Button>stáhnout do excelu</Button>
         </CsvDownloader>
+        <Button onClick={generateAndSavePdf}>stáhnout do pdf</Button>
       </header>
       {participantComponent}
     </>
