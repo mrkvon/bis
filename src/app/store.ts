@@ -1,9 +1,10 @@
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit'
-import counterReducer from '../features/counter/counterSlice'
-import loginReducer from '../features/login/loginSlice'
-import personReducer from '../features/person/personSlice'
-import eventReducer from '../features/event/eventSlice'
+import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit'
 import administrativeUnitReducer from '../features/administrativeUnit/administrativeUnitSlice'
+import counterReducer from '../features/counter/counterSlice'
+import eventReducer from '../features/event/eventSlice'
+import loginReducer from '../features/login/loginSlice'
+import notificationReducer from '../features/notification/notificationSlice'
+import personReducer from '../features/person/personSlice'
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     person: personReducer,
     event: eventReducer,
     administrativeUnit: administrativeUnitReducer,
+    notification: notificationReducer,
   },
 })
 

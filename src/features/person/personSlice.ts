@@ -1,10 +1,13 @@
-import { createAsyncThunk, createSlice, createSelector } from '@reduxjs/toolkit'
-import { Entity } from '../../types'
-import { Person } from './types'
-import * as api from './personAPI'
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
-import { readEvent, readEventParticipants } from '../event/eventSlice'
-import { addEventParticipant } from '../event/eventSlice'
+import { Entity } from '../../types'
+import {
+  addEventParticipant,
+  readEvent,
+  readEventParticipants,
+} from '../event/eventSlice'
+import * as api from './personAPI'
+import { Person } from './types'
 
 export interface PersonState {
   entities: Entity<Person>
