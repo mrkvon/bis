@@ -17,6 +17,7 @@ import { useParams } from 'react-router'
 import { useSearchParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { store } from '../../app/store'
+import { html2plaintext } from '../../helpers'
 import { selectPerson } from '../person/personSlice'
 import { Person } from '../person/types'
 import DateRangeStringPicker from './DateRangeStringPicker'
@@ -24,6 +25,7 @@ import EditLocation from './EditLocation'
 import { createEvent, readEvent, selectEvent } from './eventSlice'
 import { QualifiedPersonLabel } from './PersonOptionLabel'
 import { getIsQualified } from './qualifications'
+import RichTextEditor from './RichTextEditor'
 import SelectAdministrativeUnit from './SelectAdministrativeUnit'
 import SelectPerson from './SelectPerson'
 import {
@@ -631,35 +633,73 @@ const CreateEvent = () => {
           <Form.Item
             name="invitationText1"
             label="Zvací text: Co nás čeká"
-            rules={[{ required: true }]}
+            required
+            rules={[
+              {
+                validator: async (_, html) => {
+                  if (html2plaintext(html).trim().length === 0)
+                    throw new Error('Pole je povinné')
+                },
+              },
+            ]}
           >
-            <Input.TextArea />
+            <RichTextEditor />
           </Form.Item>
+
           <Form.Item
             name="invitationText2"
             label="Zvací text: Co, kde a jak"
-            rules={[{ required: true }]}
+            required
+            rules={[
+              {
+                validator: async (_, html) => {
+                  if (html2plaintext(html).trim().length === 0)
+                    throw new Error('Pole je povinné')
+                },
+              },
+            ]}
           >
-            <Input.TextArea />
+            <RichTextEditor />
           </Form.Item>
+
           <Form.Item shouldUpdate>
             {() => (
               <Form.Item
                 name="invitationText3"
                 label="Zvací text: dobrovolnická pomoc"
                 required={form.getFieldValue('eventType') === 'dobrovolnicka'}
+                rules={[
+                  ({ getFieldValue }) => ({
+                    validator: async (_, html) => {
+                      if (getFieldValue('eventType') !== 'dobrovolnicka') return
+                      if (html2plaintext(html).trim().length === 0)
+                        throw new Error('Pole je povinné')
+                    },
+                  }),
+                ]}
               >
-                <Input.TextArea />
+                <RichTextEditor />
               </Form.Item>
             )}
           </Form.Item>
+
           <Form.Item
             name="invitationText4"
             label="Zvací text: Malá ochutnávka"
-            rules={[{ required: true }]}
+            required
+            rules={[
+              { required: true },
+              {
+                validator: async (_, html) => {
+                  if (html2plaintext(html).trim().length === 0)
+                    throw new Error('Pole je povinné')
+                },
+              },
+            ]}
           >
-            <Input.TextArea />
+            <RichTextEditor />,
           </Form.Item>
+
           <Form.Item
             name="mainPhoto"
             label="Hlavní fotka"

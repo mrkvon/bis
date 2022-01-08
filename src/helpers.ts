@@ -22,3 +22,12 @@ export const sortByCount = <T extends string>(a: T[]): T[] => {
     (a: keyof typeof map, b: keyof typeof map) => map[b] - map[a],
   )
 }
+
+/* extract plaintext from html string
+https://stackoverflow.com/a/28899585
+*/
+export const html2plaintext = (html: string): string => {
+  const span = document.createElement('span')
+  span.innerHTML = html
+  return span.textContent || span.innerText
+}
