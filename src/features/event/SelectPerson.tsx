@@ -80,7 +80,12 @@ const SelectPerson = forwardRef<HTMLSelectElement, SelectPersonProps>(
       value,
       label: (
         <LabelComponent
-          person={selectedPeople.find(person => person.id === value) as Person}
+          person={
+            (selectedPeople.find(person => person.id === value) ?? {
+              id: value,
+              qualifications: [],
+            }) as Person
+          }
         />
       ),
     })

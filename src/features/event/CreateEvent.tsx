@@ -1,29 +1,31 @@
 import {
-  DatePicker,
+  Button,
+  Form,
   Input,
   InputNumber,
   Radio,
   Select,
   Slider,
   Space,
+  Steps,
   TimePicker,
   Upload,
 } from 'antd'
-import moment from 'moment'
-import { FC, useEffect } from 'react'
+import { FormInstance } from 'antd/es/form/Form'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { useSearchParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { store } from '../../app/store'
 import { selectPerson } from '../person/personSlice'
 import { Person } from '../person/types'
+import DateRangeStringPicker from './DateRangeStringPicker'
 import EditLocation from './EditLocation'
 import { createEvent, readEvent, selectEvent } from './eventSlice'
 import { QualifiedPersonLabel } from './PersonOptionLabel'
 import { getIsQualified } from './qualifications'
 import SelectAdministrativeUnit from './SelectAdministrativeUnit'
 import SelectPerson from './SelectPerson'
-import StepForm, { FormConfig, FormItemConfig, StepConfig } from './StepForm'
 import {
   audiences,
   basicPurposes,
@@ -34,532 +36,732 @@ import {
   registrationMethods,
 } from './types'
 
-const DateRangeStringPicker: FC<{
-  value?: [string, string] | null
-  onChange?: (range: [string, string] | null) => void
-}> = ({ value = null, onChange = () => null }) => {
-  return (
-    <DatePicker.RangePicker
-      value={value ? [moment(value[0]), moment(value[1])] : null}
-      onChange={range =>
-        onChange(
-          range && range[0] && range[1]
-            ? [range[0].format('YYYY-MM-DD'), range[1].format('YYYY-MM-DD')]
-            : null,
-        )
-      }
-    />
-  )
+const getStepStatus = (
+  form: FormInstance<BeforeEventProps>,
+  items: string[],
+): 'finish' | 'error' | 'wait' => {
+  const states = items.map(name => {
+    if (!form.getFieldInstance(name)) return 'none'
+    else if (form.getFieldError(name).length > 0) return 'error'
+    else if (form.isFieldTouched(name)) return 'touched'
+  })
+  if (states.every(state => state === 'touched')) return 'finish'
+  if (states.includes('error')) return 'error'
+  else return 'finish'
+}
+/*
+const isItemValid = function (
+  name: string,
+  form: FormInstance<BeforeEventProps>,
+  initialData: unknown,
+) {
+  const itemExists = !!form.getFieldInstance(name)
+  const isItemTouched = form.isFieldTouched(name)
+  const hasItemErrors = form.getFieldError(name).length > 0
+
+  // success
+  // item doesn't exist (nothing to validate)
+  // OR
+  // item exists and doesn't have errors AND (is touched OR is not required)
+  // because we want every required field touched
+  const isValid = !itemExists || (!hasItemErrors && isItemTouched)
+
+  return isValid
 }
 
-const { Option } = Select
-
-type AdditionalQuestionType =
-  | 'additionalQuestion1'
-  | 'additionalQuestion2'
-  | 'additionalQuestion3'
-  | 'additionalQuestion4'
-  | 'additionalQuestion5'
-  | 'additionalQuestion6'
-  | 'additionalQuestion7'
-  | 'additionalQuestion8'
-
-const additionalQuestions: {
-  [name in AdditionalQuestionType]: FormItemConfig<BeforeEventProps>
-} = Object.fromEntries(
-  [1, 2, 3, 4, 5, 6, 7, 8].map(i => [
-    `additionalQuestion${i}` as AdditionalQuestionType,
-    {
-      label: `Otázka ${i}`,
-      required: true,
-      display: form => form.registrationMethod === 'standard',
-      element: <Input />,
-    },
-  ]),
-) as {
-  [name in AdditionalQuestionType]: FormItemConfig<BeforeEventProps>
+const isStepValid = function <T>(
+  step: Extract<keyof T, string>[],
+  formConfig: FormConfig<T, never>,
+  form: FormInstance<T>,
+  initialData: unknown,
+) {
+  return step.every(name => isItemValid(name, formConfig, form, initialData))
 }
+*/
 
-const formItems: FormConfig<BeforeEventProps, 'newcomerInfo'> = {
-  basicPurpose: {
-    required: true,
-    element: (
-      <Radio.Group>
-        <Space direction="vertical">
-          {Object.entries(basicPurposes).map(([value, name]) => (
-            <Radio.Button value={value} key={value}>
-              {name}
-            </Radio.Button>
-          ))}
-        </Space>
-      </Radio.Group>
-    ),
-  },
-  name: {
-    label: 'Název',
-    required: true,
-    element: <Input />,
-  },
-  dateFromTo: {
-    label: 'Od - Do',
-    required: true,
-    element: <DateRangeStringPicker />,
-  },
-  startTime: {
-    label: 'Začátek akce',
-    required: true,
-    element: <TimePicker format="HH:mm" />,
-  },
-  repetitions: {
-    // @TODO not defined in API
-    label: 'Počet akcí v uvedeném období',
-    required: true,
-    help: 'Používá se u opakovaných akcí (typicky oddílové schůzky). U klasické jednorázové akce zde nechte jedničku.',
-    element: <InputNumber />,
-  },
-  eventType: {
-    label: 'Typ akce',
-    required: true,
-    element: (
-      <Select>
-        {Object.entries(eventTypes).map(([value, label]) => (
-          <Option key={value} value={value}>
-            {label}
-          </Option>
-        ))}
-      </Select>
-    ),
-  },
-  program: {
-    label: 'Program',
-    required: true,
-    element: (
-      <Select>
-        {Object.entries(programs).map(([value, name]) => (
-          <Option key={value} value={value}>
-            {name}
-          </Option>
-        ))}
-      </Select>
-    ),
-  },
-  intendedFor: {
-    label: 'Pro koho',
-    required: true,
-    element: (
-      <Select>
-        {Object.entries(audiences).map(([value, name]) => (
-          <Option key={value} value={value}>
-            {name}
-          </Option>
-        ))}
-      </Select>
-    ),
-  },
-  // the exluded stuff doesn't become a part of the form
-  newcomerInfo: {
-    excluded: true,
-    display: form => form.intendedFor === 'newcomers',
-    element: (
-      <small>
-        <p className="mb-4">
-          Hnutí Brontosaurus pravidelně vytváří nabídku výběrových
-          dobrovolnických akcí, kterými oslovujeme nové účastníky, zejména
-          středoškolskou mládež a začínající vysokoškoláky (15 - 26 let). Cílem
-          akce je oslovit tyto prvoúčastníky a mít jich nejlépe polovinu, (min.
-          třetinu) z celkového počtu účastníků.
-        </p>
-        <p className="mb-4">Zadáním akce pro prvoúčastníky získáte:</p>
-        <p className="mb-4">
-          <ul className="list-disc ml-6">
-            <li>
-              Širší propagaci skrze letáky, osobní kontakty apod. Zveřejnění na
-              letáku VIP propagace.
-            </li>
-            <li>
-              Propagaci na programech pro střední školy - lektoři budou osobně
-              na akce zvát.
-            </li>
-            <li>
-              Zveřejnění na Facebooku a Instagramu HB a reklamu na Facebooku
-            </li>
-            <li>Reklamu v Google vyhledávání</li>
-            <li>Služby grafika HB (dle dohodnutého rozsahu)</li>
-            <li>Přidání do webových katalogů akcí </li>
-            <li>Slevu na inzerci v Roverském kmenu (pro tábory)</li>
-            <li>Zpětnou vazbu k webu a Facebooku akce</li>
-            <li>Metodickou pomoc a pomoc s agendou akce</li>
-            <li>Propagace na novém webu HB v sekci Jedu poprvé</li>
-          </ul>
-        </p>
-      </small>
-    ),
-  },
-  newcomerText1: {
-    label: 'Cíle akce a přínos pro prvoúčastníky',
-    help: 'Jaké je hlavní téma vaší akce? Jaké jsou hlavní cíle akce? Co nejvýstižněji popište, co akce přináší účastníkům, co zajímavého si zkusí, co se dozví, naučí, v čem se rozvinou…',
-    display: form => form.intendedFor === 'newcomers',
-    element: <Input.TextArea />,
-  },
-  newcomerText2: {
-    label: 'Programové pojetí akce pro prvoúčastníky',
-    help: 'V základu uveďte, jak bude vaše akce programově a dramaturgicky koncipována (motivační příběh, zaměření programu – hry, diskuse, řemesla,...). Uveďte, jak náplň a program akce reflektují potřeby vaší cílové skupiny prvoúčastníků.',
-    display: form => form.intendedFor === 'newcomers',
-    element: <Input.TextArea />,
-  },
-  newcomerText3: {
-    label: 'Krátký zvací text do propagace',
-    help: 'Ve 2-4 větách nalákejte na vaši akci a zdůrazněte osobní přínos pro účastníky (max. 200 znaků)',
-    display: form => form.intendedFor === 'newcomers',
-    element: <Input.TextArea />,
-    rules: [
-      {
-        max: 200,
-        message: 'max 200 znaků',
-      },
-    ],
-  },
-  administrativeUnit: {
-    label: 'Pořádající ZČ/Klub/RC/ústředí',
-    required: true,
-    element: <SelectAdministrativeUnit />,
-  },
-  location: {
-    label: 'Vybrat místo akce na mapě',
-    required: form => form.basicPurpose === 'camp',
-    element: <EditLocation className="h-56 w-56" />,
-  },
-  locationInfo: {
-    label: 'Místo konání akce',
-    help: 'název/popis místa, kde se akce koná',
-    required: true,
-    element: <Input.TextArea />,
-  },
-  targetMembers: {
-    label: 'Na koho je akce zaměřená',
-    required: true,
-    element: (
-      <Radio.Group
-        options={[
-          { label: 'Na členy', value: true },
-          { label: 'Na nečleny', value: false },
-        ]}
-        optionType="button"
-      />
-    ),
-  },
-  advertiseInRoverskyKmen: {
-    label: 'Propagovat akci v Roverském kmeni',
-    display: form => form.basicPurpose === 'camp',
-    required: true,
-    element: (
-      <Radio.Group
-        options={[
-          { label: 'Ano', value: true },
-          { label: 'Ne', value: false },
-        ]}
-        optionType="button"
-      />
-    ),
-  },
-  advertiseInBrontoWeb: {
-    label: 'Zveřejnit na brontosauřím webu',
-    required: true,
-    element: (
-      <Radio.Group
-        options={[
-          { label: 'Ano', value: true },
-          { label: 'Ne', value: false },
-        ]}
-        optionType="button"
-      />
-    ),
-  },
-  registrationMethod: {
-    label: 'Způsob přihlášení',
-    required: true,
-    element: (
-      <Select>
-        {Object.entries(registrationMethods).map(([value, label]) => (
-          <Option key={value} value={value}>
-            {label}
-          </Option>
-        ))}
-      </Select>
-    ),
-  },
-  registrationMethodFormUrl: {
-    label: 'Odkaz na elektronickou přihlášku',
-    required: true,
-    display: form => form.registrationMethod === 'other_electronic',
-    element: <Input />,
-  },
-  registrationMethodEmail: {
-    label: 'Přihlašovací email',
-    required: true,
-    display: form => form.registrationMethod === 'by_email',
-    element: <Input type="email" />,
-  },
-  ...additionalQuestions,
-  participationFee: {
-    label: 'Účastnický poplatek (CZK)',
-    required: true,
-    element: <Input />,
-  },
-  age: {
-    label: 'Věk',
-    required: true,
-    element: (
-      <Slider range defaultValue={[0, 100]} marks={{ 0: 0, 100: 100 }} />
-    ),
-  },
-  accommodation: {
-    label: 'Ubytování',
-    required: true,
-    display: form =>
-      form.basicPurpose === 'camp' ||
-      form.basicPurpose === 'action-with-attendee-list',
-    element: <Input />,
-  },
-  diet: {
-    label: 'Strava',
-    required: true,
-    display: form =>
-      form.basicPurpose === 'camp' ||
-      form.basicPurpose === 'action-with-attendee-list',
-    element: (
-      <Select mode="multiple">
-        {Object.entries(diets).map(([value, name]) => (
-          <Option key={value} value={value}>
-            {name}
-          </Option>
-        ))}
-      </Select>
-    ),
-  },
-  workingHours: {
-    label: 'Pracovní doba',
-    display: form => form.basicPurpose === 'camp',
-    element: <InputNumber />,
-  },
-  workingDays: {
-    label: 'Počet pracovních dní na akci',
-    display: form => form.basicPurpose === 'camp',
-    element: <InputNumber />,
-  },
-  contactPersonName: {
-    label: 'Jméno kontaktní osoby',
-    required: true,
-    element: <Input />,
-  },
-  contactPersonEmail: {
-    label: 'Kontaktní email',
-    required: true,
-    element: <Input />,
-  },
-  contactPersonTelephone: {
-    label: 'Kontaktní telefon',
-    element: <Input />,
-  },
-  webUrl: {
-    label: 'Web o akci',
-    help: 'Web akce (v případě že nějaký existuje)',
-    element: <Input />,
-  },
-  note: {
-    label: 'Poznámka',
-    help: 'vidí jenom lidé s přístupem do BISu, kteří si akci prohlížejí přímo v systému',
-    element: <Input.TextArea />,
-  },
-  responsiblePerson: {
-    label: 'Hlavní organizátor/ka',
-    required: true,
-    element: ({ basicPurpose, eventType, intendedFor }) => (
-      <SelectPerson
-        LabelComponent={QualifiedPersonLabel}
-        getDisabled={(person: Person) =>
-          !getIsQualified(
-            { basicPurpose, eventType, intendedFor },
-            person.qualifications,
-          )
-        }
-      />
-    ),
-    rules: [
-      ({ getFieldValue }) => ({
-        validator: async (_, personId) => {
-          const intendedFor = getFieldValue('intendedFor')
-          const eventType = getFieldValue('eventType')
-          const basicPurpose = getFieldValue('basicPurpose')
-          if (!basicPurpose) throw new Error('Vyplňte nejdřív Druh akce')
-          if (!eventType) throw new Error('Vyplňte nejdřív Typ akce')
-          if (!intendedFor)
-            throw new Error('Vyplňte nejdřív Pro koho je akce určena')
-          // get the person from id
-          const state = store.getState()
-          const person = selectPerson(state, personId)
-          if (!person) throw new Error('Člověk nenalezen')
-          const isQualified = getIsQualified(
-            { basicPurpose, eventType, intendedFor },
-            person.qualifications,
-          )
-          if (!isQualified)
-            throw new Error(
-              `${person.givenName} ${person.familyName} nemá dostatečnou kvalifikaci`,
-            )
-        },
-      }),
-    ],
-  },
-  team: {
-    label: 'Organizační tým',
-    element: <SelectPerson multiple />,
-  },
-  invitationText1: {
-    label: 'Zvací text: Co nás čeká',
-    required: true,
-    element: <Input.TextArea />,
-  },
-  invitationText2: {
-    label: 'Zvací text: Co, kde a jak',
-    required: true,
-    element: <Input.TextArea />,
-  },
-  invitationText3: {
-    label: 'Zvací text: dobrovolnická pomoc',
-    required: form => form.eventType === 'dobrovolnicka',
-    element: <Input.TextArea />,
-  },
-  invitationText4: {
-    label: 'Zvací text: Malá ochutnávka',
-    required: true,
-    element: <Input.TextArea />,
-  },
-  mainPhoto: {
-    label: 'Hlavní fotka',
-    help: 'Foto se zobrazí v rámečku akce, jako hlavní fotka',
-    required: true,
-    element: <Upload listType="picture-card">+</Upload>,
-    // @TODO or allow adding url to a picture
-  },
-  additionalPhotos: {
-    label: 'Fotky k malé ochutnávce',
-    help: 'Zobrazí se pod textem „Zvací text: Malá ochutnávka“',
-    element: <Upload listType="picture-card">+</Upload>,
-    // @TODO or allow adding url to a picture
-  },
-}
-
-const stepConfig: StepConfig<BeforeEventProps, 'newcomerInfo'>[] = [
-  { title: 'Druh', items: ['basicPurpose'] },
-  {
-    title: 'Typ',
-    items: [
-      'eventType',
-      'program',
-      'administrativeUnit',
-      'intendedFor',
-      'newcomerInfo',
-      'newcomerText1',
-      'newcomerText2',
-      'newcomerText3',
-    ],
-  },
-  {
-    title: 'Info',
-    items: ['name', 'dateFromTo', 'startTime', 'repetitions'],
-  },
-  { title: 'Místo', items: ['location', 'locationInfo'] },
-
-  { title: 'Tým', items: ['responsiblePerson', 'team'] },
-  {
-    title: 'Registrace',
-    items: [
-      'registrationMethod',
-      'registrationMethodEmail',
-      'registrationMethodFormUrl',
-      'additionalQuestion1',
-      'additionalQuestion2',
-      'additionalQuestion3',
-      'additionalQuestion4',
-      'additionalQuestion5',
-      'additionalQuestion6',
-      'additionalQuestion7',
-      'additionalQuestion8',
-    ],
-  },
-  {
-    title: 'Podrobnosti',
-    items: [
-      'targetMembers',
-      'advertiseInRoverskyKmen',
-      'advertiseInBrontoWeb',
-      'participationFee',
-      'age',
-      'accommodation',
-      'diet',
-      'workingHours',
-      'workingDays',
-    ],
-  },
-  {
-    title: 'Kontakt',
-    items: [
-      'contactPersonName',
-      'contactPersonEmail',
-      'contactPersonTelephone',
-      'webUrl',
-      'note',
-    ],
-  },
-  {
-    title: 'Pozvánka',
-    items: [
-      'invitationText1',
-      'invitationText2',
-      'invitationText3',
-      'invitationText4',
-      'mainPhoto',
-      'additionalPhotos',
-    ],
-  },
-]
-
-const findUnusedFields = () => {
-  const defined = Object.keys(formItems) as (keyof typeof formItems)[]
-  const used = stepConfig.map(({ items }) => items).flat()
-  const unused = defined.filter(a => !used.includes(a))
-  return unused
-}
-
-console.log(findUnusedFields())
-
-/*  TODO this just needs more attention. The logic of updating seems a bit broken.
- */
 const CreateEvent = () => {
+  const [step, setStep] = useState(0)
+  const [form] = Form.useForm<BeforeEventProps>()
   const dispatch = useAppDispatch()
   const eventId = Number(useParams()?.eventId ?? -1)
   const cloneEventId = Number(useSearchParams()[0].get('cloneEvent') ?? -1)
 
-  const event = useAppSelector(state => selectEvent(state, eventId))
-  /* TODO figure out which fields to clone */
-  const cloneEvent = useAppSelector(state => selectEvent(state, cloneEventId))
+  const event = useAppSelector(state =>
+    selectEvent(state, eventId >= 0 ? eventId : cloneEventId),
+  )
+
+  useEffect(() => {
+    if (event) {
+      form.setFieldsValue(event)
+      form.validateFields()
+    }
+  }, [event, form])
+
   const status = useAppSelector(state => state.event.loadingStatus)
 
   useEffect(() => {
     if (eventId >= 0) dispatch(readEvent(eventId))
-  }, [eventId, dispatch])
+    if (cloneEventId >= 0) dispatch(readEvent(cloneEventId))
+  }, [eventId, cloneEventId, dispatch])
 
   if (status === 'loading') return <div>Loading</div>
 
   /* TODO when we're updating, we need to dispatch update, not create. */
+
+  const steps = [
+    {
+      label: 'Druh',
+      element: (
+        <Form.Item name="basicPurpose" rules={[{ required: true }]}>
+          <Radio.Group>
+            <Space direction="vertical">
+              {Object.entries(basicPurposes).map(([value, name]) => (
+                <Radio.Button value={value} key={value}>
+                  {name}
+                </Radio.Button>
+              ))}
+            </Space>
+          </Radio.Group>
+        </Form.Item>
+      ),
+      items: ['basicPurpose'],
+    },
+    {
+      title: 'Typ',
+      element: (
+        <>
+          <Form.Item
+            name="eventType"
+            label="Typ akce"
+            rules={[{ required: true }]}
+          >
+            <Select>
+              {Object.entries(eventTypes).map(([value, label]) => (
+                <Select.Option key={value} value={value}>
+                  {label}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="program"
+            label="Program"
+            rules={[{ required: true }]}
+          >
+            <Select>
+              {Object.entries(programs).map(([value, name]) => (
+                <Select.Option key={value} value={value}>
+                  {name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="administrativeUnit"
+            label="Pořádající ZČ/Klub/RC/ústředí"
+            rules={[{ required: true }]}
+          >
+            <SelectAdministrativeUnit />
+          </Form.Item>
+          <Form.Item
+            name="intendedFor"
+            label="Pro koho"
+            rules={[{ required: true }]}
+          >
+            <Select>
+              {Object.entries(audiences).map(([value, name]) => (
+                <Select.Option key={value} value={value}>
+                  {name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item shouldUpdate>
+            {() =>
+              form.getFieldValue('intendedFor') === 'newcomers' ? (
+                <>
+                  <small>
+                    <p className="mb-4">
+                      Hnutí Brontosaurus pravidelně vytváří nabídku výběrových
+                      dobrovolnických akcí, kterými oslovujeme nové účastníky,
+                      zejména středoškolskou mládež a začínající vysokoškoláky
+                      (15 - 26 let). Cílem akce je oslovit tyto prvoúčastníky a
+                      mít jich nejlépe polovinu, (min. třetinu) z celkového
+                      počtu účastníků.
+                    </p>
+                    <p className="mb-4">
+                      Zadáním akce pro prvoúčastníky získáte:
+                    </p>
+                    <p className="mb-4">
+                      <ul className="list-disc ml-6">
+                        <li>
+                          Širší propagaci skrze letáky, osobní kontakty apod.
+                          Zveřejnění na letáku VIP propagace.
+                        </li>
+                        <li>
+                          Propagaci na programech pro střední školy - lektoři
+                          budou osobně na akce zvát.
+                        </li>
+                        <li>
+                          Zveřejnění na Facebooku a Instagramu HB a reklamu na
+                          Facebooku
+                        </li>
+                        <li>Reklamu v Google vyhledávání</li>
+                        <li>Služby grafika HB (dle dohodnutého rozsahu)</li>
+                        <li>Přidání do webových katalogů akcí </li>
+                        <li>Slevu na inzerci v Roverském kmenu (pro tábory)</li>
+                        <li>Zpětnou vazbu k webu a Facebooku akce</li>
+                        <li>Metodickou pomoc a pomoc s agendou akce</li>
+                        <li>Propagace na novém webu HB v sekci Jedu poprvé</li>
+                      </ul>
+                    </p>
+                  </small>
+
+                  <Form.Item
+                    name="newcomerText1"
+                    label="Cíle akce a přínos pro prvoúčastníky"
+                    tooltip="Jaké je hlavní téma vaší akce? Jaké jsou hlavní cíle akce? Co nejvýstižněji popište, co akce přináší účastníkům, co zajímavého si zkusí, co se dozví, naučí, v čem se rozvinou…"
+                  >
+                    <Input.TextArea />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="newcomerText2"
+                    label="Programové pojetí akce pro prvoúčastníky"
+                    tooltip="V základu uveďte, jak bude vaše akce programově a dramaturgicky koncipována (motivační příběh, zaměření programu – hry, diskuse, řemesla,...). Uveďte, jak náplň a program akce reflektují potřeby vaší cílové skupiny prvoúčastníků."
+                  >
+                    <Input.TextArea />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="newcomerText3"
+                    label="Krátký zvací text do propagace"
+                    tooltip="Ve 2-4 větách nalákejte na vaši akci a zdůrazněte osobní přínos pro účastníky (max. 200 znaků)"
+                    rules={[
+                      {
+                        max: 200,
+                        message: 'max 200 znaků',
+                      },
+                    ]}
+                  >
+                    <Input.TextArea />
+                  </Form.Item>
+                </>
+              ) : null
+            }
+          </Form.Item>
+        </>
+      ),
+      items: [
+        'eventType',
+        'program',
+        'administrativeUnit',
+        'intendedFor',
+        'newcomerText1',
+        'newcomerText2',
+        'newcomerText3',
+      ],
+    },
+    {
+      title: 'Info',
+      element: (
+        <>
+          <Form.Item name="name" label="Název" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="dateFromTo"
+            label="Od - Do"
+            rules={[{ required: true }]}
+          >
+            <DateRangeStringPicker />
+          </Form.Item>
+          <Form.Item
+            name="startTime"
+            label="Začátek akce"
+            rules={[{ required: true }]}
+          >
+            <TimePicker format="HH:mm" />
+          </Form.Item>
+          <Form.Item
+            name="repetitions"
+            label="Počet akcí v uvedeném období"
+            tooltip="Používá se u opakovaných akcí (typicky oddílové schůzky). U klasické jednorázové akce zde nechte jedničku."
+            rules={[{ required: true }]}
+          >
+            <InputNumber />
+          </Form.Item>
+        </>
+      ),
+      items: ['name', 'dateFromTo', 'startTime', 'repetitions'],
+    },
+    {
+      title: 'Místo',
+      element: (
+        <>
+          <Form.Item shouldUpdate>
+            {() => (
+              <Form.Item
+                name="location"
+                label="Vybrat místo akce na mapě"
+                required={form.getFieldValue('basicPurpose') === 'camp'}
+              >
+                <EditLocation className="h-56 w-56" />
+              </Form.Item>
+            )}
+          </Form.Item>
+          <Form.Item
+            name="locationInfo"
+            label="Místo konání akce"
+            tooltip="název/popis místa, kde se akce koná"
+            rules={[{ required: true }]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+        </>
+      ),
+      items: ['location', 'locationInfo'],
+    },
+
+    {
+      title: 'Tým',
+      element: (
+        <>
+          <Form.Item shouldUpdate>
+            {() => (
+              <Form.Item
+                name="responsiblePerson"
+                label="Hlavní organizátor/ka"
+                rules={[
+                  { required: true },
+                  ({ getFieldValue }) => ({
+                    validator: async (_, personId) => {
+                      const intendedFor = getFieldValue('intendedFor')
+                      const eventType = getFieldValue('eventType')
+                      const basicPurpose = getFieldValue('basicPurpose')
+                      if (!basicPurpose)
+                        throw new Error('Vyplňte nejdřív Druh akce')
+                      if (!eventType)
+                        throw new Error('Vyplňte nejdřív Typ akce')
+                      if (!intendedFor)
+                        throw new Error(
+                          'Vyplňte nejdřív Pro koho je akce určena',
+                        )
+                      // get the person from id
+                      const state = store.getState()
+                      const person = selectPerson(state, personId)
+                      if (!person) throw new Error('Člověk nenalezen')
+                      const isQualified = getIsQualified(
+                        { basicPurpose, eventType, intendedFor },
+                        person.qualifications,
+                      )
+                      if (!isQualified)
+                        throw new Error(
+                          `${person.givenName} ${person.familyName} nemá dostatečnou kvalifikaci`,
+                        )
+                    },
+                  }),
+                ]}
+              >
+                <SelectPerson
+                  LabelComponent={QualifiedPersonLabel}
+                  getDisabled={(person: Person) =>
+                    !getIsQualified(
+                      {
+                        basicPurpose: form.getFieldValue('basicPurpose'),
+                        eventType: form.getFieldValue('eventType'),
+                        intendedFor: form.getFieldValue('intendedFor'),
+                      },
+                      person.qualifications,
+                    )
+                  }
+                />
+              </Form.Item>
+            )}
+          </Form.Item>
+          <Form.Item name="team" label="Organizační tým">
+            <SelectPerson multiple />
+          </Form.Item>
+        </>
+      ),
+      items: ['responsiblePerson', 'team'],
+    },
+    {
+      title: 'Registrace',
+      element: (
+        <>
+          <Form.Item
+            name="registrationMethod"
+            label="Způsob přihlášení"
+            rules={[{ required: true }]}
+          >
+            <Select>
+              {Object.entries(registrationMethods).map(([value, label]) => (
+                <Select.Option key={value} value={value}>
+                  {label}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item shouldUpdate>
+            {() => {
+              switch (form.getFieldValue('registrationMethod')) {
+                case 'other_electronic':
+                  return (
+                    <Form.Item
+                      name="registrationMethodFormUrl"
+                      label="Odkaz na elektronickou přihlášku"
+                      rules={[{ required: true }]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  )
+                case 'by_email':
+                  return (
+                    <Form.Item
+                      name="registrationMethodEmail"
+                      label="Přihlašovací email"
+                      rules={[{ required: true }]}
+                    >
+                      <Input type="email" />
+                    </Form.Item>
+                  )
+                case 'standard':
+                  return [1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                    <Form.Item
+                      key={i}
+                      name={`additionalQuestion${i}`}
+                      label={`Otázka ${i}`}
+                      rules={[{ required: true }]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  ))
+                default:
+                  return null
+              }
+            }}
+          </Form.Item>
+        </>
+      ),
+      items: [
+        'registrationMethod',
+        'registrationMethodEmail',
+        'registrationMethodFormUrl',
+        'additionalQuestion1',
+        'additionalQuestion2',
+        'additionalQuestion3',
+        'additionalQuestion4',
+        'additionalQuestion5',
+        'additionalQuestion6',
+        'additionalQuestion7',
+        'additionalQuestion8',
+      ],
+    },
+    {
+      title: 'Podrobnosti',
+      element: (
+        <>
+          <Form.Item
+            name="targetMembers"
+            label="Na koho je akce zaměřená"
+            rules={[{ required: true }]}
+          >
+            <Radio.Group
+              options={[
+                { label: 'Na členy', value: true },
+                { label: 'Na nečleny', value: false },
+              ]}
+              optionType="button"
+            />
+          </Form.Item>
+          <Form.Item shouldUpdate>
+            {() =>
+              form.getFieldValue('basicPurpose') === 'camp' ? (
+                <Form.Item
+                  name="advertiseInRoverskyKmen"
+                  label="Propagovat akci v Roverském kmeni"
+                  rules={[{ required: true }]}
+                >
+                  <Radio.Group
+                    options={[
+                      { label: 'Ano', value: true },
+                      { label: 'Ne', value: false },
+                    ]}
+                    optionType="button"
+                  />
+                </Form.Item>
+              ) : null
+            }
+          </Form.Item>
+          <Form.Item
+            name="advertiseInBrontoWeb"
+            label="Zveřejnit na brontosauřím webu"
+            rules={[{ required: true }]}
+          >
+            <Radio.Group
+              options={[
+                { label: 'Ano', value: true },
+                { label: 'Ne', value: false },
+              ]}
+              optionType="button"
+            />
+          </Form.Item>
+          <Form.Item
+            name="participationFee"
+            label="Účastnický poplatek (CZK)"
+            rules={[{ required: true }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="age" label="Věk" rules={[{ required: true }]}>
+            <Slider range defaultValue={[0, 100]} marks={{ 0: 0, 100: 100 }} />
+          </Form.Item>
+          <Form.Item shouldUpdate>
+            {() =>
+              ['camp', 'action-with-attendee-list'].includes(
+                form.getFieldValue('basicPurpose'),
+              ) && (
+                <>
+                  <Form.Item
+                    name="accommodation"
+                    label="Ubytování"
+                    rules={[{ required: true }]}
+                  >
+                    <Input />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="diet"
+                    label="Strava"
+                    rules={[{ required: true }]}
+                  >
+                    <Select mode="multiple">
+                      {Object.entries(diets).map(([value, name]) => (
+                        <Select.Option key={value} value={value}>
+                          {name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </>
+              )
+            }
+          </Form.Item>
+          <Form.Item shouldUpdate>
+            {() =>
+              form.getFieldValue('basicPurpose') === 'camp' && (
+                <>
+                  <Form.Item name="workingHours" label="Pracovní doba">
+                    <InputNumber />
+                  </Form.Item>
+                  <Form.Item
+                    name="workingDays"
+                    label="Počet pracovních dní na akci"
+                  >
+                    <InputNumber />
+                  </Form.Item>
+                </>
+              )
+            }
+          </Form.Item>
+        </>
+      ),
+      items: [
+        'targetMembers',
+        'advertiseInRoverskyKmen',
+        'advertiseInBrontoWeb',
+        'participationFee',
+        'age',
+        'accommodation',
+        'diet',
+        'workingHours',
+        'workingDays',
+      ],
+    },
+    {
+      title: 'Kontakt',
+      element: (
+        <>
+          <Form.Item
+            name="contactPersonName"
+            label="Jméno kontaktní osoby"
+            rules={[{ required: true }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="contactPersonEmail"
+            label="Kontaktní email"
+            rules={[{ required: true }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="contactPersonTelephone" label="Kontaktní telefon">
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="webUrl"
+            label="Web o akci"
+            tooltip="Web akce (v případě že nějaký existuje)"
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="note"
+            label="Poznámka"
+            tooltip="vidí jenom lidé s přístupem do BISu, kteří si akci prohlížejí přímo v systému"
+          >
+            <Input.TextArea />
+          </Form.Item>
+        </>
+      ),
+      items: [
+        'contactPersonName',
+        'contactPersonEmail',
+        'contactPersonTelephone',
+        'webUrl',
+        'note',
+      ],
+    },
+    {
+      title: 'Pozvánka',
+      element: (
+        <>
+          <Form.Item
+            name="invitationText1"
+            label="Zvací text: Co nás čeká"
+            rules={[{ required: true }]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+          <Form.Item
+            name="invitationText2"
+            label="Zvací text: Co, kde a jak"
+            rules={[{ required: true }]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+          <Form.Item shouldUpdate>
+            {() => (
+              <Form.Item
+                name="invitationText3"
+                label="Zvací text: dobrovolnická pomoc"
+                required={form.getFieldValue('eventType') === 'dobrovolnicka'}
+              >
+                <Input.TextArea />
+              </Form.Item>
+            )}
+          </Form.Item>
+          <Form.Item
+            name="invitationText4"
+            label="Zvací text: Malá ochutnávka"
+            rules={[{ required: true }]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+          <Form.Item
+            name="mainPhoto"
+            label="Hlavní fotka"
+            tooltip="Foto se zobrazí v rámečku akce, jako hlavní fotka"
+            rules={[{ required: true }]}
+          >
+            <Upload listType="picture-card">+</Upload>
+          </Form.Item>
+          {
+            // @TODO or allow adding url to a picture
+          }
+          <Form.Item
+            name="additionalPhotos"
+            label="Fotky k malé ochutnávce"
+            tooltip="Zobrazí se pod textem „Zvací text: Malá ochutnávka“"
+          >
+            <Upload listType="picture-card">+</Upload>
+          </Form.Item>
+          {
+            // @TODO or allow adding url to a picture
+          }
+        </>
+      ),
+      items: [
+        'invitationText1',
+        'invitationText2',
+        'invitationText3',
+        'invitationText4',
+        'mainPhoto',
+        'additionalPhotos',
+      ],
+    },
+  ]
+
+  const validateMessages = {
+    required: "Pole '${label}' je povinné!",
+  }
+
   return (
-    <StepForm
-      steps={stepConfig}
-      formItems={formItems}
+    <Form<BeforeEventProps>
       onFinish={values => dispatch(createEvent(values))}
-      initialFormData={event ?? cloneEvent}
-    />
+      form={form}
+      layout="vertical"
+      validateMessages={validateMessages}
+      onValuesChange={value => {
+        // if any of the following fields change
+        // (intendedFor, eventType, basicPurpose)
+        // validate responsiblePerson again
+        // because their qualification requirements may have changed
+        if (
+          ['intendedFor', 'eventType', 'basicPurpose'].some(key =>
+            Object.keys(value).includes(key),
+          )
+        )
+          form.validateFields(['responsiblePerson'])
+      }}
+      initialValues={event}
+    >
+      <Form.Item shouldUpdate>
+        {() => (
+          <Steps size="small" current={step} className="mb-8">
+            {steps.map(({ title, items }, index) => (
+              <>
+                <Steps.Step
+                  title={title}
+                  key={index}
+                  onStepClick={i => setStep(i)}
+                  status={
+                    index === step ? 'process' : getStepStatus(form, items)
+                  }
+                />
+              </>
+            ))}
+          </Steps>
+        )}
+      </Form.Item>
+      {steps.map(({ element }, index) => (
+        <div key={index} className={index !== step ? 'hidden' : undefined}>
+          {element}
+        </div>
+      ))}
+      <div className="steps-action">
+        {step > 0 && (
+          <Button
+            style={{ margin: '0 8px' }}
+            onClick={() => setStep(step => step - 1)}
+          >
+            Zpět
+          </Button>
+        )}
+        {step < steps.length - 1 && (
+          <Button type="primary" onClick={() => setStep(step => step + 1)}>
+            Dál
+          </Button>
+        )}
+        {step === steps.length - 1 && (
+          <Button type="primary" htmlType="submit">
+            Hotovo
+          </Button>
+        )}
+      </div>
+    </Form>
   )
 }
 
