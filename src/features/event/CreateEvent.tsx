@@ -9,8 +9,10 @@ import {
   Space,
   Steps,
   TimePicker,
+  Tooltip,
   Upload,
 } from 'antd'
+import { QuestionCircleOutlined } from '@ant-design/icons'
 import { FormInstance } from 'antd/es/form/Form'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
@@ -112,7 +114,7 @@ const CreateEvent = () => {
 
   const steps = [
     {
-      label: 'Druh',
+      title: 'Druh',
       element: (
         <Form.Item name="basicPurpose" rules={[{ required: true }]}>
           <Radio.Group>
@@ -168,6 +170,7 @@ const CreateEvent = () => {
           <Form.Item
             name="intendedFor"
             label="Pro koho"
+            tooltip="vyberte na koho je akce zaměřená"
             rules={[{ required: true }]}
           >
             <Select>
@@ -288,7 +291,7 @@ const CreateEvent = () => {
           <Form.Item
             name="repetitions"
             label="Počet akcí v uvedeném období"
-            tooltip="Používá se u opakovaných akcí (typicky oddílové schůzky). U klasické jednorázové akce zde nechte jedničku."
+            tooltip="Používá se u opakovaných akcí (např. oddílové schůzky). U klasické jednorázové akce zde nechte jedničku."
             rules={[{ required: true }]}
           >
             <InputNumber />
@@ -334,6 +337,7 @@ const CreateEvent = () => {
               <Form.Item
                 name="responsiblePerson"
                 label="Hlavní organizátor/ka"
+                tooltip="Hlavní organizátor musí mít náležité kvalifikace a za celou akci zodpovídá. Je nutné zadávat hlavního organizátora do BIS před akcí, aby měl automaticky sjednané pojištění odpovědnosti za škodu a úrazové pojištění."
                 rules={[
                   { required: true },
                   ({ getFieldValue }) => ({
@@ -381,7 +385,11 @@ const CreateEvent = () => {
               </Form.Item>
             )}
           </Form.Item>
-          <Form.Item name="team" label="Organizační tým">
+          <Form.Item
+            name="team"
+            label="Organizační tým"
+            tooltip="Vyberte jména dalších organizátorů. Organizátory je možné ještě připojistit na úrazové pojištění a pojištění odpovědnosti za škodu."
+          >
             <SelectPerson multiple />
           </Form.Item>
         </>
@@ -395,14 +403,22 @@ const CreateEvent = () => {
           <Form.Item
             name="registrationMethod"
             label="Způsob přihlášení"
+            tooltip="Způsoby přihlášení na vaši akci na www.brontosaurus.cz, které se zobrazí po kliknutí na tlačítko “chci jet”"
             rules={[{ required: true }]}
           >
             <Select>
-              {Object.entries(registrationMethods).map(([value, label]) => (
-                <Select.Option key={value} value={value}>
-                  {label}
-                </Select.Option>
-              ))}
+              {Object.entries(registrationMethods).map(
+                ([value, { label, help }]) => (
+                  <Select.Option key={value} value={value} tooltip={help}>
+                    <span className="flex items-center gap-1">
+                      {label}{' '}
+                      <Tooltip title={help}>
+                        <QuestionCircleOutlined className="cursor-help" />
+                      </Tooltip>
+                    </span>
+                  </Select.Option>
+                ),
+              )}
             </Select>
           </Form.Item>
           <Form.Item shouldUpdate>
@@ -429,11 +445,12 @@ const CreateEvent = () => {
                     </Form.Item>
                   )
                 case 'standard':
-                  return [1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                  return [1, 2, 3, 4].map(i => (
                     <Form.Item
                       key={i}
                       name={`additionalQuestion${i}`}
                       label={`Otázka ${i}`}
+                      tooltip="Zde můžeš připsat svoje doplňující otázky pro účastníky, které se zobrazí u standardní přihlášky na brontowebu"
                       rules={[{ required: true }]}
                     >
                       <Input />
@@ -467,6 +484,7 @@ const CreateEvent = () => {
           <Form.Item
             name="targetMembers"
             label="Na koho je akce zaměřená"
+            tooltip="Akce zaměřená na členy jsou interní akce HB - valné hromady, týmovky atd."
             rules={[{ required: true }]}
           >
             <Radio.Group
@@ -483,6 +501,7 @@ const CreateEvent = () => {
                 <Form.Item
                   name="advertiseInRoverskyKmen"
                   label="Propagovat akci v Roverském kmeni"
+                  tooltip="Placená propagace vaší vícedenní akce v časopisu Roverský kmen za poplatek 100 Kč."
                   rules={[{ required: true }]}
                 >
                   <Radio.Group
@@ -499,6 +518,7 @@ const CreateEvent = () => {
           <Form.Item
             name="advertiseInBrontoWeb"
             label="Zveřejnit na brontosauřím webu"
+            tooltip="Pokud zaškrtnete ano, akce se zobrazí na webu www. brontosaurus.cz. Volbu ne zaškrtněte pouze jedná-li se o interní akci HB nebo interní akci Brďa."
             rules={[{ required: true }]}
           >
             <Radio.Group
@@ -512,6 +532,7 @@ const CreateEvent = () => {
           <Form.Item
             name="participationFee"
             label="Účastnický poplatek (CZK)"
+            tooltip="Napište pouze částku, znak Kč se na webu zobrazí automaticky. Pokud máte více druhů poplatků, jejich výši napište za lomítko např. 150/200/250"
             rules={[{ required: true }]}
           >
             <Input />
@@ -605,7 +626,7 @@ const CreateEvent = () => {
           <Form.Item
             name="webUrl"
             label="Web o akci"
-            tooltip="Web akce (v případě že nějaký existuje)"
+            tooltip="Možnost přidat odkaz na webovou stránku vaší akce."
           >
             <Input />
           </Form.Item>
@@ -633,6 +654,7 @@ const CreateEvent = () => {
           <Form.Item
             name="invitationText1"
             label="Zvací text: Co nás čeká"
+            tooltip="Prvních několik vět se zobrazí v přehledu akcí na webu. První věty jsou k upoutání pozornosti nejdůležitější, proto se na ně zaměřte a shrňte na co se účastníci mohou těšit."
             required
             rules={[
               {
@@ -687,6 +709,7 @@ const CreateEvent = () => {
             name="invitationText4"
             label="Zvací text: Malá ochutnávka"
             required
+            tooltip="Malá ochutnávka uvádí fotky, které k akci přiložíte"
             rules={[
               { required: true },
               {
@@ -702,8 +725,8 @@ const CreateEvent = () => {
 
           <Form.Item
             name="mainPhoto"
-            label="Hlavní fotka"
-            tooltip="Foto se zobrazí v rámečku akce, jako hlavní fotka"
+            label="Hlavní foto"
+            tooltip="Hlavní foto se zobrazí v náhledu akce na webu"
             rules={[{ required: true }]}
           >
             <Upload listType="picture-card">+</Upload>
@@ -714,7 +737,7 @@ const CreateEvent = () => {
           <Form.Item
             name="additionalPhotos"
             label="Fotky k malé ochutnávce"
-            tooltip="Zobrazí se pod textem „Zvací text: Malá ochutnávka“"
+            tooltip="Další fotky, které se zobrazí u akce."
           >
             <Upload listType="picture-card">+</Upload>
           </Form.Item>

@@ -52,11 +52,26 @@ export const diets = {
 }
 
 export const registrationMethods = {
-  standard: 'Standardní přihláška na brontowebu',
-  other_electronic: 'Jiná elektronická přihláška',
-  by_email: 'Účastníci se přihlašují na mail organizátora',
-  not_required: 'Registrace není potřeba, stačí přijít',
-  full: 'Máme bohužel plno, zkuste jinou z našich akcí',
+  standard: {
+    label: 'Standardní přihláška na brontowebu (doporučujeme!)',
+    help: 'Je jednotná pro celé HB. Do této přihlášky si můžete přidat 4 vlastní otázky. Vyplněné údaje se pak rovnou zobrazí v BIS, což tobě i kanceláři ulehčí práci.',
+  },
+  other_electronic: {
+    label: 'Jiná elektronická přihláška',
+    help: 'Přesměruje zájemce na vaši přihlášku.',
+  },
+  by_email: {
+    label: 'Účastníci se přihlašují na mail organizátora',
+    help: 'Přesměruje zájemce na outlook s kontaktním emailem.',
+  },
+  not_required: {
+    label: 'Registrace není potřeba, stačí přijít',
+    help: 'Zobrazí se jako text u vaší akce.',
+  },
+  full: {
+    label: 'Máme bohužel plno, zkuste jinou z našich akcí',
+    help: 'Zobrazí se jako text u vaší akce.',
+  },
 }
 
 export type BeforeEventProps = {
