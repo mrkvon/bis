@@ -4,12 +4,13 @@ import { useAppDispatch, useAppSelector } from './app/hooks'
 import CloseEvent from './features/event/CloseEvent'
 import CreateEvent from './features/event/CreateEvent'
 import EventList from './features/event/EventList'
+import EventParticipants from './features/event/EventParticipants'
 import Login from './features/login/Login'
 import { chooseRole, selectLogin } from './features/login/loginSlice'
 import RoleSwitch from './features/login/RoleSwitch'
+import Footer from './Footer'
 import GuidePost from './GuidePost'
 import Header from './Header'
-import EventParticipants from './features/event/EventParticipants'
 
 function App() {
   const { currentRole, isLoggedIn, isPending } = useAppSelector(selectLogin)
@@ -44,6 +45,7 @@ function App() {
             </div>
           )}
         </div>
+        <Footer />
       </div>
     </>
   )
