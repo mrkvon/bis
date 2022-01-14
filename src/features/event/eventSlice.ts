@@ -6,6 +6,7 @@ import {
 } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
 import { Entity } from '../../types'
+import { logout } from '../login/loginSlice'
 import * as personApi from '../person/personAPI'
 import { Person } from '../person/types'
 import * as api from './eventAPI'
@@ -181,7 +182,8 @@ export const eventSlice = createSlice({
         event.participants = event.participants.filter(
           ({ id }) => id !== personId,
         )
-      }),
+      })
+      .addCase(logout, () => initialState),
 })
 
 export const { setStatus } = eventSlice.actions

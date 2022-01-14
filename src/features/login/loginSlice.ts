@@ -33,29 +33,19 @@ export const login = createAsyncThunk(
   },
 )
 
-export const chooseRole =
-  (role: Role | '') => async (dispatch: AppDispatch) => {
-    globalThis.localStorage.setItem('role', role)
-    dispatch(selectRole(role))
-  }
+export const logoutEffect = (dispatch: AppDispatch) => {
+  api.logout()
+  dispatch(loginSlice.actions.logout())
+}
+
+export const chooseRole = (role: Role | '') => (dispatch: AppDispatch) => {
+  globalThis.localStorage.setItem('role', role)
+  dispatch(selectRole(role))
+}
 
 export const init = createAsyncThunk('login/init', async () => {
   try {
-    const me = await api.init()
-    // get the role selected by user
-    const savedRole =
-      (globalThis.localStorage.getItem('role') as Role | '') ?? ''
-
-    const currentRole: Role | '' =
-      savedRole && me.roles.includes(savedRole)
-        ? savedRole
-        : me.roles.length === 1
-        ? me.roles[0]
-        : ''
-    return {
-      ...me,
-      currentRole,
-    }
+    return await api.init()
   } catch (error) {
     if (error instanceof Error && error.message === 'refresh token not found') {
       return null
@@ -72,6 +62,7 @@ const loginSlice = createSlice({
     selectRole: (state, action: PayloadAction<Role | ''>) => {
       state.currentRole = action.payload
     },
+    logout: () => initialState,
   },
   extraReducers: builder =>
     builder
@@ -91,14 +82,14 @@ const loginSlice = createSlice({
         state.isPending = true
       })
       .addMatcher(
-        isAnyOf(init.fulfilled, login.fulfilled, init.rejected, login.rejected),
+        isAnyOf(init.fulfilled, init.rejected, login.rejected),
         state => {
           state.isPending = false
         },
       ),
 })
 
-export const { selectRole } = loginSlice.actions
+export const { selectRole, logout } = loginSlice.actions
 
 export const selectLogin = (state: RootState) => state.login
 export const selectIsLoggedIn = createSelector(
@@ -108,6 +99,11 @@ export const selectIsLoggedIn = createSelector(
 export const selectIsPending = createSelector(
   selectLogin,
   login => login.isPending,
+)
+
+export const selectLoggedUserId = createSelector(
+  selectLogin,
+  login => login.userId,
 )
 
 export default loginSlice.reducer

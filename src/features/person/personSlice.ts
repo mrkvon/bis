@@ -6,7 +6,7 @@ import {
   readEvent,
   readEventParticipants,
 } from '../event/eventSlice'
-import { init } from '../login/loginSlice'
+import { init, logout, selectLoggedUserId } from '../login/loginSlice'
 import * as api from './personAPI'
 import { Person } from './types'
 
@@ -49,7 +49,7 @@ export const personSlice = createSlice({
   name: 'person',
   initialState,
   reducers: {},
-  extraReducers: builder => {
+  extraReducers: builder =>
     builder
       .addCase(searchPeople.pending, state => {
         state.inProgress = true
@@ -119,7 +119,7 @@ export const personSlice = createSlice({
           })
         }
       })
-  },
+      .addCase(logout, () => initialState),
 })
 
 const selectStringParam = (_: RootState, param: string) => param
@@ -155,6 +155,12 @@ export const selectPeople = createSelector(
   selectPersonDict,
   (personIds, personDict) =>
     personIds.map(id => personDict[id]).filter(a => !!a) as Person[],
+)
+
+export const selectLoggedUser = createSelector(
+  selectLoggedUserId,
+  selectPersonDict,
+  (userId, personDict) => personDict[userId],
 )
 
 export const selectInProgress = (state: RootState) => state.person.inProgress

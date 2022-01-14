@@ -1,10 +1,12 @@
 import axios from '../../config/axios'
 import { LoginState } from './loginSlice'
-import { Credentials } from './types'
+import { Credentials, Role } from './types'
 
 const REFRESH_TOKEN_KEY = 'refreshToken'
 
 export const login = async (credentials: Credentials) => {
+  // clear any leftover data
+  logout()
   const response = await axios.request<{ access: string; refresh: string }>({
     method: 'post',
     url: 'token/',
@@ -12,18 +14,18 @@ export const login = async (credentials: Credentials) => {
   })
   const { access, refresh } = response.data
 
-  // TODO save refresh token to local storage
+  // save refresh token to local storage
   globalThis.localStorage.setItem(REFRESH_TOKEN_KEY, refresh)
 
+  // set authorization header to axios
   axios.defaults.headers.common.Authorization = `Bearer ${access}`
 }
 
-export const logout = async () => {
-  // delete refresh token from local storage
-  globalThis.localStorage.removeItem(REFRESH_TOKEN_KEY)
+export const logout = () => {
+  // clear local storage
+  globalThis.localStorage.clear()
   // clear Authorization header with access token
   delete axios.defaults.headers.common.Authorization
-  return
 }
 
 export const init = async () => {
@@ -52,13 +54,23 @@ export const init = async () => {
     roles.unshift('org')
   }
 
+  // get the role selected by user
+  const savedRole = (globalThis.localStorage.getItem('role') as Role | '') ?? ''
+
+  const currentRole: Role | '' =
+    savedRole && roles.includes(savedRole)
+      ? savedRole
+      : roles.length === 1
+      ? roles[0]
+      : ''
+
   return {
-    isLoggedIn: true,
     userId,
     givenName: me.firstName,
     familyName: me.lastName,
     nickname: me.nickname,
     roles,
+    currentRole,
   }
 }
 

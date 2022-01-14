@@ -1,6 +1,7 @@
+import { Link } from 'react-router-dom'
 import { useAppSelector } from './app/hooks'
 import { selectLogin } from './features/login/loginSlice'
-import { Link } from 'react-router-dom'
+import UserMenu from './features/login/UserMenu'
 
 const Header = () => {
   const { currentRole, isLoggedIn } = useAppSelector(selectLogin)
@@ -16,7 +17,7 @@ const Header = () => {
             : 'Uživatele'}
         </h1>
       </Link>
-      {isLoggedIn && <nav>Uživatel</nav>}
+      {isLoggedIn && <UserMenu />}
     </header>
   )
 }
