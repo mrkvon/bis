@@ -6,8 +6,27 @@ import {
   readEvent,
   readEventParticipants,
 } from '../event/eventSlice'
+import { init } from '../login/loginSlice'
 import * as api from './personAPI'
 import { Person } from './types'
+
+const emptyPerson: Person = {
+  id: -1,
+  nickname: '',
+  givenName: '',
+  familyName: '',
+  qualifications: [],
+  birthdate: '',
+  nationalIdentificationNumber: '',
+  permanentAddressStreet: '',
+  permanentAddressCity: '',
+  permanentAddressPostCode: '',
+  contactAddressStreet: '',
+  contactAddressCity: '',
+  contactAddressPostCode: '',
+  phone: '',
+  email: '',
+}
 
 export interface PersonState {
   entities: Entity<Person>
@@ -82,6 +101,23 @@ export const personSlice = createSlice({
             state.entities.allIds.push(person.id)
           }
         })
+      })
+      .addCase(init.fulfilled, (state, action) => {
+        if (action.payload) {
+          const { givenName, familyName, nickname, userId } = action.payload
+
+          if (!state.entities.allIds.includes(userId))
+            state.entities.allIds.push(userId)
+          if (!state.entities.byId[userId])
+            state.entities.byId[userId] = { ...emptyPerson }
+
+          Object.assign(state.entities.byId[userId], {
+            givenName,
+            familyName,
+            nickname,
+            id: userId,
+          })
+        }
       })
   },
 })

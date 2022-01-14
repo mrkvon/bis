@@ -1,3 +1,6 @@
+import camelCase from 'lodash/camelCase'
+import snakeCase from 'lodash/snakeCase'
+
 export const wait = async (delay: number) => {
   await new Promise(resolve => setTimeout(resolve, delay))
 }
@@ -31,3 +34,23 @@ export const html2plaintext = (html: string): string => {
   span.innerHTML = html
   return span.textContent || span.innerText
 }
+
+/**
+ * Take an object and change its keys to camelCase
+ */
+export const props2camelCase = (
+  input: Record<string, unknown>,
+): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(input).map(([key, value]) => [camelCase(key), value]),
+  )
+
+/**
+ * Take an object and change its keys to snake_case
+ */
+export const props2snakeCase = (
+  input: Record<string, unknown>,
+): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(input).map(([key, value]) => [snakeCase(key), value]),
+  )

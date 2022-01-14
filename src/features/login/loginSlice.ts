@@ -2,15 +2,16 @@ import {
   createAsyncThunk,
   createSelector,
   createSlice,
+  isAnyOf,
   PayloadAction,
 } from '@reduxjs/toolkit'
-import { RootState } from '../../app/store'
+import { AppDispatch, RootState } from '../../app/store'
 import * as api from './loginAPI'
 import { Credentials, Role } from './types'
 
 export interface LoginState {
   isLoggedIn: boolean
-  username: string
+  userId: number
   roles: Role[]
   currentRole: '' | Role
   isPending: boolean
@@ -19,44 +20,85 @@ export interface LoginState {
 const initialState: LoginState = {
   isLoggedIn: false,
   isPending: false,
-  username: '',
+  userId: -1,
   roles: [],
   currentRole: '',
 }
 
 export const login = createAsyncThunk(
   'login/login',
-  async (credentials: Credentials) => {
-    return await api.login(credentials)
+  async (credentials: Credentials, { dispatch }) => {
+    await api.login(credentials)
+    dispatch(init())
   },
 )
+
+export const chooseRole =
+  (role: Role | '') => async (dispatch: AppDispatch) => {
+    globalThis.localStorage.setItem('role', role)
+    dispatch(selectRole(role))
+  }
+
+export const init = createAsyncThunk('login/init', async () => {
+  try {
+    const me = await api.init()
+    // get the role selected by user
+    const savedRole =
+      (globalThis.localStorage.getItem('role') as Role | '') ?? ''
+
+    const currentRole: Role | '' =
+      savedRole && me.roles.includes(savedRole)
+        ? savedRole
+        : me.roles.length === 1
+        ? me.roles[0]
+        : ''
+    return {
+      ...me,
+      currentRole,
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message === 'refresh token not found') {
+      return null
+    }
+
+    throw error
+  }
+})
 
 const loginSlice = createSlice({
   name: 'login',
   initialState,
   reducers: {
-    chooseRole: (state, action: PayloadAction<Role | ''>) => {
+    selectRole: (state, action: PayloadAction<Role | ''>) => {
       state.currentRole = action.payload
     },
   },
   extraReducers: builder =>
     builder
-      .addCase(login.fulfilled, (state, action) => {
-        // if user has only one available role, it will be picked
-        // otherwise we won't assign any and user will have to do it
-        const currentRole =
-          action.payload.roles.length === 1 ? action.payload.roles[0] : ''
-        return { ...action.payload, isPending: false, currentRole }
+      .addCase(init.fulfilled, (state, action) => {
+        if (action.payload) {
+          const { userId, roles, currentRole } = action.payload
+          return {
+            isLoggedIn: true,
+            userId,
+            roles,
+            currentRole,
+            isPending: false,
+          }
+        }
       })
-      .addCase(login.pending, state => {
+      .addMatcher(isAnyOf(init.pending, login.pending), state => {
         state.isPending = true
       })
-      .addCase(login.rejected, state => {
-        state.isPending = false
-      }),
+      .addMatcher(
+        isAnyOf(init.fulfilled, login.fulfilled, init.rejected, login.rejected),
+        state => {
+          state.isPending = false
+        },
+      ),
 })
 
-export const { chooseRole } = loginSlice.actions
+export const { selectRole } = loginSlice.actions
 
 export const selectLogin = (state: RootState) => state.login
 export const selectIsLoggedIn = createSelector(

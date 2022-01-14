@@ -1,4 +1,5 @@
 import { Button } from 'antd'
+import { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from './app/hooks'
 import CloseEvent from './features/event/CloseEvent'
@@ -6,7 +7,7 @@ import CreateEvent from './features/event/CreateEvent'
 import EventList from './features/event/EventList'
 import EventParticipants from './features/event/EventParticipants'
 import Login from './features/login/Login'
-import { chooseRole, selectLogin } from './features/login/loginSlice'
+import { chooseRole, init, selectLogin } from './features/login/loginSlice'
 import RoleSwitch from './features/login/RoleSwitch'
 import Footer from './Footer'
 import GuidePost from './GuidePost'
@@ -15,6 +16,9 @@ import Header from './Header'
 function App() {
   const { currentRole, isLoggedIn, isPending } = useAppSelector(selectLogin)
   const dispatch = useAppDispatch()
+  useEffect(() => {
+    dispatch(init())
+  }, [dispatch])
   return (
     <>
       <div className="min-h-screen w-full">
