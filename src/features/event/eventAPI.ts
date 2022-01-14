@@ -78,7 +78,7 @@ const fakeEvents: EventProps[] = range(8).map(i => ({
   newcomerText1: '',
   newcomerText2: '',
   newcomerText3: '',
-  administrativeUnit: '',
+  administrativeUnit: 1,
   location: [(Math.random() - 0.5) * 180, (Math.random() - 0.5) * 360],
   locationInfo: 'here is some location info',
   targetMembers: false,

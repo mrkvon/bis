@@ -1,5 +1,15 @@
+export const administrativeUnitLevel = {
+  regional_center: 'RC',
+  basic_section: 'ZČ',
+  headquarter: 'ústředí',
+  club: 'Klub',
+}
+
+type AdministrativeUnitLevel = keyof typeof administrativeUnitLevel
+
 export type AdministrativeUnit = {
   id: number
   name: string
-  level: 'regional_center' | 'basic_section' | 'headquarter' | 'club'
+  city: string
+  level: AdministrativeUnitLevel
 }

@@ -86,7 +86,7 @@ export type BeforeEventProps = {
   newcomerText1: string
   newcomerText2: string
   newcomerText3: string
-  administrativeUnit: string
+  administrativeUnit: number
   location: [number, number]
   locationInfo: string
   targetMembers: boolean

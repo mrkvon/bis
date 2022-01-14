@@ -1,3 +1,4 @@
+import { deburr } from 'lodash'
 import camelCase from 'lodash/camelCase'
 import snakeCase from 'lodash/snakeCase'
 
@@ -36,14 +37,28 @@ export const html2plaintext = (html: string): string => {
 }
 
 /**
- * Take an object and change its keys to camelCase
+ * Recursively format object or array of objects by provided format function
+ * This is a factory function
  */
-export const props2camelCase = (
-  input: Record<string, unknown>,
-): Record<string, unknown> =>
-  Object.fromEntries(
-    Object.entries(input).map(([key, value]) => [camelCase(key), value]),
-  )
+const formatPropsRecursive =
+  (format: (input: string) => string) =>
+  (
+    input: Record<string, unknown> | Record<string, unknown>[] | unknown,
+  ): Record<string, unknown> | Record<string, unknown>[] | unknown => {
+    if (Array.isArray(input)) {
+      return input.map(item => formatPropsRecursive(format)(item))
+    } else if (input && typeof input === 'object') {
+      return Object.fromEntries(
+        Object.entries(input).map(([key, value]) => [
+          format(key),
+          formatPropsRecursive(format)(value),
+        ]),
+      )
+    } else return input
+  }
+
+export const props2camelCaseRecursive = formatPropsRecursive(camelCase)
+export const props2snakeCaseRecursive = formatPropsRecursive(snakeCase)
 
 /**
  * Take an object and change its keys to snake_case
@@ -54,3 +69,18 @@ export const props2snakeCase = (
   Object.fromEntries(
     Object.entries(input).map(([key, value]) => [snakeCase(key), value]),
   )
+
+/**
+ * Take an object and change its keys to camelCase
+ */
+export const props2camelCase = (
+  input: Record<string, unknown>,
+): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(input).map(([key, value]) => [camelCase(key), value]),
+  )
+
+/** change string to lowercase without diacritics */
+const matchPrepare = (input: string): string => deburr(input).toLowerCase()
+export const match = (full: string, part: string): boolean =>
+  matchPrepare(full).includes(matchPrepare(part))

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { refreshAccessToken } from '../features/login/loginAPI'
-import { props2camelCase, props2snakeCase } from '../helpers'
+import { props2camelCaseRecursive, props2snakeCaseRecursive } from '../helpers'
 
 const instance = axios.create({
   baseURL: 'https://brontosaurus.klub-pratel.cz/api',
@@ -10,7 +10,7 @@ const instance = axios.create({
 instance.interceptors.request.use(
   config => {
     if ('data' in config && typeof config.data === 'object') {
-      config.data = props2snakeCase(config.data)
+      config.data = props2snakeCaseRecursive(config.data)
     }
     return config
   },
@@ -21,7 +21,7 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   response => {
     if ('data' in response && typeof response.data === 'object') {
-      response.data = props2camelCase(response.data)
+      response.data = props2camelCaseRecursive(response.data)
     }
     return response
   },
