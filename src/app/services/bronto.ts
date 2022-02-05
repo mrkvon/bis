@@ -4,24 +4,25 @@ import {
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { readEventParticipants } from '../../features/event/eventAPI'
 import { NullableEventProps, Participant } from '../../features/event/types'
 import { logout, setToken } from '../../features/login/loginSlice'
 import { Credentials, Role } from '../../features/login/types'
 import { readPerson, searchPeople } from '../../features/person/personAPI'
+import { Person } from '../../features/person/types'
 import {
   props2camelCaseRecursive,
   props2snakeCaseRecursive,
 } from '../../helpers'
 import { RootState } from '../store'
 import {
+  AdministrativeUnitResponse,
   CreateEventRequest,
   EventResponse,
   Paginated,
   UpdateEventRequest,
   WhoAmIResponse,
 } from './bronto-types'
-import { Person } from '../../features/person/types'
-import { readEventParticipants } from '../../features/event/eventAPI'
 
 // https://redux-toolkit.js.org/rtk-query/usage/customizing-queries#automatic-re-authorization-by-extending-fetchbasequery
 const baseQuery = fetchBaseQuery({
@@ -83,7 +84,7 @@ const baseQueryWithReauth: BaseQueryFn<
 
 export const brontoApi = createApi({
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['LoggedUser', 'Event', 'Person'],
+  tagTypes: ['LoggedUser', 'Event', 'Person', 'AdministrativeUnit'],
   endpoints: builder => ({
     login: builder.mutation<{ access: string; refresh: string }, Credentials>({
       query: credentials => ({
@@ -211,6 +212,10 @@ export const brontoApi = createApi({
         (result ?? ([] as Person[]))
           .map(person => ({ type: 'Person' as const, id: String(person.id) }))
           .concat([{ type: 'Person', id: query }]),
+    }),
+    getAdministrativeUnits: builder.query<AdministrativeUnitResponse[], void>({
+      query: () => 'bronto/administrative_unit',
+      providesTags: ['AdministrativeUnit'],
     }),
   }),
 })

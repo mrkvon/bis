@@ -1,3 +1,4 @@
+import { AdministrativeUnitLevel } from '../../features/administrativeUnit/types'
 import {
   audiences,
   basicPurposes,
@@ -99,3 +100,19 @@ export type CreateEventRequest = Partial<
 
 export type UpdateEventRequest = Partial<Omit<NonNullableEventRequest, 'id'>> &
   Pick<NonNullableEventRequest, 'id'>
+
+export interface AdministrativeUnitResponse {
+  id: 212
+  name: string
+  street: string
+  city: string
+  zipCode: string
+  telephone: string
+  fromEmailAddress: string
+  webUrl: string
+  presidentName: string
+  managerName: string
+  gpsLatitude: number
+  gpsLongitude: number
+  level: AdministrativeUnitLevel
+}

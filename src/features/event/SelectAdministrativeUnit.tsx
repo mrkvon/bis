@@ -1,11 +1,7 @@
 import { Select } from 'antd'
-import { forwardRef, useEffect } from 'react'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { forwardRef } from 'react'
+import { brontoApi } from '../../app/services/bronto'
 import { match } from '../../helpers'
-import {
-  readAdministrativeUnits,
-  selectAdministrativeUnits,
-} from '../administrativeUnit/administrativeUnitSlice'
 import {
   AdministrativeUnit,
   administrativeUnitLevel,
@@ -36,12 +32,8 @@ const getTitle = (unit: AdministrativeUnit): string => {
 
 const SelectAdministrativeUnit = forwardRef<HTMLSelectElement, SelectProps>(
   (props, ref) => {
-    const dispatch = useAppDispatch()
-    const administrativeUnits = useAppSelector(selectAdministrativeUnits)
-
-    useEffect(() => {
-      dispatch(readAdministrativeUnits())
-    }, [dispatch])
+    const { data: administrativeUnits = [] } =
+      brontoApi.useGetAdministrativeUnitsQuery()
 
     return (
       <Select

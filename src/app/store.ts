@@ -7,7 +7,6 @@ import {
   ThunkAction,
 } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
-import administrativeUnitReducer from '../features/administrativeUnit/administrativeUnitSlice'
 import loginReducer from '../features/login/loginSlice'
 import notificationReducer from '../features/notification/notificationSlice'
 import { brontoApi } from './services/bronto'
@@ -16,7 +15,6 @@ import { brontoApi } from './services/bronto'
 
 const appReducers = combineReducers({
   login: loginReducer,
-  administrativeUnit: administrativeUnitReducer,
   notification: notificationReducer,
   [brontoApi.reducerPath]: brontoApi.reducer,
 })
