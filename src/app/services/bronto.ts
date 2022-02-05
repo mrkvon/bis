@@ -23,6 +23,7 @@ import {
   UpdateEventRequest,
   WhoAmIResponse,
 } from './bronto-types'
+import { programs } from '../../features/event/types'
 
 // https://redux-toolkit.js.org/rtk-query/usage/customizing-queries#automatic-re-authorization-by-extending-fetchbasequery
 const baseQuery = fetchBaseQuery({
@@ -244,6 +245,7 @@ const transformEventResponse = ({
   additionalPhoto5,
   additionalPhoto6,
   eventType,
+  program,
   ...result
 }: EventResponse): NullableEventProps => ({
   ...result,
@@ -282,4 +284,5 @@ const transformEventResponse = ({
   totalParticipants: null,
   totalParticipantsUnder26: null,
   participantList: [],
+  program: program && (program.trim() as keyof typeof programs),
 })

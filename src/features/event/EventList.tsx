@@ -1,12 +1,17 @@
 import { Button, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { Link, useSearchParams } from 'react-router-dom'
-import { useGetOrganizedEventsQuery } from '../../app/services/bronto'
+import {
+  brontoApi,
+  useGetOrganizedEventsQuery,
+} from '../../app/services/bronto'
 import { sortByCount, sortCzechItem } from '../../helpers'
 import { NullableEventProps, eventTypes, programs } from './types'
 
 const EventList = () => {
   const { isLoading, data } = useGetOrganizedEventsQuery()
+  const { data: administrativeUnits = [] } =
+    brontoApi.useGetAdministrativeUnitsQuery()
   // Let's figure out which actions to allow
   // /events?edit - edit event, manage participants
   // /events?close - close event with closing form
@@ -46,12 +51,14 @@ const EventList = () => {
     {
       title: 'Pořádá',
       dataIndex: 'administrativeUnit',
+      render: (id: number) =>
+        id !== null && administrativeUnits.find(unit => id === unit.id)?.name,
     },
     {
       title: 'Typ',
       dataIndex: 'eventType',
       render: (id: NullableEventProps['eventType']) =>
-        id === null ? 'null' : eventTypes[id],
+        id !== null && eventTypes[id],
       filters: sortByCount(
         // collect eventTypes and get rid of nulls
         events.flatMap(({ eventType }) =>
@@ -67,7 +74,7 @@ const EventList = () => {
       title: 'Program',
       dataIndex: 'program',
       render: (id: NullableEventProps['program']) =>
-        id === null ? 'null' : programs[id],
+        id === null ? '' : programs[id],
       filters: sortByCount(
         events.flatMap(({ program }) => (program !== null ? [program] : [])),
       ).map(id => ({
@@ -79,6 +86,8 @@ const EventList = () => {
     {
       title: 'Místo',
       dataIndex: 'location',
+      render: (location: NullableEventProps['location']) =>
+        location && location.name,
     },
     {
       title: 'Účastníci',
