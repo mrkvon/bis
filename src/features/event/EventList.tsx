@@ -1,19 +1,12 @@
 import { Button, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
-import { useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { useGetOrganizedEventsQuery } from '../../app/services/bronto'
 import { sortByCount, sortCzechItem } from '../../helpers'
-import { readLoggedUserEvents, selectEvents } from './eventSlice'
-import { EventProps, eventTypes, programs } from './types'
+import { NullableEventProps, eventTypes, programs } from './types'
 
 const EventList = () => {
-  const events = useAppSelector(selectEvents)
-  const dispatch = useAppDispatch()
-  useEffect(() => {
-    dispatch(readLoggedUserEvents())
-  }, [dispatch])
-
+  const { isLoading, data } = useGetOrganizedEventsQuery()
   // Let's figure out which actions to allow
   // /events?edit - edit event, manage participants
   // /events?close - close event with closing form
@@ -27,20 +20,23 @@ const EventList = () => {
 
   actions = actions.length === 0 ? availableActions : actions
 
-  const columns: ColumnsType<EventProps> = [
+  if (isLoading || !data) return <>Stahujeme data</>
+  const events = data.results
+
+  const columns: ColumnsType<NullableEventProps> = [
     {
       title: 'Od',
       dataIndex: 'dateFrom',
-      render: (date: EventProps['dateFrom']) =>
+      render: (date: NullableEventProps['dateFrom']) =>
         date ? new Date(date).toLocaleDateString('cs-CZ') : '',
-      sorter: (a, b) => (a?.dateFrom ?? '').localeCompare(b.dateFrom),
+      sorter: (a, b) => (a?.dateFrom ?? '').localeCompare(b?.dateFrom ?? ''),
     },
     {
       title: 'Do',
       dataIndex: 'dateTo',
-      render: (date: EventProps['dateTo']) =>
+      render: (date: NullableEventProps['dateTo']) =>
         date ? new Date(date).toLocaleDateString('cs-CZ') : '',
-      sorter: (a, b) => (a?.dateFrom ?? '').localeCompare(b.dateFrom),
+      sorter: (a, b) => (a?.dateFrom ?? '').localeCompare(b?.dateFrom ?? ''),
     },
     {
       title: 'Název',
@@ -54,20 +50,27 @@ const EventList = () => {
     {
       title: 'Typ',
       dataIndex: 'eventType',
-      render: (id: EventProps['eventType']) => eventTypes[id],
-      filters: sortByCount(events.map(({ eventType }) => eventType)).map(
-        id => ({
-          text: eventTypes[id],
-          value: id,
-        }),
-      ),
+      render: (id: NullableEventProps['eventType']) =>
+        id === null ? 'null' : eventTypes[id],
+      filters: sortByCount(
+        // collect eventTypes and get rid of nulls
+        events.flatMap(({ eventType }) =>
+          eventType !== null ? [eventType] : [],
+        ),
+      ).map(id => ({
+        text: eventTypes[id],
+        value: id,
+      })),
       onFilter: (value, record) => record.eventType === value,
     },
     {
       title: 'Program',
       dataIndex: 'program',
-      render: (id: EventProps['program']) => programs[id],
-      filters: sortByCount(events.map(({ program }) => program)).map(id => ({
+      render: (id: NullableEventProps['program']) =>
+        id === null ? 'null' : programs[id],
+      filters: sortByCount(
+        events.flatMap(({ program }) => (program !== null ? [program] : [])),
+      ).map(id => ({
         text: programs[id],
         value: id,
       })),
@@ -122,7 +125,7 @@ const EventList = () => {
   ]
 
   return (
-    <Table<EventProps>
+    <Table<NullableEventProps>
       size="small"
       columns={columns}
       dataSource={events}

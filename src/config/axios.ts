@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { refreshAccessToken } from '../features/login/loginAPI'
+//import { refreshAccessToken } from '../features/login/loginAPI'
 import { props2camelCaseRecursive, props2snakeCaseRecursive } from '../helpers'
 
 const instance = axios.create({
@@ -28,12 +28,17 @@ instance.interceptors.response.use(
   error => Promise.reject(error),
 )
 
+/*
 // if request fails, try to refresh access token and fetch again
 instance.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config
-    if (error.response.status === 403 && !originalRequest._retry) {
+    if (
+      error.response &&
+      error.response.status === 403 &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true
       const accessToken = await refreshAccessToken()
       // this line is sort of duplicate, but before we didn't have the authorization header updated
@@ -44,5 +49,6 @@ instance.interceptors.response.use(
     }
   },
 )
+*/
 
 export default instance

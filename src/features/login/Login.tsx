@@ -1,15 +1,13 @@
 import { Button, Form, Input } from 'antd'
 import { ValidateErrorEntity } from 'rc-field-form/lib/interface'
-import { useAppDispatch } from '../../app/hooks'
+import { useLoginMutation } from '../../app/services/bronto'
 import { Credentials } from './types'
-import { login } from './loginSlice'
 
 const Login = () => {
-  const dispatch = useAppDispatch()
+  const [signIn] = useLoginMutation()
   const [form] = Form.useForm<Credentials>()
-  const onFinish = (credentials: Credentials) => {
-    dispatch(login(credentials))
-  }
+
+  const onFinish = (credentials: Credentials) => signIn(credentials)
 
   const onFinishFailed = (errorInfo: ValidateErrorEntity<Credentials>) => {
     console.log('Failed:', errorInfo)

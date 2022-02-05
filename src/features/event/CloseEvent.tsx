@@ -1,14 +1,10 @@
 import { Input, InputNumber, Upload } from 'antd'
 import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import {
-  readEvent,
-  selectEvent,
-  selectStatus,
-  setStatus,
-  updateEvent,
-} from './eventSlice'
+  useGetOrganizedEventQuery,
+  useUpdateEventMutation,
+} from '../../app/services/bronto'
 import StepForm, { FormConfig, StepConfig } from './StepForm'
 import { AfterEventProps, BeforeEventProps, EventProps } from './types'
 
@@ -38,7 +34,7 @@ const formItems: FormConfig<AfterEventProps, never> = {
     label: 'Odpracováno člověkohodin',
     element: <InputNumber />,
     required: (form, initialData) =>
-      (initialData as EventProps).eventType === 'dobrovolnicka',
+      (initialData as EventProps).eventType === 'pracovni',
   },
   commentOnWorkDone: {
     label: 'Komentáře k vykonané práci',
@@ -91,22 +87,18 @@ const stepConfig: StepConfig<AfterEventProps, never>[] = [
 ]
 
 const CloseEvent = () => {
-  const dispatch = useAppDispatch()
   const eventId = Number(useParams().eventId)
-  const eventData = useAppSelector(state => selectEvent(state, eventId))
-  const status = useAppSelector(selectStatus)
+
+  const { data: eventData } = useGetOrganizedEventQuery(eventId)
+  const [updateEvent, { isSuccess }] = useUpdateEventMutation()
+
   const navigate = useNavigate()
 
   useEffect(() => {
-    dispatch(readEvent(eventId))
-  }, [eventId, dispatch])
-
-  useEffect(() => {
-    if (status === 'finished') {
-      dispatch(setStatus('input'))
+    if (isSuccess) {
       navigate('/events')
     }
-  }, [status, eventId, dispatch, navigate])
+  }, [isSuccess, navigate])
 
   if (!eventData) return <div>Event Not Found</div>
 
@@ -118,7 +110,7 @@ const CloseEvent = () => {
         formItems={formItems}
         initialData={eventData}
         onFinish={(values: AfterEventProps) =>
-          dispatch(updateEvent({ id: eventId, ...values }))
+          updateEvent({ id: eventId, ...values })
         }
       />
     </>

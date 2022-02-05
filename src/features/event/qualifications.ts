@@ -12,7 +12,7 @@ type QualificationRule = {
 const qualificationRules: QualificationRule[] = [
   {
     intendedFor: ['everyone', 'adolescents_and_adults', 'newcomers'],
-    eventType: ['dobrovolnicka', 'zazitkova', 'sportovni'],
+    eventType: ['pracovni', 'prozitkova', 'sportovni'],
     notEventType: [],
     basicPurpose: ['action-with-attendee-list'],
     qualification: ['OvHB', 'OHB', 'Instruktor', 'Konzultant'],
@@ -26,19 +26,14 @@ const qualificationRules: QualificationRule[] = [
   },
   {
     intendedFor: ['everyone', 'adolescents_and_adults', 'newcomers'],
-    eventType: ['vzdelavaci_ohb'],
+    eventType: ['ohb'],
     notEventType: [],
     basicPurpose: 'all',
     qualification: ['Instruktor', 'Konzultant'],
   },
   {
     intendedFor: ['parents_and_children'],
-    eventType: [
-      'dobrovolnicka',
-      'zazitkova',
-      'sportovni',
-      'pobytovy_vyukovy_program',
-    ],
+    eventType: ['pracovni', 'prozitkova', 'sportovni', 'pobyt'],
     notEventType: [],
     basicPurpose: ['action-with-attendee-list'],
     qualification: [
@@ -52,12 +47,7 @@ const qualificationRules: QualificationRule[] = [
   },
   {
     intendedFor: ['parents_and_children'],
-    eventType: [
-      'dobrovolnicka',
-      'zazitkova',
-      'sportovni',
-      'pobytovy_vyukovy_program',
-    ],
+    eventType: ['pracovni', 'prozitkova', 'sportovni', 'pobyt'],
     notEventType: [],
     basicPurpose: ['camp'],
     qualification: ['OHB', 'OHB-BRĎO', 'Instruktor', 'Konzultant'],
@@ -65,12 +55,12 @@ const qualificationRules: QualificationRule[] = [
   {
     intendedFor: ['children'],
     eventType: [
-      'dobrovolnicka',
-      'zazitkova',
+      'pracovni',
+      'prozitkova',
       'sportovni',
-      'vzdelavaci_kurzy_skoleni',
-      'akce_verejnost',
-      'interni',
+      'vzdelavaci',
+      'verejnost',
+      'jina',
     ],
     notEventType: [],
     basicPurpose: ['action', 'action-with-attendee-list'],
@@ -78,7 +68,7 @@ const qualificationRules: QualificationRule[] = [
   },
   {
     intendedFor: ['children'],
-    eventType: ['oddilovka'],
+    eventType: ['schuzka'],
     notEventType: [],
     basicPurpose: ['action'],
     qualification: ['OHB-BRĎO-P', 'OHB-BRĎO', 'Instruktor', 'Konzultant'],
@@ -86,13 +76,13 @@ const qualificationRules: QualificationRule[] = [
   {
     intendedFor: ['children'],
     eventType: [
-      'dobrovolnicka',
-      'zazitkova',
+      'pracovni',
+      'prozitkova',
       'sportovni',
-      'vzdelavaci_kurzy_skoleni',
-      'akce_verejnost',
-      'interni',
-      'pobytovy_vyukovy_program',
+      'vzdelavaci',
+      'verejnost',
+      'jina',
+      'pobyt',
     ],
     notEventType: [],
     basicPurpose: ['camp'],
@@ -100,7 +90,7 @@ const qualificationRules: QualificationRule[] = [
   },
   {
     intendedFor: ['children'],
-    eventType: ['oddilovka'],
+    eventType: ['schuzka'],
     notEventType: [],
     basicPurpose: ['action-with-attendee-list'],
     qualification: ['OHB-BRĎO', 'Instruktor', 'Konzultant'],

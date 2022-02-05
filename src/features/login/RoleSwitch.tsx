@@ -1,19 +1,17 @@
 import { Button } from 'antd'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { chooseRole, selectLogin } from './loginSlice'
-
-export const existingRoles = {
-  org: 'Organizátor',
-  mem: 'Člen',
-}
+import { useAppDispatch } from '../../app/hooks'
+import { useGetCurrentUserQuery } from '../../app/services/bronto'
+import { chooseRole } from './loginSlice'
+import { existingRoles } from '../login/types'
 
 const RoleSwitch = () => {
   const dispatch = useAppDispatch()
-  const { roles: availableRoles } = useAppSelector(selectLogin)
+  const { data, isLoading } = useGetCurrentUserQuery()
+  if (isLoading || !data) return null
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <h2 className="text-lg">Přihlásit se jako</h2>
-      {availableRoles.map(role => (
+      {data.roles.map(role => (
         <Button
           className="w-32"
           key={role}

@@ -1,12 +1,18 @@
 import { DownOutlined, UserOutlined } from '@ant-design/icons'
 import { Dropdown, Menu } from 'antd'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { selectLoggedUser } from '../person/personSlice'
-import { chooseRole, logoutEffect as logout } from './loginSlice'
+import { useAppDispatch } from '../../app/hooks'
+import {
+  useGetCurrentUserQuery,
+  useLogoutMutation,
+} from '../../app/services/bronto'
+import { chooseRole } from './loginSlice'
 
 const UserMenu = () => {
-  const user = useAppSelector(selectLoggedUser)
+  const { data: user, isError } = useGetCurrentUserQuery()
   const dispatch = useAppDispatch()
+  const [logout] = useLogoutMutation()
+
+  if (isError || !user) return null
 
   const menu = (
     <Menu>
@@ -17,7 +23,7 @@ const UserMenu = () => {
         Změnit heslo (TODO)
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="logout" onClick={() => dispatch(logout)}>
+      <Menu.Item key="logout" onClick={() => logout()}>
         Odhlásit
       </Menu.Item>
     </Menu>
