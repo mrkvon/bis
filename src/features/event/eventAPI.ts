@@ -1,10 +1,9 @@
 import { AxiosResponse } from 'axios'
 import axios from '../../config/axios'
-import range from 'lodash/range'
 import { wait } from '../../helpers'
 import { fakePeople } from '../person/personAPI'
 import { Person } from '../person/types'
-import { BeforeEventProps, EventProps, Participant } from './types'
+import { BeforeEventProps, EventProps, eventTypes, Participant } from './types'
 
 export const createEvent = async (
   event: BeforeEventProps,
@@ -39,14 +38,42 @@ export const updateEvent = async (
   }
 }
 
+type Paginated<T> = {
+  count: number
+  next: null | number
+  previous: null | number
+  results: T[]
+}
+
 export const readLoggedUserEvents = async (): Promise<EventProps[]> => {
-  await wait(500)
-  return fakeEvents
+  const response = await axios.request<
+    Paginated<EventProps & { eventType: { name: string; slug: string } }>
+  >({
+    method: 'get',
+    url: 'frontend/organized_events/',
+  })
+
+  return response.data.results.map(result => ({
+    ...result,
+    eventType: (result.eventType?.slug ?? null) as keyof typeof eventTypes,
+  }))
 }
 
 export const readEvent = async (id: number): Promise<EventProps> => {
-  await wait(500)
-  return fakeEvents[id]
+  const response = await axios.request<
+    EventProps & { eventType: { name: string; slug: string } }
+  >({
+    method: 'get',
+    url: `frontend/organized_events/${id}/`,
+  })
+
+  const event = {
+    ...response.data,
+    team: [],
+    eventType: response.data.eventType.slug as keyof typeof eventTypes,
+  }
+
+  return event
 }
 
 export const readEventParticipants = async (
@@ -79,6 +106,7 @@ const fakeEventParticipants: (Participant & Person)[] = fakePeople
   .slice(0, 3)
   .map(person => ({ ...person, participated: false }))
 
+/*
 const fakeEvents: EventProps[] = range(8).map(i => ({
   id: i,
   basicPurpose: 'camp',
@@ -135,9 +163,10 @@ const fakeEvents: EventProps[] = range(8).map(i => ({
   participantListScan: '',
   documentsScan: [],
   bankAccount: '',
-  workDoneHours: 0,
-  workDoneNote: '',
-  participantNumberTotal: 0,
-  participantNumberBelow26: 0,
+  hoursWorked: 0,
+  commentOnWorkDone: '',
+  totalParticipants: 0,
+  totalParticipantsUnder26: 0,
   participantList: [],
 }))
+*/

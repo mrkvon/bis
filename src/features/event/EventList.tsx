@@ -5,7 +5,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { sortByCount, sortCzechItem } from '../../helpers'
 import { readLoggedUserEvents, selectEvents } from './eventSlice'
-import { audiences, EventProps, eventTypes, programs } from './types'
+import { EventProps, eventTypes, programs } from './types'
 
 const EventList = () => {
   const events = useAppSelector(selectEvents)
@@ -29,21 +29,27 @@ const EventList = () => {
 
   const columns: ColumnsType<EventProps> = [
     {
-      title: 'Název',
-      dataIndex: 'name',
-      sorter: sortCzechItem('name'),
-    },
-    {
       title: 'Od',
       dataIndex: 'dateFrom',
       render: (date: EventProps['dateFrom']) =>
         date ? new Date(date).toLocaleDateString('cs-CZ') : '',
+      sorter: (a, b) => (a?.dateFrom ?? '').localeCompare(b.dateFrom),
     },
     {
       title: 'Do',
       dataIndex: 'dateTo',
       render: (date: EventProps['dateTo']) =>
         date ? new Date(date).toLocaleDateString('cs-CZ') : '',
+      sorter: (a, b) => (a?.dateFrom ?? '').localeCompare(b.dateFrom),
+    },
+    {
+      title: 'Název',
+      dataIndex: 'name',
+      sorter: sortCzechItem('name'),
+    },
+    {
+      title: 'Pořádá',
+      dataIndex: 'administrativeUnit',
     },
     {
       title: 'Typ',
@@ -68,16 +74,22 @@ const EventList = () => {
       onFilter: (value, record) => record.program === value,
     },
     {
-      title: 'Pro koho',
-      dataIndex: 'intendedFor',
-      render: (id: EventProps['intendedFor']) => audiences[id],
-      filters: sortByCount(events.map(({ intendedFor }) => intendedFor)).map(
-        id => ({
-          text: audiences[id],
-          value: id,
-        }),
-      ),
-      onFilter: (value, record) => record.intendedFor === value,
+      title: 'Místo',
+      dataIndex: 'location',
+    },
+    {
+      title: 'Účastníci',
+      // TODO sometimes we may need to count this from participant list
+      dataIndex: 'totalParticipants',
+    },
+    {
+      title: 'Účastníci do 26 let',
+      // TODO this should be a percentage
+      dataIndex: 'totalParticipantsUnder26',
+    },
+    {
+      title: 'Odpracovaných hodin',
+      dataIndex: 'hoursWorked',
     },
     {
       title: 'Akce',

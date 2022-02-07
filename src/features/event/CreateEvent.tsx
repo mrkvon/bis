@@ -90,22 +90,46 @@ type Reshape<A, B> = {
 
 type FormEventProps = Omit<
   EventProps,
-  'dateFrom' | 'dateTo' | 'ageFrom' | 'ageTo'
+  'dateFrom' | 'dateTo' | 'ageFrom' | 'ageTo' | 'location'
 > & {
   dateFromTo: [string, string]
   age: [number, number]
+  location: [number | undefined, number | undefined] | undefined
 }
 
 const reshape: Reshape<EventProps, FormEventProps> = {
-  forward: ({ dateFrom, dateTo, ageFrom, ageTo, ...event }: EventProps) => {
-    return { dateFromTo: [dateFrom, dateTo], age: [ageFrom, ageTo], ...event }
+  forward: ({
+    dateFrom,
+    dateTo,
+    ageFrom,
+    ageTo,
+    location,
+    ...event
+  }: EventProps) => {
+    return {
+      dateFromTo: [dateFrom, dateTo],
+      age: [ageFrom, ageTo],
+      location:
+        location && location.gpsLatitude && location.gpsLongitude
+          ? [location.gpsLatitude, location.gpsLongitude]
+          : undefined,
+      ...event,
+    }
   },
   reverse: ({
     dateFromTo: [dateFrom, dateTo],
     age: [ageFrom, ageTo],
+    location: [gpsLatitude, gpsLongitude] = [undefined, undefined],
     ...event
   }: ReturnType<typeof reshape.forward>): EventProps => {
-    return { dateFrom, dateTo, ageFrom, ageTo, ...event }
+    return {
+      dateFrom,
+      dateTo,
+      ageFrom,
+      ageTo,
+      location: { gpsLatitude, gpsLongitude },
+      ...event,
+    }
   },
 }
 

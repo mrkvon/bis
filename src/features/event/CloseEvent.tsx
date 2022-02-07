@@ -34,13 +34,13 @@ const formItems: FormConfig<AfterEventProps, never> = {
     label: 'číslo účtu k proplacení dokladů',
     element: <Input />,
   },
-  workDoneHours: {
+  hoursWorked: {
     label: 'Odpracováno člověkohodin',
     element: <InputNumber />,
     required: (form, initialData) =>
       (initialData as EventProps).eventType === 'dobrovolnicka',
   },
-  workDoneNote: {
+  commentOnWorkDone: {
     label: 'Komentáře k vykonané práci',
     element: <Input.TextArea />,
   },
@@ -53,14 +53,14 @@ const formItems: FormConfig<AfterEventProps, never> = {
       </div>
     ),
   },
-  participantNumberTotal: {
+  totalParticipants: {
     label: 'Počet účastníků celkem',
     required: true,
     display: (form, initialData) =>
       (initialData as BeforeEventProps).basicPurpose === 'action',
     element: <InputNumber />,
   },
-  participantNumberBelow26: {
+  totalParticipantsUnder26: {
     label: 'Z toho počet účastníků do 26 let',
     required: true,
     display: (form, initialData) =>
@@ -72,15 +72,11 @@ const formItems: FormConfig<AfterEventProps, never> = {
 const stepConfig: StepConfig<AfterEventProps, never>[] = [
   {
     title: 'Účastníci',
-    items: [
-      'participantList',
-      'participantNumberTotal',
-      'participantNumberBelow26',
-    ],
+    items: ['participantList', 'totalParticipants', 'totalParticipantsUnder26'],
   },
   {
     title: 'Práce',
-    items: ['workDoneHours', 'workDoneNote'],
+    items: ['hoursWorked', 'commentOnWorkDone'],
   },
   {
     title: 'Informace',

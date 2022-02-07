@@ -57,6 +57,7 @@ const EditLocation: React.FC<IEditLocation> = ({
   className = '',
   onChange = () => null,
 }) => {
+  value = [value?.[0] ?? 50, value?.[1] ?? 15] // initial location somewhere in Bohemia, can be changed or made dynamic somehow
   const [map, setMap] = useState<Map>()
 
   // when the map becomes visible, we need to invalidate its size so it displays tiles properly

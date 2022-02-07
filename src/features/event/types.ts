@@ -88,7 +88,7 @@ export type BeforeEventProps = {
   newcomerText2: string
   newcomerText3: string
   administrativeUnit: number // does not work
-  location: [number, number] // different type, doesn't work with props
+  location: Partial<Location>
   locationInfo: string
   targetMembers: boolean
   advertiseInRoverskyKmen: boolean
@@ -133,10 +133,10 @@ export type AfterEventProps = {
   participantListScan: string
   documentsScan: string[]
   bankAccount: string
-  workDoneHours: number
-  workDoneNote: string
-  participantNumberTotal: number
-  participantNumberBelow26: number
+  hoursWorked: number
+  commentOnWorkDone: string
+  totalParticipants: number
+  totalParticipantsUnder26: number
   participantList: string[]
 }
 
@@ -149,4 +149,13 @@ export type Participant = {
 
 export type EventWithParticipantsProps = EventProps & {
   participants: Participant[]
+}
+
+export type Location = {
+  id: number
+  name: string
+  place: string
+  region: string
+  gpsLatitude: number
+  gpsLongitude: number
 }
