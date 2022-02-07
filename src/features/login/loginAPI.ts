@@ -90,4 +90,6 @@ export const refreshAccessToken = async () => {
   const { access } = response.data
 
   axios.defaults.headers.common.Authorization = `Bearer ${access}`
+
+  return access
 }

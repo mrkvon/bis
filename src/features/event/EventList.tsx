@@ -35,14 +35,15 @@ const EventList = () => {
     },
     {
       title: 'Od',
-      dataIndex: 'dateFromTo',
-      render: ([date]) => new Date(date).toLocaleDateString('cs-CZ'),
+      dataIndex: 'dateFrom',
+      render: (date: EventProps['dateFrom']) =>
+        date ? new Date(date).toLocaleDateString('cs-CZ') : '',
     },
     {
       title: 'Do',
-      dataIndex: 'dateFromTo',
-      render: ([date]: EventProps['dateFromTo']) =>
-        new Date(date).toLocaleDateString('cs-CZ'),
+      dataIndex: 'dateTo',
+      render: (date: EventProps['dateTo']) =>
+        date ? new Date(date).toLocaleDateString('cs-CZ') : '',
     },
     {
       title: 'Typ',

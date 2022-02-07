@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios'
+import axios from '../../config/axios'
 import range from 'lodash/range'
 import { wait } from '../../helpers'
 import { fakePeople } from '../person/personAPI'
@@ -7,11 +9,23 @@ import { BeforeEventProps, EventProps, Participant } from './types'
 export const createEvent = async (
   event: BeforeEventProps,
 ): Promise<EventProps> => {
-  await wait(500)
-  return {
-    ...(event as EventProps) /* TODO this is just a lazy fix. Should return full event data (or figure out a better way) */,
-    id: Math.random(),
-  }
+  // remove fields that break this...
+  const data: Partial<BeforeEventProps> = { ...event }
+  delete data.diet
+  delete data.mainPhoto
+  const response = await axios.request<
+    EventProps,
+    AxiosResponse<EventProps>,
+    Partial<BeforeEventProps>
+  >({
+    method: 'post',
+    url: 'frontend/events/',
+    data,
+  })
+
+  axios.request
+
+  return response.data
 }
 
 export const updateEvent = async (
@@ -70,10 +84,11 @@ const fakeEvents: EventProps[] = range(8).map(i => ({
   basicPurpose: 'camp',
   eventType: 'dobrovolnicka',
   name: `Akce ${i}`,
-  dateFromTo: ['2022-08-12', '2022-08-15'],
-  startTime: '',
+  dateFrom: '2022-08-12',
+  dateTo: '2022-08-15',
+  startTime: '12:00',
   repetitions: 1,
-  program: '',
+  program: 'PsB',
   intendedFor: 'adolescents_and_adults',
   newcomerText1: '',
   newcomerText2: '',
@@ -85,7 +100,7 @@ const fakeEvents: EventProps[] = range(8).map(i => ({
   advertiseInRoverskyKmen: false,
   advertiseInBrontoWeb: false,
   registrationMethod: 'not_required',
-  registrationMethodFormUrl: '',
+  entryFormUrl: '',
   registrationMethodEmail: '',
   additionalQuestion1: '',
   additionalQuestion2: '',
@@ -95,24 +110,25 @@ const fakeEvents: EventProps[] = range(8).map(i => ({
   additionalQuestion6: '',
   additionalQuestion7: '',
   additionalQuestion8: '',
-  participationFee: '',
-  age: [0, 99],
-  accommodation: '',
+  participationFee: '0',
+  ageFrom: 0,
+  ageTo: 99,
+  accommodation: 'accommodation',
   diet: ['vegan', 'gluten_free'],
   workingHours: 0,
   workingDays: 0,
-  contactPersonName: '',
-  contactPersonEmail: '',
+  contactPersonName: 'asdf',
+  contactPersonEmail: 'asdf@example.com',
   contactPersonTelephone: '',
   webUrl: '',
   note: '',
-  responsiblePerson: 2,
-  team: [1, 3, 0],
-  invitationText1: '',
-  invitationText2: '',
-  invitationText3: '',
-  invitationText4: '',
-  mainPhoto: '',
+  responsiblePerson: 1,
+  team: [2, 3, 0],
+  invitationText1: 'a',
+  invitationText2: 'a',
+  invitationText3: 'a',
+  invitationText4: 'a',
+  mainPhoto: 'asdf',
   additionalPhotos: [],
   photos: [],
   feedbackLink: '',

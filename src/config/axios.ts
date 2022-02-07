@@ -35,10 +35,13 @@ instance.interceptors.response.use(
     const originalRequest = error.config
     if (error.response.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true
-      await refreshAccessToken()
-      return instance(originalRequest)
+      const accessToken = await refreshAccessToken()
+      // this line is sort of duplicate, but before we didn't have the authorization header updated
+      instance.defaults.headers.common.Authorization = `Bearer ${accessToken}`
+      return instance.request(originalRequest)
+    } else {
+      throw error
     }
-    throw error
   },
 )
 

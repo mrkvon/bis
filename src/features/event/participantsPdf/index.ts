@@ -16,7 +16,7 @@ const BLANK_CELLS_FOR_PARTICIPANTS = 30
 export const generatePdf = (participants: Person[], event: EventProps) => {
   const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: 'landscape' })
 
-  const { name, dateFromTo } = event
+  const { name, dateFrom, dateTo } = event
 
   /** For using UTF-8 in generated pdf it is necessary
    *  to import a font that supports UTF-8 encoding
@@ -50,14 +50,14 @@ export const generatePdf = (participants: Person[], event: EventProps) => {
   doc.setFont('Roboto')
   doc.text(' ', 42, 38)
   doc.setFont('RobotoBlack')
-  if (dateFromTo[0] === dateFromTo[1] || !dateFromTo[1]) {
+  if (dateFrom === dateTo || !dateTo) {
     doc.text('Datum: ', 20, 46)
     doc.setFont('Roboto')
-    doc.text(`${dateFromTo[0]}`, 40, 46)
+    doc.text(`${dateFrom}`, 40, 46)
   } else {
     doc.text('Datum: ', 20, 46)
     doc.setFont('Roboto')
-    doc.text(`${dateFromTo[0]} - ${dateFromTo[1]}`, 40, 46)
+    doc.text(`${dateFrom} - ${dateTo}`, 40, 46)
   }
   /** Logo */
   doc.addImage(

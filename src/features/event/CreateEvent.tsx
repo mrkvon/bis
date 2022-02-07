@@ -1,3 +1,4 @@
+import { QuestionCircleOutlined } from '@ant-design/icons'
 import {
   Button,
   Form,
@@ -8,11 +9,9 @@ import {
   Slider,
   Space,
   Steps,
-  TimePicker,
   Tooltip,
   Upload,
 } from 'antd'
-import { QuestionCircleOutlined } from '@ant-design/icons'
 import { FormInstance } from 'antd/es/form/Form'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
@@ -30,18 +29,19 @@ import { getIsQualified } from './qualifications'
 import RichTextEditor from './RichTextEditor'
 import SelectAdministrativeUnit from './SelectAdministrativeUnit'
 import SelectPerson from './SelectPerson'
+import TimeStringPicker from './TimeStringPicker'
 import {
   audiences,
   basicPurposes,
-  BeforeEventProps,
   diets,
+  EventProps,
   eventTypes,
   programs,
   registrationMethods,
 } from './types'
 
 const getStepStatus = (
-  form: FormInstance<BeforeEventProps>,
+  form: FormInstance<FormEventProps>,
   items: string[],
 ): 'finish' | 'error' | 'wait' => {
   const states = items.map(name => {
@@ -83,9 +83,35 @@ const isStepValid = function <T>(
 }
 */
 
+type Reshape<A, B> = {
+  forward: (a: A) => B
+  reverse: (b: B) => A
+}
+
+type FormEventProps = Omit<
+  EventProps,
+  'dateFrom' | 'dateTo' | 'ageFrom' | 'ageTo'
+> & {
+  dateFromTo: [string, string]
+  age: [number, number]
+}
+
+const reshape: Reshape<EventProps, FormEventProps> = {
+  forward: ({ dateFrom, dateTo, ageFrom, ageTo, ...event }: EventProps) => {
+    return { dateFromTo: [dateFrom, dateTo], age: [ageFrom, ageTo], ...event }
+  },
+  reverse: ({
+    dateFromTo: [dateFrom, dateTo],
+    age: [ageFrom, ageTo],
+    ...event
+  }: ReturnType<typeof reshape.forward>): EventProps => {
+    return { dateFrom, dateTo, ageFrom, ageTo, ...event }
+  },
+}
+
 const CreateEvent = () => {
   const [step, setStep] = useState(0)
-  const [form] = Form.useForm<BeforeEventProps>()
+  const [form] = Form.useForm<ReturnType<typeof reshape.forward>>()
   const dispatch = useAppDispatch()
   const eventId = Number(useParams()?.eventId ?? -1)
   const cloneEventId = Number(useSearchParams()[0].get('cloneEvent') ?? -1)
@@ -96,7 +122,7 @@ const CreateEvent = () => {
 
   useEffect(() => {
     if (event) {
-      form.setFieldsValue(event)
+      form.setFieldsValue(reshape.forward(event))
       form.validateFields()
     }
   }, [event, form])
@@ -286,7 +312,7 @@ const CreateEvent = () => {
             label="Začátek akce"
             rules={[{ required: true }]}
           >
-            <TimePicker format="HH:mm" />
+            <TimeStringPicker />
           </Form.Item>
           <Form.Item
             name="repetitions"
@@ -427,7 +453,7 @@ const CreateEvent = () => {
                 case 'other_electronic':
                   return (
                     <Form.Item
-                      name="registrationMethodFormUrl"
+                      name="entryFormUrl"
                       label="Odkaz na elektronickou přihlášku"
                       rules={[{ required: true }]}
                     >
@@ -466,7 +492,7 @@ const CreateEvent = () => {
       items: [
         'registrationMethod',
         'registrationMethodEmail',
-        'registrationMethodFormUrl',
+        'entryFormUrl',
         'additionalQuestion1',
         'additionalQuestion2',
         'additionalQuestion3',
@@ -711,7 +737,6 @@ const CreateEvent = () => {
             required
             tooltip="Malá ochutnávka uvádí fotky, které k akci přiložíte"
             rules={[
-              { required: true },
               {
                 validator: async (_, html) => {
                   if (html2plaintext(html).trim().length === 0)
@@ -720,7 +745,7 @@ const CreateEvent = () => {
               },
             ]}
           >
-            <RichTextEditor />,
+            <RichTextEditor />
           </Form.Item>
 
           <Form.Item
@@ -762,8 +787,8 @@ const CreateEvent = () => {
   }
 
   return (
-    <Form<BeforeEventProps>
-      onFinish={values => dispatch(createEvent(values))}
+    <Form<FormEventProps>
+      onFinish={values => dispatch(createEvent(reshape.reverse(values)))}
       form={form}
       layout="vertical"
       validateMessages={validateMessages}

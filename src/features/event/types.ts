@@ -76,37 +76,35 @@ export const registrationMethods = {
 
 export type BeforeEventProps = {
   basicPurpose: keyof typeof basicPurposes
-  eventType: keyof typeof eventTypes
+  eventType: keyof typeof eventTypes // does not work
   name: string
-  dateFromTo: [string, string]
-  startTime: string
+  dateFrom: string
+  dateTo: string
+  startTime: string // maybe a startDate instead?
   repetitions: number
-  program: keyof typeof programs
+  program: keyof typeof programs // children_section unexpected trailing slash
   intendedFor: keyof typeof audiences
   newcomerText1: string
   newcomerText2: string
   newcomerText3: string
-  administrativeUnit: number
-  location: [number, number]
+  administrativeUnit: number // does not work
+  location: [number, number] // different type, doesn't work with props
   locationInfo: string
   targetMembers: boolean
   advertiseInRoverskyKmen: boolean
   advertiseInBrontoWeb: boolean
   registrationMethod: keyof typeof registrationMethods
-  registrationMethodFormUrl: string
+  entryFormUrl: string
   registrationMethodEmail: string
   additionalQuestion1: string
   additionalQuestion2: string
   additionalQuestion3: string
   additionalQuestion4: string
-  additionalQuestion5: string
-  additionalQuestion6: string
-  additionalQuestion7: string
-  additionalQuestion8: string
   participationFee: string
-  age: [number, number]
+  ageFrom: number
+  ageTo: number
   accommodation: string
-  diet: (keyof typeof diets)[]
+  diet: (keyof typeof diets)[] // array doesn't work with props
   workingHours: number
   workingDays: number
   contactPersonName: string
@@ -114,14 +112,19 @@ export type BeforeEventProps = {
   contactPersonTelephone: string
   webUrl: string
   note: string
-  responsiblePerson: number
+  responsiblePerson: number // doesn't save relationship, but a string
   team: number[]
   invitationText1: string
   invitationText2: string
   invitationText3: string
   invitationText4: string
   mainPhoto: string
-  additionalPhotos: string[]
+  additionalPhotos: string[] // there are six additionalPhoto1,2,3,4,5,6
+  // lookingForwardToYou: string missing
+  // invitationTextShort: string missing
+  // publicOnWebDateFrom: date missing
+  // publicOnWebDateTo: date missing
+  // publicOnWeb: boolean missing
 }
 
 export type AfterEventProps = {
