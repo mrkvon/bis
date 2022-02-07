@@ -22,8 +22,6 @@ export const createEvent = async (
     data,
   })
 
-  axios.request
-
   return response.data
 }
 
@@ -31,11 +29,25 @@ export const updateEvent = async (
   id: EventProps['id'],
   values: Partial<EventProps>,
 ) => {
-  await wait(500)
-  return {
-    id,
-    ...values,
+  const data: Partial<EventProps> = { ...values }
+  delete data.mainPhoto
+  const response = await axios.request<
+    EventProps & { eventType: { name: string; slug: string } },
+    AxiosResponse<EventProps & { eventType: { name: string; slug: string } }>,
+    Partial<EventProps>
+  >({
+    method: 'patch',
+    url: `frontend/organized_events/${id}/`,
+    data,
+  })
+
+  const event = {
+    ...response.data,
+    team: [],
+    eventType: response.data.eventType.slug as keyof typeof eventTypes,
   }
+
+  return event
 }
 
 type Paginated<T> = {

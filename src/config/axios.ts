@@ -38,7 +38,7 @@ instance.interceptors.response.use(
       const accessToken = await refreshAccessToken()
       // this line is sort of duplicate, but before we didn't have the authorization header updated
       instance.defaults.headers.common.Authorization = `Bearer ${accessToken}`
-      return instance.request(originalRequest)
+      return await instance.request(originalRequest)
     } else {
       throw error
     }

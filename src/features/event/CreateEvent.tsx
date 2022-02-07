@@ -23,7 +23,7 @@ import { selectPerson } from '../person/personSlice'
 import { Person } from '../person/types'
 import DateRangeStringPicker from './DateRangeStringPicker'
 import EditLocation from './EditLocation'
-import { createEvent, readEvent, selectEvent } from './eventSlice'
+import { createEvent, readEvent, selectEvent, updateEvent } from './eventSlice'
 import { QualifiedPersonLabel } from './PersonOptionLabel'
 import { getIsQualified } from './qualifications'
 import RichTextEditor from './RichTextEditor'
@@ -143,6 +143,8 @@ const CreateEvent = () => {
   const event = useAppSelector(state =>
     selectEvent(state, eventId >= 0 ? eventId : cloneEventId),
   )
+
+  const isUpdating = eventId > 0
 
   useEffect(() => {
     if (event) {
@@ -810,9 +812,18 @@ const CreateEvent = () => {
     required: "Pole '${label}' je povinné!",
   }
 
+  const handleFinish = (formValues: FormEventProps) => {
+    const values = reshape.reverse(formValues)
+    if (isUpdating) {
+      dispatch(updateEvent({ ...values, id: eventId }))
+    } else {
+      dispatch(createEvent(values))
+    }
+  }
+
   return (
     <Form<FormEventProps>
-      onFinish={values => dispatch(createEvent(reshape.reverse(values)))}
+      onFinish={handleFinish}
       form={form}
       layout="vertical"
       validateMessages={validateMessages}
