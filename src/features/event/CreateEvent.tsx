@@ -16,14 +16,17 @@ import { FormInstance } from 'antd/es/form/Form'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { useSearchParams } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { store } from '../../app/store'
+import {
+  brontoApi,
+  useCreateEventMutation,
+  useGetOrganizedEventQuery,
+  useUpdateEventMutation,
+} from '../../app/services/bronto'
+import { CreateEventRequest } from '../../app/services/bronto-types'
 import { html2plaintext } from '../../helpers'
-import { selectPerson } from '../person/personSlice'
 import { Person } from '../person/types'
 import DateRangeStringPicker from './DateRangeStringPicker'
 import EditLocation from './EditLocation'
-import { createEvent, readEvent, selectEvent, updateEvent } from './eventSlice'
 import { QualifiedPersonLabel } from './PersonOptionLabel'
 import { getIsQualified } from './qualifications'
 import RichTextEditor from './RichTextEditor'
@@ -36,6 +39,7 @@ import {
   diets,
   EventProps,
   eventTypes,
+  NullableEventProps,
   programs,
   registrationMethods,
 } from './types'
@@ -83,86 +87,75 @@ const isStepValid = function <T>(
 }
 */
 
-type Reshape<A, B> = {
-  forward: (a: A) => B
-  reverse: (b: B) => A
-}
+type FormEventProps = Partial<
+  Omit<EventProps, 'dateFrom' | 'dateTo' | 'ageFrom' | 'ageTo' | 'location'> & {
+    dateFromTo: [string, string]
+    age: [number, number]
+    location: [number, number]
+  }
+> & { name: string }
 
-type FormEventProps = Omit<
-  EventProps,
-  'dateFrom' | 'dateTo' | 'ageFrom' | 'ageTo' | 'location'
-> & {
-  dateFromTo: [string, string]
-  age: [number, number]
-  location: [number | undefined, number | undefined] | undefined
-}
-
-const reshape: Reshape<EventProps, FormEventProps> = {
-  forward: ({
-    dateFrom,
-    dateTo,
-    ageFrom,
-    ageTo,
-    location,
-    ...event
-  }: EventProps) => {
-    return {
-      dateFromTo: [dateFrom, dateTo],
+const reshapeForward = ({
+  dateFrom,
+  dateTo,
+  ageFrom,
+  ageTo,
+  location,
+  ...event
+}: NullableEventProps): FormEventProps =>
+  Object.fromEntries(
+    Object.entries({
+      dateFromTo: dateFrom && dateTo ? [dateFrom, dateTo] : undefined,
       age: [ageFrom, ageTo],
       location:
         location && location.gpsLatitude && location.gpsLongitude
           ? [location.gpsLatitude, location.gpsLongitude]
           : undefined,
       ...event,
-    }
-  },
-  reverse: ({
-    dateFromTo: [dateFrom, dateTo],
-    age: [ageFrom, ageTo],
-    location: [gpsLatitude, gpsLongitude] = [undefined, undefined],
-    ...event
-  }: ReturnType<typeof reshape.forward>): EventProps => {
-    return {
-      dateFrom,
-      dateTo,
-      ageFrom,
-      ageTo,
-      location: { gpsLatitude, gpsLongitude },
-      ...event,
-    }
-  },
+    }).filter(([, value]) => value !== null),
+  ) as FormEventProps
+
+const reshapeReverse = ({
+  dateFromTo,
+  age,
+  location, // eslint-disable-line @typescript-eslint/no-unused-vars
+  eventType, // eslint-disable-line @typescript-eslint/no-unused-vars
+  ...event
+}: FormEventProps): CreateEventRequest => {
+  return {
+    dateFrom: dateFromTo?.[0],
+    dateTo: dateFromTo?.[1],
+    ageFrom: age?.[0],
+    ageTo: age?.[1],
+    ...event,
+  }
 }
 
 const CreateEvent = () => {
   const [step, setStep] = useState(0)
-  const [form] = Form.useForm<ReturnType<typeof reshape.forward>>()
-  const dispatch = useAppDispatch()
+  const [form] = Form.useForm<FormEventProps>()
   const eventId = Number(useParams()?.eventId ?? -1)
   const cloneEventId = Number(useSearchParams()[0].get('cloneEvent') ?? -1)
 
-  const event = useAppSelector(state =>
-    selectEvent(state, eventId >= 0 ? eventId : cloneEventId),
+  const { isLoading, data: event } = useGetOrganizedEventQuery(
+    eventId >= 0 ? eventId : cloneEventId,
   )
+
+  const [triggerGetPerson] = brontoApi.useLazyGetPersonQuery()
+
+  const [createEvent] = useCreateEventMutation()
+  const [updateEvent] = useUpdateEventMutation()
 
   const isUpdating = eventId > 0
 
   useEffect(() => {
     if (event) {
-      form.setFieldsValue(reshape.forward(event))
+      form.setFieldsValue(reshapeForward(event))
       form.validateFields()
     }
   }, [event, form])
 
-  const status = useAppSelector(state => state.event.loadingStatus)
-
-  useEffect(() => {
-    if (eventId >= 0) dispatch(readEvent(eventId))
-    if (cloneEventId >= 0) dispatch(readEvent(cloneEventId))
-  }, [eventId, cloneEventId, dispatch])
-
-  if (status === 'loading') return <div>Loading</div>
-
-  /* TODO when we're updating, we need to dispatch update, not create. */
+  if (isLoading) return <div>Loading</div>
 
   const steps = [
     {
@@ -387,7 +380,7 @@ const CreateEvent = () => {
           <Form.Item shouldUpdate>
             {() => (
               <Form.Item
-                name="responsiblePerson"
+                name="mainOrganizer"
                 label="Hlavní organizátor/ka"
                 tooltip="Hlavní organizátor musí mít náležité kvalifikace a za celou akci zodpovídá. Je nutné zadávat hlavního organizátora do BIS před akcí, aby měl automaticky sjednané pojištění odpovědnosti za škodu a úrazové pojištění."
                 rules={[
@@ -405,9 +398,12 @@ const CreateEvent = () => {
                         throw new Error(
                           'Vyplňte nejdřív Pro koho je akce určena',
                         )
-                      // get the person from id
-                      const state = store.getState()
-                      const person = selectPerson(state, personId)
+                      // get the person by id
+                      if (!personId) return
+                      const person = await triggerGetPerson(
+                        personId,
+                        true,
+                      ).unwrap()
                       if (!person) throw new Error('Člověk nenalezen')
                       const isQualified = getIsQualified(
                         { basicPurpose, eventType, intendedFor },
@@ -446,7 +442,7 @@ const CreateEvent = () => {
           </Form.Item>
         </>
       ),
-      items: ['responsiblePerson', 'team'],
+      items: ['mainOrganizer', 'team'],
     },
     {
       title: 'Registrace',
@@ -741,11 +737,11 @@ const CreateEvent = () => {
               <Form.Item
                 name="invitationText3"
                 label="Zvací text: dobrovolnická pomoc"
-                required={form.getFieldValue('eventType') === 'dobrovolnicka'}
+                required={form.getFieldValue('eventType') === 'pracovni'}
                 rules={[
                   ({ getFieldValue }) => ({
                     validator: async (_, html) => {
-                      if (getFieldValue('eventType') !== 'dobrovolnicka') return
+                      if (getFieldValue('eventType') !== 'pracovni') return
                       if (html2plaintext(html).trim().length === 0)
                         throw new Error('Pole je povinné')
                     },
@@ -813,11 +809,11 @@ const CreateEvent = () => {
   }
 
   const handleFinish = (formValues: FormEventProps) => {
-    const values = reshape.reverse(formValues)
+    const values = reshapeReverse(formValues)
     if (isUpdating) {
-      dispatch(updateEvent({ ...values, id: eventId }))
+      updateEvent({ ...values, id: eventId })
     } else {
-      dispatch(createEvent(values))
+      createEvent(values)
     }
   }
 
@@ -830,14 +826,14 @@ const CreateEvent = () => {
       onValuesChange={value => {
         // if any of the following fields change
         // (intendedFor, eventType, basicPurpose)
-        // validate responsiblePerson again
+        // validate mainOrganizer again
         // because their qualification requirements may have changed
         if (
           ['intendedFor', 'eventType', 'basicPurpose'].some(key =>
             Object.keys(value).includes(key),
           )
         )
-          form.validateFields(['responsiblePerson'])
+          form.validateFields(['mainOrganizer'])
       }}
       initialValues={event}
     >

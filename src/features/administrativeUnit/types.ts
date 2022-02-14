@@ -5,9 +5,9 @@ export const administrativeUnitLevel = {
   club: 'Klub',
 }
 
-type AdministrativeUnitLevel = keyof typeof administrativeUnitLevel
+export type AdministrativeUnitLevel = keyof typeof administrativeUnitLevel
 
-export type AdministrativeUnit = {
+export interface AdministrativeUnit {
   id: number
   name: string
   city: string

@@ -1,4 +1,4 @@
-import { EventProps } from '../types'
+import { NullableEventProps } from '../types'
 import { jsPDF, CellConfig } from 'jspdf'
 import { Roboto, RobotoBlack } from './fonts'
 import { Person } from '../../person/types'
@@ -13,7 +13,10 @@ import {
 
 const BLANK_CELLS_FOR_PARTICIPANTS = 30
 
-export const generatePdf = (participants: Person[], event: EventProps) => {
+export const generatePdf = (
+  participants: Person[],
+  event: NullableEventProps,
+) => {
   const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: 'landscape' })
 
   const { name, dateFrom, dateTo } = event

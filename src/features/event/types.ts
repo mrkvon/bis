@@ -1,3 +1,4 @@
+import { Nullable } from '../../types'
 export const basicPurposes = {
   'action-with-attendee-list': 'Víkendovka nebo pravidelná akce s adresářem',
   action: 'Jednorázová nebo pravidelná akce bez povinného adresáře',
@@ -5,22 +6,22 @@ export const basicPurposes = {
 }
 
 export const eventTypes = {
-  dobrovolnicka: 'Dobrovolnická',
-  zazitkova: 'Zážitková',
-  sportovni: 'Sportovní',
-  vzdelavaci_prednasky: 'Vzdělávací – přednášky',
-  vzdelavaci_kurzy_skoleni: 'Vzdělávací – kurzy, školení',
-  vzdelavaci_ohb: 'Vzdělávací – kurz OHB',
-  vyukovy_program: 'Výukový program',
-  pobytovy_vyukovy_program: 'Pobytový výukový program',
-  klub_setkani: 'Klub – setkání',
-  klub_prednaska: 'Klub – přednáška',
-  akce_verejnost: 'Akce pro veřejnost (velká)',
-  ekostan: 'Ekostan',
+  pracovni: 'Dobrovolnická',
+  prozitkova: 'Zážitková',
+  vzdelavaci: 'Vzdělávací – kurzy, školení',
+  jina: 'Interní akce (VH a jiné)',
+  vyuka: 'Výukový program',
+  pobyt: 'Pobytový výukový program',
   vystava: 'Výstava',
-  tymovka: 'Schůzka dobrovolníků/týmovka',
-  interni: 'Interní akce (VH a jiné)',
-  oddilovka: 'Oddílová, družinová schůzka',
+  akcni: 'Akční skupina',
+  prednaska: 'Vzdělávací – přednášky',
+  klub: 'Klub – setkání',
+  sportovni: 'Sportovní',
+  ohb: 'Vzdělávací - Kurz OHB',
+  schuzka: 'Oddílová, družinová schůzka',
+  ekostan: 'Ekostan',
+  verejnost: 'Akce pro veřejnost (velká)',
+  'klub-predn': 'Klub – přednáška',
 }
 
 export const programs = {
@@ -88,7 +89,14 @@ export type BeforeEventProps = {
   newcomerText2: string
   newcomerText3: string
   administrativeUnit: number // does not work
-  location: Partial<Location>
+  location: {
+    id: number
+    name: string
+    place: string
+    region: string
+    gpsLatitude: number | null
+    gpsLongitude: number | null
+  }
   locationInfo: string
   targetMembers: boolean
   advertiseInRoverskyKmen: boolean
@@ -112,7 +120,8 @@ export type BeforeEventProps = {
   contactPersonTelephone: string
   webUrl: string
   note: string
-  responsiblePerson: number // doesn't save relationship, but a string
+  responsiblePerson: string // doesn't save relationship, but a string
+  mainOrganizer: number
   team: number[]
   invitationText1: string
   invitationText2: string
@@ -159,3 +168,6 @@ export type Location = {
   gpsLatitude: number
   gpsLongitude: number
 }
+
+export type NullableEventProps = Nullable<Omit<EventProps, 'id' | 'name'>> &
+  Pick<EventProps, 'id' | 'name'>

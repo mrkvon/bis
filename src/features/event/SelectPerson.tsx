@@ -8,14 +8,10 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { RootState } from '../../app/store'
 import {
-  searchPeople,
-  selectInProgress,
-  selectPeople,
-  selectSearchUsers,
-} from '../person/personSlice'
+  useGetPersonsQuery,
+  useSearchPeopleQuery,
+} from '../../app/services/bronto'
 import { Person } from '../person/types'
 import { DefaultPersonLabel } from './PersonOptionLabel'
 
@@ -53,35 +49,29 @@ const SelectPerson = forwardRef<HTMLSelectElement, SelectPersonProps>(
     ref,
   ) => {
     const [query, setQuery] = useState('')
-    const dispatch = useAppDispatch()
-    const persons = useAppSelector((state: RootState) =>
-      selectSearchUsers(state, query),
+    const [debouncedQuery, setDebouncedQuery] = useState('')
+
+    const { isFetching, data: persons = [] } =
+      useSearchPeopleQuery(debouncedQuery)
+
+    const { data: selectedPersons = [] } = useGetPersonsQuery(
+      [value].flat().filter(a => Boolean(a)) as number[],
     )
-    const inProgress = useAppSelector(selectInProgress)
 
-    const searchPeopleDebounced = useMemo(() => {
-      const handleSearch = (query: string) => dispatch(searchPeople(query))
-
-      return debounce(handleSearch, 500)
-    }, [dispatch])
+    const debounceQuery = useMemo(() => {
+      return debounce(setDebouncedQuery, 500)
+    }, [])
 
     useEffect(() => {
-      searchPeopleDebounced(query)
-    }, [query, searchPeopleDebounced])
-
-    const selectedPeople = useAppSelector((state: RootState) =>
-      selectPeople(
-        state,
-        typeof value === 'number' ? [value] : Array.isArray(value) ? value : [],
-      ),
-    )
+      debounceQuery(query)
+    }, [query, debounceQuery])
 
     const getFormattedValue = (value: number) => ({
       value,
       label: (
         <LabelComponent
           person={
-            (selectedPeople.find(person => person.id === value) ?? {
+            (selectedPersons.find(person => person.id === value) ?? {
               id: value,
               qualifications: [],
             }) as Person
@@ -108,7 +98,7 @@ const SelectPerson = forwardRef<HTMLSelectElement, SelectPersonProps>(
         {...(multiple ? { mode: 'multiple' } : {})}
         onSearch={query => setQuery(query)}
         {...(query
-          ? inProgress
+          ? isFetching || query !== debouncedQuery
             ? { notFoundContent: <Spin size="small" /> }
             : { notFoundContent: defaultOption }
           : {

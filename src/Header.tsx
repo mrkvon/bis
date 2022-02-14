@@ -4,7 +4,7 @@ import { selectLogin } from './features/login/loginSlice'
 import UserMenu from './features/login/UserMenu'
 
 const Header = () => {
-  const { currentRole, isLoggedIn } = useAppSelector(selectLogin)
+  const { currentRole } = useAppSelector(selectLogin)
   return (
     <header className="pl-6 pr-6 h-16 flex items-center justify-between">
       <Link to="/">
@@ -17,7 +17,7 @@ const Header = () => {
             : 'Uživatele'}
         </h1>
       </Link>
-      {isLoggedIn && <UserMenu />}
+      {<UserMenu />}
     </header>
   )
 }

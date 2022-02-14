@@ -1,34 +1,27 @@
 import { Button, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
-import { useEffect } from 'react'
 import CsvDownloader from 'react-csv-downloader'
 import { useParams } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import {
+  useGetEventParticipantsQuery,
+  useGetOrganizedEventQuery,
+} from '../../app/services/bronto'
 import { sortCzechItem } from '../../helpers'
 import FindOrCreatePerson from '../person/FindOrCreatePerson'
 import { Person } from '../person/types'
-import {
-  addEventParticipant,
-  readEventParticipants,
-  removeEventParticipant,
-  selectEvent,
-  selectEventParticipants,
-} from './eventSlice'
 import { generatePdf } from './participantsPdf'
 
 const EventParticipants = () => {
-  const dispatch = useAppDispatch()
   const params = useParams()
   const eventId = Number(params.eventId)
 
-  useEffect(() => {
-    dispatch(readEventParticipants(eventId))
-  }, [dispatch, eventId])
+  const eventQuery = useGetOrganizedEventQuery(eventId)
 
-  const event = useAppSelector(state => selectEvent(state, eventId))
-  const participants = useAppSelector(state =>
-    selectEventParticipants(state, eventId),
-  )
+  const { data: participants } = useGetEventParticipantsQuery(eventId)
+
+  if (!eventQuery.isSuccess || !eventQuery.data) return null
+
+  const event = eventQuery.data
 
   const csvColumns = [
     {
@@ -91,12 +84,15 @@ const EventParticipants = () => {
       render: personId => (
         <Button
           onClick={() => {
+            alert('remove event participant ' + personId)
+            /*
             dispatch(
               removeEventParticipant({
                 personId,
                 eventId,
               }),
             )
+            */
           }}
         >
           Smazat
@@ -111,12 +107,15 @@ const EventParticipants = () => {
     <>
       <FindOrCreatePerson
         onPerson={person => {
+          alert('add event participant ' + person.id)
+          /*
           dispatch(
             addEventParticipant({
               eventId,
               participant: { ...person, participated: false },
             }),
           )
+          */
         }}
       />
       <Table<Person>

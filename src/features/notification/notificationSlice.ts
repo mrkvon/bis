@@ -4,8 +4,9 @@ import {
   isRejected,
   PayloadAction,
 } from '@reduxjs/toolkit'
+import { brontoApi } from '../../app/services/bronto'
 import { RootState } from '../../app/store'
-import { createEvent } from '../event/eventSlice'
+//import { createEvent } from '../event/eventSlice'
 
 interface NotificationState {
   type: 'success' | 'error' | 'info' | 'warning' | ''
@@ -37,7 +38,7 @@ const notificationSlice = createSlice({
   },
   extraReducers: builder =>
     builder
-      .addCase(createEvent.pending, () => {
+      .addMatcher(brontoApi.endpoints.createEvent.matchPending, () => {
         return {
           type: 'info',
           title: 'Vytváříme akci',
@@ -45,7 +46,7 @@ const notificationSlice = createSlice({
           timeout: 0,
         }
       })
-      .addCase(createEvent.fulfilled, () => {
+      .addMatcher(brontoApi.endpoints.createEvent.matchFulfilled, () => {
         return {
           type: 'success',
           title: 'Akce úspěšně vytvořena',

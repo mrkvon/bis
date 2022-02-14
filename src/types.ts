@@ -3,6 +3,10 @@ export interface Entity<Type extends { id: string | number }> {
   allIds: Type['id'][]
 }
 
+export type Nullable<T> = {
+  [K in keyof T]: T[K] | null
+}
+
 type Location = {
   name: string
   place: string

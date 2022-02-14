@@ -1,27 +1,49 @@
-import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit'
-import administrativeUnitReducer from '../features/administrativeUnit/administrativeUnitSlice'
-import counterReducer from '../features/counter/counterSlice'
-import eventReducer from '../features/event/eventSlice'
+import {
+  Action,
+  AnyAction,
+  combineReducers,
+  configureStore,
+  Reducer,
+  ThunkAction,
+} from '@reduxjs/toolkit'
+import { setupListeners } from '@reduxjs/toolkit/query'
 import loginReducer from '../features/login/loginSlice'
 import notificationReducer from '../features/notification/notificationSlice'
-import personReducer from '../features/person/personSlice'
+import { brontoApi } from './services/bronto'
+
+// https://stackoverflow.com/questions/59061161/how-to-reset-state-of-redux-store-when-using-configurestore-from-reduxjs-toolki
+
+const appReducers = combineReducers({
+  login: loginReducer,
+  notification: notificationReducer,
+  [brontoApi.reducerPath]: brontoApi.reducer,
+})
+
+export type RootState = ReturnType<typeof appReducers>
+
+// on logout clear the whole state
+const rootReducer: Reducer = (state: RootState, action: AnyAction) => {
+  if (brontoApi.endpoints.logout.matchFulfilled(action)) {
+    state = {
+      [brontoApi.reducerPath]: state[brontoApi.reducerPath],
+    } as RootState
+  }
+
+  return appReducers(state, action)
+}
 
 export const store = configureStore({
-  reducer: {
-    counter: counterReducer,
-    login: loginReducer,
-    person: personReducer,
-    event: eventReducer,
-    administrativeUnit: administrativeUnitReducer,
-    notification: notificationReducer,
-  },
+  reducer: rootReducer,
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware().concat(brontoApi.middleware),
 })
 
 export type AppDispatch = typeof store.dispatch
-export type RootState = ReturnType<typeof store.getState>
 export type AppThunk<ReturnType = void> = ThunkAction<
   ReturnType,
   RootState,
   unknown,
   Action<string>
 >
+
+setupListeners(store.dispatch)
