@@ -1,0 +1,73 @@
+version: '3'
+services:
+  nginx:
+    container_name: bis-nginx
+    image: nginx:1.19.4-alpine
+    ports:
+      - ${APP_PORT}:80
+      - ${HTTPS_PORT}:443
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/templates/default.conf.template
+      - ./logs:/app/logs
+      - ./frontend/build:/app/frontend
+      - ./backend/static:/app/static
+      - ./backend/media:/app/media
+
+  frontend:
+    container_name: bis-frontend
+    build: ./frontend
+    volumes:
+      - ./logs:/logs
+      - ./frontend:/app
+    environment:
+      HOST: frontend
+      APP_NAME: 'bis'
+      API_BASE: 'api/'
+      DEBUG: 0
+
+  backend:
+    container_name: bis-backend
+    build:
+      context: ./backend
+      args:
+        APP_PORT: 8000
+    restart: always
+    links:
+      - postgres
+    depends_on:
+      - postgres
+    volumes:
+      - ./logs:/logs
+      - ./backend:/app
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      SENTRY_DSN: "https://ebfb83ef0e214583aee71f7e92c40aad@o380102.ingest.sentry.io/6244753"
+      APP_HOST: backend
+      APP_PORT: 8000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      EMAIL: 'staff@maesty.online'
+      FULL_HOSTNAME: 'https://bis.lomic.cz'
+      DEBUG: 0
+      TEST: 0
+      ALLOWED_HOSTS: '*'
+      APP_NAME: 'bis'
+      API_BASE: 'api/'
+
+  postgres:
+    container_name: bis-postgres
+    image: postgis/postgis:11-3.1-alpine
+#    image: postgres:14-alpine
+    volumes:
+      - ./postgresqldata:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5432:5432
+    environment:
+      POSTGRES_DATABASE: ${DB_NAME} # for postgres
+      POSTGRES_DB: ${DB_NAME} # for postgis
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_ROOT_PASSWORD: ${DB_PASSWORD}

@@ -1,0 +1,9 @@
+version: '3'
+services:
+  backend:
+    environment:
+      ALLOWED_HOSTS: '*'
+
+  postgres:
+    volumes:
+      - ./postgresqldata_test:/var/lib/postgresql/data

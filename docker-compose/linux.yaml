@@ -1,0 +1,5 @@
+version: '3'
+services:
+  nginx:
+    command: 'linux_binding'
+    network_mode: 'host'

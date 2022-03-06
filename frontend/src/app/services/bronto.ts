@@ -27,7 +27,7 @@ import { programs } from '../../features/event/types'
 
 // https://redux-toolkit.js.org/rtk-query/usage/customizing-queries#automatic-re-authorization-by-extending-fetchbasequery
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'https://brontosaurus.klub-pratel.cz/api/',
+  baseUrl: '/api/',
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).login.token
     if (token) {

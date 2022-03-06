@@ -1,0 +1,14 @@
+djangorestframework
+djangorestframework-gis
+django-cors-headers
+django-phonenumber-field
+phonenumbers
+Django
+gunicorn
+Pillow
+psycopg2-binary
+sentry-sdk
+pytest-django
+pytest
+python-dotenv
+pyyaml

@@ -1,0 +1,29 @@
+version: '3'
+services:
+  backend:
+    command: 'dev'
+    ports:
+      - 127.0.0.1:8000:8000
+    profiles:
+      - backend
+      - dev
+    environment:
+      DEBUG: 1
+      ALLOWED_HOSTS: 'localhost,backend,frontend,192.168.2.3'
+      FULL_HOSTNAME: 'http://localhost'
+      EMAIL: 'ondrej@maesty.online'
+
+  nginx:
+    volumes:
+      - ./nginx/dev.conf:/etc/nginx/templates/default.conf.template
+
+  frontend:
+    restart: always
+    command: 'dev'
+    ports:
+      - 3000:3000
+    profiles:
+      - frontend
+      - dev
+    environment:
+      DEBUG: 1

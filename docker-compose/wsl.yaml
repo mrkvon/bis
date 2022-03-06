@@ -1,0 +1,7 @@
+version: '3'
+services:
+  postgres:
+    volumes:
+      - postgresqldata:/var/lib/postgresql/data
+volumes:
+  postgresqldata:

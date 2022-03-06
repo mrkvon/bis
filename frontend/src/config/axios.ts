@@ -3,7 +3,7 @@ import axios from 'axios'
 import { props2camelCaseRecursive, props2snakeCaseRecursive } from '../helpers'
 
 const instance = axios.create({
-  baseURL: 'https://brontosaurus.klub-pratel.cz/api',
+  baseURL: '/api',
 })
 
 // turn all camelCase keys in request body into snake_case

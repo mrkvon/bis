@@ -1,0 +1,11 @@
+version: '3'
+services:
+  nginx:
+    links:
+      - backend
+      - frontend
+    depends_on:
+      - backend
+      - frontend
+    volumes:
+      - ./nginx/certs:/etc/nginx/certs
