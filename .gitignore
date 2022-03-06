@@ -7,7 +7,7 @@
 .coverage
 local_settings.py
 /backend/media
-/backend/static
+/backend/backend_static
 /frontend/public/application.*
 /frontend/public/index.html
 /frontend/test/public

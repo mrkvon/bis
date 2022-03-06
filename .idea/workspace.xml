@@ -1,59 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="738c397e-cb61-41df-b185-45d194eabff2" name="Changes" comment="Move all files to frontend folder">
-      <change afterPath="$PROJECT_DIR$/.example.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/bis.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bis/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bis/admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bis/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bis/emails.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bis/migrations/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bis/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bis/serializers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bis/signals.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bis/tests.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bis/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bis/views.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/docker-entrypoint.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/manage.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/project/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/project/asgi.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/project/settings.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/project/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/project/wsgi.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/pytest.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/templates/.gitkeep" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose.override.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose/dev.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose/linux.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose/test.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose/test_wsl.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose/wsl.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/docker-entrypoint.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/nginx/certs/.gitkeep" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/nginx/dev.conf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/nginx/nginx.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/services/bronto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/services/bronto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/config/axios.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/config/axios.ts" afterDir="false" />
-    </list>
+    <list default="true" id="738c397e-cb61-41df-b185-45d194eabff2" name="Changes" comment="fix backend static files" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitSEFilterConfiguration">
@@ -79,7 +38,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/backend/project" />
     <property name="nodejs_package_manager_path" value="yarn" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="vcs.Git" />
     <property name="ts.external.directory.path" value="\\wsl$\Ubuntu-20.04\home\lamanchy\bis\frontend\node_modules\typescript\lib" />
   </component>
   <component name="RecentsManager">
@@ -100,7 +59,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1646556514484</updated>
-      <workItem from="1646556516967" duration="16465000" />
+      <workItem from="1646556516967" duration="22347000" />
     </task>
     <task id="LOCAL-00001" summary="Move all files to frontend folder">
       <created>1646562178563</created>
@@ -109,7 +68,42 @@
       <option name="project" value="LOCAL" />
       <updated>1646562178563</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="init">
+      <created>1646575493871</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1646575493871</updated>
+    </task>
+    <task id="LOCAL-00003" summary="fix backend static files">
+      <created>1646578900166</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1646578900166</updated>
+    </task>
+    <task id="LOCAL-00004" summary="fix backend static files">
+      <created>1646579509378</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1646579509378</updated>
+    </task>
+    <task id="LOCAL-00005" summary="fix backend static files">
+      <created>1646635645006</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1646635645006</updated>
+    </task>
+    <task id="LOCAL-00006" summary="fix backend static files">
+      <created>1646635701779</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1646635701779</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -131,6 +125,8 @@
       <path value="$PROJECT_DIR$/frontend" />
     </ignored-roots>
     <MESSAGE value="Move all files to frontend folder" />
-    <option name="LAST_COMMIT_MESSAGE" value="Move all files to frontend folder" />
+    <MESSAGE value="init" />
+    <MESSAGE value="fix backend static files" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix backend static files" />
   </component>
 </project>
