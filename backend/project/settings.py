@@ -1,10 +1,7 @@
-from os import environ
-
 try:
     from project.global_settings import *
 except ImportError:
     pass
-
 
 from glob import glob
 from os import environ
@@ -67,6 +64,8 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'corsheaders',
     'bis',
+    'categories',
+    'questionnaire',
 ]
 
 MIDDLEWARE = [
@@ -194,3 +193,5 @@ if not DEBUG:
 APP_NAME = environ['APP_NAME']
 
 EMAIL = environ['EMAIL']
+
+AUTH_USER_MODEL = 'bis.User'
