@@ -1,10 +1,13 @@
 from django.apps import AppConfig
 
 
-class CrowdEstateConfig(AppConfig):
+class QuestionnaireConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'questionnaire'
-    verbose_name = 'Questionnaire'
+    verbose_name = 'Dotazníky'
 
     def ready(self):
         import questionnaire.signals
+
+    class Meta:
+        verbose_name_plural = "Dotazníky"
