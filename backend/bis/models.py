@@ -1,8 +1,10 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.gis.db.models import *
+from phonenumber_field.modelfields import PhoneNumberField
 
-from categories.models import FinanceCategory, GrantCategory, PropagationIntendedForCategory, DietCategory
+from categories.models import FinanceCategory, GrantCategory, PropagationIntendedForCategory, DietCategory, \
+    CertificateCategory
 from questionnaire.models import Questionnaire
 
 
@@ -20,8 +22,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     EMAIL_FIELD = 'email'
 
-    first_name = CharField(max_length=63)
-    last_name = CharField(max_length=63)
+    first_name = CharField(max_length=63, blank=True)
+    last_name = CharField(max_length=63, blank=True)
+    nickname = CharField(max_length=63, blank=True)
+    phone = PhoneNumberField(blank=True)
+    birthday = DateField(blank=True, null=True)
+
     email = EmailField(unique=True)
     is_active = BooleanField(default=True)
 
@@ -29,7 +35,19 @@ class User(AbstractBaseUser, PermissionsMixin):
 class AdministrativeUnit(Model):
     parent = ForeignKey('AdministrativeUnit', on_delete=PROTECT, related_name='sub_units', blank=True, null=True)
     name = CharField(max_length=63)
-    members = ManyToManyField(User, related_name='administrative_units')
+    board_members = ManyToManyField(User, related_name='administrative_units')
+
+
+class Membership(Model):
+    user = ForeignKey(User, on_delete=PROTECT, related_name='memberships')
+    administrative_unit = ForeignKey(AdministrativeUnit, on_delete=PROTECT, related_name='memberships')
+    year = PositiveIntegerField()
+
+
+class Certificate(Model):
+    user = ForeignKey(User, on_delete=PROTECT, related_name='certificates')
+    category = ForeignKey(CertificateCategory, on_delete=PROTECT, related_name='certificates')
+    valid_till = DateField()
 
 
 class Event(Model):

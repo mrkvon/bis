@@ -15,3 +15,7 @@ class PropagationIntendedForCategory(Model):
 
 class DietCategory(Model):
     name = CharField(max_length=63)
+
+
+class CertificateCategory(Model):
+    name = CharField(max_length=63)
