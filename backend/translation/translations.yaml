@@ -169,3 +169,5 @@ models:
     name_plural: 'Typy kvalifikací'
     fields:
       name: 'Jméno'
+      description: 'Popis'
+      parent: 'Nadřazená kvalifikace'

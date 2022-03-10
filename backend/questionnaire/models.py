@@ -13,7 +13,7 @@ class Questionnaire(Model):
         ordering = 'id',
 
     def __str__(self):
-        return ''
+        return 'Dotazník'
 
 
 @translate_model
@@ -40,7 +40,7 @@ class QuestionnaireAnswers(Model):
         ordering = 'id',
 
     def __str__(self):
-        return ''
+        return f'Odpovědi uživatele {self.user}'
 
 
 @translate_model
@@ -51,7 +51,7 @@ class Answer(Model):
     answer = TextField()
 
     class Meta:
-        ordering = 'id',
+        ordering = 'question__order',
 
     def __str__(self):
-        return ''
+        return f'Odpověď na otázku {self.question}'

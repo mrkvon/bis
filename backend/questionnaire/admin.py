@@ -1,23 +1,28 @@
 from django.contrib import admin
+from nested_admin.nested import NestedModelAdmin, NestedStackedInline, NestedTabularInline
 
 from questionnaire.models import *
 
-#
-# @admin.register(Questionnaire)
-# class QuestionnaireAdmin(admin.ModelAdmin):
-#     pass
-#
-#
-# @admin.register(Question)
-# class QuestionAdmin(admin.ModelAdmin):
-#     pass
-#
-#
-# @admin.register(QuestionnaireAnswers)
-# class QuestionnaireAnswersAdmin(admin.ModelAdmin):
-#     pass
-#
-#
-# @admin.register(Answer)
-# class AnswerAdmin(admin.ModelAdmin):
-#     pass
+
+class QuestionAdmin(NestedTabularInline):
+    model = Question
+    sortable_field_name = 'order'
+    extra = 0
+
+
+class AnswerAdmin(NestedTabularInline):
+    model = Answer
+    extra = 0
+    classes = ['collapse']
+
+
+class QuestionnaireAnswersAdmin(NestedTabularInline):
+    model = QuestionnaireAnswers
+    inlines = AnswerAdmin,
+    extra = 0
+    classes = ['collapse']
+
+
+@admin.register(Questionnaire)
+class QuestionnaireAdmin(NestedModelAdmin):
+    inlines = QuestionAdmin, QuestionnaireAnswersAdmin

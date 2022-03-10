@@ -12,3 +12,4 @@ pytest-django
 pytest
 python-dotenv
 pyyaml
+django-nested-admin

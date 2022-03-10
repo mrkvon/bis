@@ -103,7 +103,7 @@ class Membership(Model):
         ordering = 'id',
 
     def __str__(self):
-        return ''
+        return f'Členství uživatele {self.user}'
 
 
 @translate_model
@@ -116,7 +116,7 @@ class Qualification(Model):
         ordering = 'id',
 
     def __str__(self):
-        return ''
+        return f'Kvalifikace uživatele {self.user}'
 
 
 @translate_model
@@ -147,8 +147,8 @@ class Event(Model):
     is_shown_on_web = BooleanField()
     vip_propagation = BooleanField(default=False)
 
-    minimum_age = PositiveIntegerField()
-    maximum_age = PositiveIntegerField()
+    minimum_age = PositiveIntegerField(null=True, blank=True)
+    maximum_age = PositiveIntegerField(null=True, blank=True)
     cost = PositiveIntegerField()
     intended_for = ForeignKey(PropagationIntendedForCategory, on_delete=PROTECT, related_name='events')
     # accommodation = ForeignKey to category?

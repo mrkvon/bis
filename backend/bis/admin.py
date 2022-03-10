@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.gis.admin import OSMGeoAdmin
+from nested_admin.nested import NestedTabularInline, NestedModelAdmin
 from rest_framework.authtoken.models import TokenProxy
 
 from bis.models import *
@@ -51,19 +52,20 @@ class AdministrativeUnitAdmin(admin.ModelAdmin):
     pass
 
 
-class EventPropagationImageAdmin(admin.TabularInline):
+class EventPropagationImageAdmin(NestedTabularInline):
     model = EventPropagationImage
+    sortable_field_name = 'order'
     readonly_fields = 'image_tag',
     extra = 1
 
 
-class EventPhotoAdmin(admin.TabularInline):
+class EventPhotoAdmin(NestedTabularInline):
     model = EventPhoto
     readonly_fields = 'photo_tag',
     extra = 1
 
 
 @admin.register(Event)
-class EventAdmin(admin.ModelAdmin):
+class EventAdmin(NestedModelAdmin):
     inlines = EventPropagationImageAdmin, EventPhotoAdmin
 

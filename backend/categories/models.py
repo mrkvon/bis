@@ -50,6 +50,9 @@ class DietCategory(Model):
 @translate_model
 class QualificationCategory(Model):
     name = CharField(max_length=63)
+    description = CharField(max_length=255)
+    parent = ForeignKey('QualificationCategory', on_delete=PROTECT, related_name='included_qualifications', blank=True,
+                        null=True)
 
     class Meta:
         ordering = 'id',

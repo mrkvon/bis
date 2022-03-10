@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'nested_admin',
     'rest_framework',
     'rest_framework_gis',
     'rest_framework.authtoken',
