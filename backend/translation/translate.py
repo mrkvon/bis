@@ -38,9 +38,9 @@ def translate_model(model):
 
         if isinstance(value, list):
             if len(value) >= 1:
-                getattr(model, attr_name).field.verbose_name = value[0]
+                attr.field.verbose_name = value[0]
 
             if len(value) >= 2:
-                getattr(model, attr_name).field.help_text = value[1]
+                attr.field.help_text = value[1]
 
     return model

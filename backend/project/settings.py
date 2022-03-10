@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'rangefilter',
     'nested_admin',
     'rest_framework',
     'rest_framework_gis',
@@ -68,6 +69,7 @@ INSTALLED_APPS = [
     'bis',
     'categories',
     'questionnaire',
+    'event',
 ]
 
 MIDDLEWARE = [

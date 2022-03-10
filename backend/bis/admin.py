@@ -1,9 +1,8 @@
-from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.gis.admin import OSMGeoAdmin
-from nested_admin.nested import NestedTabularInline, NestedModelAdmin
 from rest_framework.authtoken.models import TokenProxy
 
+from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter
 from bis.models import *
 
 admin.site.unregister(TokenProxy)
@@ -18,6 +17,7 @@ class LocationPhotosAdmin(admin.TabularInline):
 @admin.register(Location)
 class LocationAdmin(OSMGeoAdmin):
     inlines = LocationPhotosAdmin,
+    search_fields = 'name',
 
 
 class MembershipAdmin(admin.TabularInline):
@@ -46,26 +46,13 @@ class UserAdmin(admin.ModelAdmin):
 
     inlines = QualificationAdmin, MembershipAdmin
 
+    list_display = 'get_name', 'email', 'phone', 'get_qualification', 'get_membership'
+    list_filter = ActiveQualificationFilter, ActiveMembershipFilter, 'memberships__year'
+    list_select_related = 'qualification',
+    search_fields = 'email', 'phone', 'first_name', 'last_name', 'nickname'
+
 
 @admin.register(AdministrativeUnit)
 class AdministrativeUnitAdmin(admin.ModelAdmin):
-    pass
-
-
-class EventPropagationImageAdmin(NestedTabularInline):
-    model = EventPropagationImage
-    sortable_field_name = 'order'
-    readonly_fields = 'image_tag',
-    extra = 1
-
-
-class EventPhotoAdmin(NestedTabularInline):
-    model = EventPhoto
-    readonly_fields = 'photo_tag',
-    extra = 1
-
-
-@admin.register(Event)
-class EventAdmin(NestedModelAdmin):
-    inlines = EventPropagationImageAdmin, EventPhotoAdmin
-
+    list_display = 'name', 'parent'
+    search_fields = 'name',

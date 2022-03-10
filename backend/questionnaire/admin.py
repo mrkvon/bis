@@ -1,10 +1,10 @@
-from django.contrib import admin
-from nested_admin.nested import NestedModelAdmin, NestedStackedInline, NestedTabularInline
+from nested_admin.forms import SortableHiddenMixin
+from nested_admin.nested import NestedTabularInline
 
 from questionnaire.models import *
 
 
-class QuestionAdmin(NestedTabularInline):
+class QuestionAdmin(SortableHiddenMixin, NestedTabularInline):
     model = Question
     sortable_field_name = 'order'
     extra = 0
@@ -23,6 +23,6 @@ class QuestionnaireAnswersAdmin(NestedTabularInline):
     classes = ['collapse']
 
 
-@admin.register(Questionnaire)
-class QuestionnaireAdmin(NestedModelAdmin):
+class QuestionnaireAdmin(NestedTabularInline):
+    model = Questionnaire
     inlines = QuestionAdmin, QuestionnaireAnswersAdmin

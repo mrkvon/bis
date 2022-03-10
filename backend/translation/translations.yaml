@@ -43,7 +43,7 @@ models:
     fields:
       user: 'Uživatel'
       administrative_unit: 'Administrativní jednotka'
-      year: 'V roce'
+      year: 'Členství v roce'
 
   Qualification:
     name: 'Kvalifikace'
@@ -67,11 +67,23 @@ models:
       administrative_unit: 'Administrativní jednotka'
       main_organizer: 'Hlavní organizátor'
       other_organizers: 'Spoluorganizátoři'
-      finance_category: 'Kategorie dle financí'
+
+  EventFinance:
+    name: 'Finance události'
+    name_plural: 'Finance události'
+    fields:
+      event: 'Událost'
+      category: 'Kategorie dle financí'
       grant_source: 'Typ grantu'
       grant_amount: 'Přidělené dotace'
       total_event_cost: 'Celkové náklady akce'
       budget: 'Rozpočet'
+
+  EventPropagation:
+    name: 'Propagace události'
+    name_plural: 'Propagace události'
+    fields:
+      event: 'Událost'
       is_shown_on_web: 'Je akce zobrazena na webu?'
       vip_propagation: 'Je akce propagována v rámci VIP propagace?'
       minimum_age: 'Minimální věk'
@@ -84,9 +96,21 @@ models:
       invitation_text_work_description: 'Zvací text: Dobrovolnická pomoc'
       invitation_text_about_us: 'Zvací text: Malá ochutnávka'
       contact_person: 'Kontaktní osoba'
+
+  EventRegistration:
+    name: 'Registrace'
+    name_plural: 'Registrace'
+    fields:
+      event: 'Událost'
       is_registration_required: 'Je požadována registrace?'
       is_event_full: 'Je akce plná?'
       questionnaire: 'Dotazník'
+
+  EventRecord:
+    name: 'Záznam z události'
+    name_plural: 'Záznam z události'
+    fields:
+      event: 'Událost'
       total_hours_worked: 'Odpracováno člověkohodin'
       comment_on_work_done: 'Okomentování vykonané práce'
       has_attendance_list: 'Má prezenční listinu?'
@@ -94,11 +118,12 @@ models:
       number_of_participants: 'Počet účastníků'
       number_of_participants_under_26: 'Počet účastníků pod 26 let'
 
+
   EventPropagationImage:
     name: 'Obrázek k propagaci'
     name_plural: 'Obrázky k propagaci'
     fields:
-      event: 'Událost'
+      propagation: 'Propagace události'
       order: 'Pořadí'
       image: 'Obrázek'
 
@@ -106,13 +131,15 @@ models:
     name: 'Fotka z akce'
     name_plural: 'Fotky z akce'
     fields:
-      event: 'Událost'
+      record: 'Záznam události'
       photo: 'Fotka'
 
   # questionnaire
   Questionnaire:
     name: 'Dotazník'
-    name_plural: 'Dotazníky'
+    name_plural: 'Dotazník'
+    fields:
+      event_registration: 'Registrace k události'
 
   Question:
     name: 'Otázka dotazníku'

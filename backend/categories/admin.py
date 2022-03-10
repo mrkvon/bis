@@ -25,4 +25,4 @@ class DietCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(QualificationCategory)
 class QualificationCategoryAdmin(admin.ModelAdmin):
-    pass
+    list_display = 'name', 'description', 'parent'
