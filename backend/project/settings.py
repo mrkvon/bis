@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'categories',
     'questionnaire',
     'event',
+    'administration_units',
 ]
 
 MIDDLEWARE = [
@@ -127,6 +128,8 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
+
+AUTHENTICATION_BACKENDS = ['bis.auth_backend.BISBackend']
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/

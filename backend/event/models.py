@@ -4,7 +4,8 @@ from django.contrib import admin
 from django.contrib.gis.db.models import *
 from django.utils.safestring import mark_safe
 
-from bis.models import Location, AdministrativeUnit, User
+from administration_units.models import OrganizingUnit
+from bis.models import Location, User
 from categories.models import FinanceCategory, GrantCategory, PropagationIntendedForCategory, DietCategory
 from translation.translate import translate_model
 
@@ -18,7 +19,7 @@ class Event(Model):
     end = DateField()
     location = ForeignKey(Location, on_delete=PROTECT, related_name='events')
 
-    administrative_unit = ForeignKey(AdministrativeUnit, on_delete=PROTECT, related_name='events')
+    administrative_unit = ForeignKey(OrganizingUnit, on_delete=PROTECT, related_name='events')
     main_organizer = ForeignKey(User, on_delete=PROTECT, related_name='+')
     other_organizers = ManyToManyField(User, related_name='+', blank=True)
 
@@ -146,3 +147,16 @@ class EventPhoto(Model):
 
     def __str__(self):
         return basename(self.photo.name)
+
+    @classmethod
+    def filter_queryset(cls, queryset, user):
+        if user.is_superuser:
+            return queryset
+
+        # all events if krk or vv
+
+        # all events i was part of
+
+        # all events i organized (as main or other organizer)
+
+        # all events under my administrative unit

@@ -32,14 +32,14 @@ class QualificationAdmin(admin.TabularInline):
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'email'
-    exclude = 'password', 'groups', 'user_permissions'
+    exclude = 'groups', 'user_permissions', 'password', 'is_superuser'
 
     fieldsets = (
         (None, {
             'fields': ('first_name', 'last_name', 'nickname', 'email', 'phone', 'birthday')
         }),
         ('Interní data', {
-            'fields': ('is_active', 'is_superuser', 'last_login', 'date_joined'),
+            'fields': ('is_active', 'last_login', 'date_joined'),
             'classes': ('collapse',)
         })
     )
@@ -50,9 +50,11 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ActiveQualificationFilter, ActiveMembershipFilter, 'memberships__year'
     list_select_related = 'qualification',
     search_fields = 'email', 'phone', 'first_name', 'last_name', 'nickname'
+    #
+    # def get_queryset(self, request):
+    #     queryset = super().get_queryset(request)
+    #     return queryset.none()
 
+    def has_module_permission(self, request):
+        return True
 
-@admin.register(AdministrativeUnit)
-class AdministrativeUnitAdmin(admin.ModelAdmin):
-    list_display = 'name', 'parent'
-    search_fields = 'name',

@@ -48,6 +48,7 @@ class EventRecordAdmin(NestedStackedInline):
 class EventAdmin(NestedModelAdmin):
     inlines = EventFinanceAdmin, EventPropagationAdmin, EventRegistrationAdmin, EventRecordAdmin
     save_as = True
+    filter_horizontal = 'other_organizers',
 
     list_filter = 'administrative_unit', \
                   ('start', DateRangeFilter), ('end', DateRangeFilter), \
@@ -62,3 +63,4 @@ class EventAdmin(NestedModelAdmin):
 
     date_hierarchy = 'start'
     search_fields = 'name',
+

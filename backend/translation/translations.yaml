@@ -28,13 +28,36 @@ models:
       date_joined: 'Datum vzniku účtu'
 
 
-  AdministrativeUnit:
-    name: 'Administrativní jednotka'
-    name_plural: 'Administrativní jednotky'
+  OrganizingUnit:
+    name: 'Organizující jednotka'
+    name_plural: 'Organizující jednotky'
     fields:
-      parent: 'Nadřazená administrativní jednotka'
       name: 'Název'
       board_members: 'Členové představenstva'
+
+
+  BrontosaurusMovement:
+    name: 'Hnutí Brontosaurus'
+    name_plural: 'Hnutí Brontosaurus'
+    fields:
+      director:
+        - 'Ředitel'
+        - 'Má veškerá oprávnění'
+      bis_administrators:
+        - 'Správci BISu'
+        - 'Mají veškeré oprávnění'
+      office_workers:
+        - 'Kancl'
+        - 'Mohou měnit vše kromě základních oprávnění'
+      audit_committee:
+        - 'KRK - Kontrolní a revizní komise'
+        - 'Vidí vše, nemohou editovat'
+      executive_committee:
+        - 'VV - Výkonný výbor'
+        - 'Vidí vše, nemohou editovat'
+      education_members:
+        - 'EDU'
+        - 'Vidí pouze uživatele a mohou je editovat pouze kvalifikaci'
 
 
   Membership:

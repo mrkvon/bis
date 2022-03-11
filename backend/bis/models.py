@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from phonenumber_field.modelfields import PhoneNumberField
 
+from administration_units.models import OrganizingUnit, BrontosaurusMovement
 from categories.models import QualificationCategory
 from translation.translate import translate_model
 
@@ -58,8 +59,41 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     @property
+    def is_director(self):
+        return BrontosaurusMovement.get().director == self
+
+    @property
+    def is_admin(self):
+        return self in BrontosaurusMovement.get().bis_administrators.all()
+
+    @property
+    def is_office_worker(self):
+        return self in BrontosaurusMovement.get().office_workers.all()
+
+    @property
+    def is_auditor(self):
+        return self in BrontosaurusMovement.get().audit_committee.all()
+
+    @property
+    def is_executive(self):
+        return self in BrontosaurusMovement.get().executive_committee.all()
+
+    @property
+    def is_education_member(self):
+        return self in BrontosaurusMovement.get().education_members.all()
+
+    @property
+    def is_board_member(self):
+        return self in BrontosaurusMovement.get().education_members.all()
+
+    @property
     def is_staff(self):
-        return self.is_superuser or AdministrativeUnit.objects.filter(board_members=self).exists()
+        return self.is_director or self.is_admin or self.is_office_worker or self.is_auditor \
+               or self.is_executive or self.is_education_member or self.is_board_member
+
+    @property
+    def is_superuser(self):
+        return self.is_director or self.is_admin
 
     def has_usable_password(self):
         return False
@@ -92,22 +126,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 @translate_model
-class AdministrativeUnit(Model):
-    name = CharField(max_length=63)
-    parent = ForeignKey('AdministrativeUnit', on_delete=PROTECT, related_name='sub_units', blank=True, null=True)
-    board_members = ManyToManyField(User, related_name='administrative_units')
-
-    class Meta:
-        ordering = 'id',
-
-    def __str__(self):
-        return self.name
-
-
-@translate_model
 class Membership(Model):
     user = ForeignKey(User, on_delete=PROTECT, related_name='memberships')
-    administrative_unit = ForeignKey(AdministrativeUnit, on_delete=PROTECT, related_name='memberships')
+    administrative_unit = ForeignKey(OrganizingUnit, on_delete=PROTECT, related_name='memberships')
     year = PositiveIntegerField()
 
     class Meta:

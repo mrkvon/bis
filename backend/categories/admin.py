@@ -3,26 +3,37 @@ from django.contrib import admin
 from categories.models import *
 
 
+class CategoryBaseAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
 @admin.register(FinanceCategory)
-class FinanceCategoryAdmin(admin.ModelAdmin):
+class FinanceCategoryAdmin(CategoryBaseAdmin):
     pass
 
 
 @admin.register(GrantCategory)
-class GrantCategoryAdmin(admin.ModelAdmin):
+class GrantCategoryAdmin(CategoryBaseAdmin):
     pass
 
 
 @admin.register(PropagationIntendedForCategory)
-class PropagationIntendedForCategoryAdmin(admin.ModelAdmin):
+class PropagationIntendedForCategoryAdmin(CategoryBaseAdmin):
     pass
 
 
 @admin.register(DietCategory)
-class DietCategoryAdmin(admin.ModelAdmin):
+class DietCategoryAdmin(CategoryBaseAdmin):
     pass
 
 
 @admin.register(QualificationCategory)
-class QualificationCategoryAdmin(admin.ModelAdmin):
+class QualificationCategoryAdmin(CategoryBaseAdmin):
     list_display = 'name', 'description', 'parent'
