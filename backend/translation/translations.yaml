@@ -1,16 +1,16 @@
 models:
   Location:
-    name: 'Lokace'
-    name_plural: 'Lokace'
+    name: 'Lokalita'
+    name_plural: 'Lokality'
     fields:
       name: 'Název'
       gps_location: 'GPS lokace'
 
   LocationPhoto:
-    name: 'Fotka lokace'
-    name_plural: 'Fotky lokace'
+    name: 'Fotka lokality'
+    name_plural: 'Fotky lokalit'
     fields:
-      location: 'Lokace'
+      location: 'Lokalita'
       photo: 'Fotka'
 
 
@@ -84,7 +84,7 @@ models:
       is_canceled: 'Zrušena?'
       start: 'Začátek akce'
       end: 'Konec akce'
-      location: 'Lokace'
+      location: 'Lokalita'
       is_internal: 'Určeno pro členy?'
       number_of_sub_events: 'Počet akcí v uvedeném období'
       organizing_unit: 'Administrativní jednotka'
