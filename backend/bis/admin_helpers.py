@@ -37,3 +37,20 @@ class ActiveMembershipFilter(admin.SimpleListFilter):
         if self.value() == 'no':
             queryset = queryset.exclude(**query)
         return queryset
+
+
+class EditableByAdminOnlyMixin:
+    def has_add_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
+class FilterQuerysetMixin:
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return self.model.filter_queryset(queryset, request.user)

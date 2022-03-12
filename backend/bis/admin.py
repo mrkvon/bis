@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group
 from django.contrib.gis.admin import OSMGeoAdmin
 from rest_framework.authtoken.models import TokenProxy
 
-from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter
+from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter, FilterQuerysetMixin
 from bis.models import *
 
 admin.site.unregister(TokenProxy)
@@ -19,10 +19,30 @@ class LocationAdmin(OSMGeoAdmin):
     inlines = LocationPhotosAdmin,
     search_fields = 'name',
 
+    def has_add_permission(self, request):
+        user = request.user
+        return user.is_superuser or user.is_office_worker or user.is_board_member
+
+    def has_change_permission(self, request, obj=None):
+        return self.has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_add_permission(request)
+
 
 class MembershipAdmin(admin.TabularInline):
     model = Membership
     extra = 1
+
+    def has_add_permission(self, request, obj):
+        user = request.user
+        return user.is_superuser or user.is_office_worker or user.is_board_member
+
+    def has_change_permission(self, request, obj=None):
+        return self.has_add_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_add_permission(request, obj)
 
 
 class QualificationAdmin(admin.TabularInline):
@@ -30,7 +50,7 @@ class QualificationAdmin(admin.TabularInline):
 
 
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(FilterQuerysetMixin, admin.ModelAdmin):
     readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'email'
     exclude = 'groups', 'user_permissions', 'password', 'is_superuser'
 
@@ -50,11 +70,24 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ActiveQualificationFilter, ActiveMembershipFilter, 'memberships__year'
     list_select_related = 'qualification',
     search_fields = 'email', 'phone', 'first_name', 'last_name', 'nickname'
-    #
-    # def get_queryset(self, request):
-    #     queryset = super().get_queryset(request)
-    #     return queryset.none()
 
-    def has_module_permission(self, request):
-        return True
+    def get_readonly_fields(self, request, obj=None):
+        if not request.user.is_education_member:
+            return super().get_readonly_fields(request, obj)
 
+        result = []
+        for fieldset in self.fieldsets:
+            for field in fieldset[1]['fields']:
+                result.append(field)
+        return result
+
+    def has_add_permission(self, request):
+        user = request.user
+        return user.is_superuser or user.is_office_worker or user.is_board_member
+
+    def has_change_permission(self, request, obj=None):
+        user = request.user
+        return user.is_superuser or user.is_office_worker or user.is_board_member or user.is_education_member
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_add_permission(request)

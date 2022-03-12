@@ -2,6 +2,7 @@ from nested_admin.forms import SortableHiddenMixin
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin, NestedStackedInline
 from rangefilter.filters import DateRangeFilter
 
+from bis.admin_helpers import FilterQuerysetMixin
 from event.models import *
 from questionnaire.admin import QuestionnaireAdmin
 
@@ -45,12 +46,12 @@ class EventRecordAdmin(NestedStackedInline):
 
 
 @admin.register(Event)
-class EventAdmin(NestedModelAdmin):
+class EventAdmin(FilterQuerysetMixin, NestedModelAdmin):
     inlines = EventFinanceAdmin, EventPropagationAdmin, EventRegistrationAdmin, EventRecordAdmin
     save_as = True
     filter_horizontal = 'other_organizers',
 
-    list_filter = 'administrative_unit', \
+    list_filter = 'organizing_unit', \
                   ('start', DateRangeFilter), ('end', DateRangeFilter), \
                   'propagation__is_shown_on_web', 'propagation__intended_for', \
                   'propagation__vip_propagation', \
@@ -58,9 +59,19 @@ class EventAdmin(NestedModelAdmin):
                   'registration__is_registration_required', 'registration__is_event_full', \
                   'record__has_attendance_list',
 
-    list_display = 'name', 'start', 'location', 'administrative_unit', 'is_canceled'
-    list_select_related = 'location', 'administrative_unit'
+    list_display = 'name', 'start', 'location', 'organizing_unit', 'is_canceled'
+    list_select_related = 'location', 'organizing_unit'
 
     date_hierarchy = 'start'
     search_fields = 'name',
 
+    def has_add_permission(self, request):
+        user = request.user
+        return user.is_superuser or user.is_office_worker or user.is_board_member
+
+    def has_change_permission(self, request, obj=None):
+        user = request.user
+        return user.is_superuser or user.is_office_worker or user.is_board_member
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)

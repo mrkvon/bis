@@ -25,7 +25,7 @@ def migrate(apps, _):
 
     orchis = OrganizingUnit.objects.get_or_create(name='Orchis')[0]
     orchis.board_members.add(janek)
-    OrganizingUnit.objects.get_or_create(name='Rozruch')[0]
+    OrganizingUnit.objects.get_or_create(name='Rozruch')
 
     brontosaurus_movement = BrontosaurusMovement.objects.get_or_create(director=dali)[0]
     brontosaurus_movement.bis_administrators.add(ondra)

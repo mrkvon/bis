@@ -84,7 +84,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_board_member(self):
-        return self in BrontosaurusMovement.get().education_members.all()
+        return OrganizingUnit.objects.filter(board_members=self).exists()
+
+    def can_see_all(self):
+        return self.is_director or self.is_admin or self.is_office_worker or self.is_auditor \
+               or self.is_executive
 
     @property
     def is_staff(self):
@@ -124,18 +128,52 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_membership(self):
         return self.memberships.filter(year=timezone.now().year).first()
 
+    @classmethod
+    def filter_queryset(cls, queryset, user):
+        if user.can_see_all() or user.is_education_member:
+            return queryset
+
+        return queryset.filter(
+            # ja
+            Q(id=user.id)
+            # lidi kolem akci od clanku kde user je board member
+            | Q(participated_in_events__event__organizing_unit__board_members=user)
+            | Q(events_where_was_as_main_organizer__organizing_unit__board_members=user)
+            | Q(events_where_was_as_other_organizer__organizing_unit__board_members=user)
+            | Q(events_where_was_as_contact_person__event__organizing_unit__board_members=user)
+            # lidi kolem akci, kde user byl hlavas
+            | Q(participated_in_events__event__main_organizer=user)
+            | Q(events_where_was_as_other_organizer__main_organizer=user)
+            | Q(events_where_was_as_contact_person__event__main_organizer=user)
+            # lidi kolem akci, kde user byl other organizer
+            | Q(participated_in_events__event__other_organizers=user)
+            | Q(events_where_was_as_main_organizer__other_organizers=user)
+            | Q(events_where_was_as_other_organizer__other_organizers=user)
+            | Q(events_where_was_as_contact_person__event__other_organizers=user)
+            # lidi kolem akci, kde user byl kontaktni osoba
+            | Q(participated_in_events__event__propagation__contact_person=user)
+            | Q(events_where_was_as_main_organizer__propagation__contact_person=user)
+            | Q(events_where_was_as_other_organizer__propagation__contact_person=user)
+            | Q(events_where_was_as_contact_person__event__propagation__contact_person=user)
+            # orgove akci, kde user byl ucastnik
+            | Q(events_where_was_as_main_organizer__record__participants=user)
+            | Q(events_where_was_as_other_organizer__record__participants=user)
+            | Q(events_where_was_as_contact_person__event__record__participants=user)
+            # # # ostatni ucastnici akci, kde jsem byl
+            # participated_in_events__participants=user,
+        ).distinct()
 
 @translate_model
 class Membership(Model):
     user = ForeignKey(User, on_delete=PROTECT, related_name='memberships')
-    administrative_unit = ForeignKey(OrganizingUnit, on_delete=PROTECT, related_name='memberships')
+    organizing_unit = ForeignKey(OrganizingUnit, on_delete=PROTECT, related_name='memberships')
     year = PositiveIntegerField()
 
     class Meta:
         ordering = 'id',
 
     def __str__(self):
-        return f'Člen {self.administrative_unit} (rok {self.year})'
+        return f'Člen {self.organizing_unit} (rok {self.year})'
 
 
 @translate_model

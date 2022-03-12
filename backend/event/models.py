@@ -2,6 +2,7 @@ from os.path import basename
 
 from django.contrib import admin
 from django.contrib.gis.db.models import *
+from django.db.models import Q
 from django.utils.safestring import mark_safe
 
 from administration_units.models import OrganizingUnit
@@ -19,9 +20,9 @@ class Event(Model):
     end = DateField()
     location = ForeignKey(Location, on_delete=PROTECT, related_name='events')
 
-    administrative_unit = ForeignKey(OrganizingUnit, on_delete=PROTECT, related_name='events')
-    main_organizer = ForeignKey(User, on_delete=PROTECT, related_name='+')
-    other_organizers = ManyToManyField(User, related_name='+', blank=True)
+    organizing_unit = ForeignKey(OrganizingUnit, on_delete=PROTECT, related_name='events')
+    main_organizer = ForeignKey(User, on_delete=PROTECT, related_name='events_where_was_as_main_organizer')
+    other_organizers = ManyToManyField(User, related_name='events_where_was_as_other_organizer', blank=True)
 
     is_internal = BooleanField(default=False)
     number_of_sub_events = PositiveIntegerField(default=1)
@@ -32,6 +33,18 @@ class Event(Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def filter_queryset(cls, queryset, user):
+        if user.can_see_all():
+            return queryset
+
+        return queryset.filter(
+            Q(organizing_unit__board_members=user) |
+            Q(main_organizer=user) |
+            Q(other_organizers=user) |
+            Q(record__participants=user)
+        ).distinct()
 
 
 @translate_model
@@ -71,7 +84,7 @@ class EventPropagation(Model):
     invitation_text_about_us = TextField(blank=True)
     # propagation_images as Model below
 
-    contact_person = ForeignKey(User, on_delete=PROTECT, related_name='+')
+    contact_person = ForeignKey(User, on_delete=PROTECT, related_name='events_where_was_as_contact_person')
 
     class Meta:
         ordering = 'id',
@@ -148,15 +161,3 @@ class EventPhoto(Model):
     def __str__(self):
         return basename(self.photo.name)
 
-    @classmethod
-    def filter_queryset(cls, queryset, user):
-        if user.is_superuser:
-            return queryset
-
-        # all events if krk or vv
-
-        # all events i was part of
-
-        # all events i organized (as main or other organizer)
-
-        # all events under my administrative unit

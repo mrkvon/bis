@@ -65,7 +65,7 @@ models:
     name_plural: 'Členství'
     fields:
       user: 'Uživatel'
-      administrative_unit: 'Administrativní jednotka'
+      organizing_unit: 'Administrativní jednotka'
       year: 'Členství v roce'
 
   Qualification:
@@ -87,7 +87,7 @@ models:
       location: 'Lokace'
       is_internal: 'Určeno pro členy?'
       number_of_sub_events: 'Počet akcí v uvedeném období'
-      administrative_unit: 'Administrativní jednotka'
+      organizing_unit: 'Administrativní jednotka'
       main_organizer: 'Hlavní organizátor'
       other_organizers: 'Spoluorganizátoři'
 
