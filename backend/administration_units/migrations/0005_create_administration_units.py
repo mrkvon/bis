@@ -70,6 +70,7 @@ def migrate(apps, _):
 class Migration(migrations.Migration):
     dependencies = [
         ('administration_units', '0004_delete_administrativeunit_and_more'),
+        ('categories', '0002_create_categories'),
     ]
 
     operations = [
