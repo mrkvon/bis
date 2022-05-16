@@ -4,11 +4,6 @@ from bis.admin_helpers import EditableByAdminOnlyMixin
 from categories.models import *
 
 
-@admin.register(FinanceCategory)
-class FinanceCategoryAdmin(EditableByAdminOnlyMixin, admin.ModelAdmin):
-    pass
-
-
 @admin.register(GrantCategory)
 class GrantCategoryAdmin(EditableByAdminOnlyMixin, admin.ModelAdmin):
     pass
@@ -26,4 +21,4 @@ class DietCategoryAdmin(EditableByAdminOnlyMixin, admin.ModelAdmin):
 
 @admin.register(QualificationCategory)
 class QualificationCategoryAdmin(EditableByAdminOnlyMixin, admin.ModelAdmin):
-    list_display = 'name', 'description', 'parent'
+    list_display = 'slug', 'name', 'parent'

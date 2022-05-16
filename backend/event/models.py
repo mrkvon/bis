@@ -5,9 +5,10 @@ from django.contrib.gis.db.models import *
 from django.db.models import Q
 from django.utils.safestring import mark_safe
 
-from administration_units.models import OrganizingUnit
+from administration_units.models import AdministrationUnit
 from bis.models import Location, User
-from categories.models import FinanceCategory, GrantCategory, PropagationIntendedForCategory, DietCategory
+from categories.models import GrantCategory, PropagationIntendedForCategory, DietCategory, \
+    EventCategory, EventProgramCategory
 from translation.translate import translate_model
 
 
@@ -18,14 +19,20 @@ class Event(Model):
     is_canceled = BooleanField(default=False)
     start = DateTimeField()
     end = DateField()
-    location = ForeignKey(Location, on_delete=PROTECT, related_name='events')
+    location = ForeignKey(Location, on_delete=CASCADE, related_name='events', null=True)
 
-    organizing_unit = ForeignKey(OrganizingUnit, on_delete=PROTECT, related_name='events')
-    main_organizer = ForeignKey(User, on_delete=PROTECT, related_name='events_where_was_as_main_organizer')
+    category = ForeignKey(EventCategory, on_delete=CASCADE, related_name='events')
+    program = ForeignKey(EventProgramCategory, on_delete=CASCADE, related_name='events')
+
+    administration_unit = ForeignKey(AdministrationUnit, on_delete=CASCADE, related_name='events')
+    main_organizer = ForeignKey(User, on_delete=CASCADE, related_name='events_where_was_as_main_organizer', null=True)
     other_organizers = ManyToManyField(User, related_name='events_where_was_as_other_organizer', blank=True)
 
     is_internal = BooleanField(default=False)
     number_of_sub_events = PositiveIntegerField(default=1)
+    internal_note = TextField(blank=True)
+
+    _import_id = CharField(max_length=15, default='')
 
     class Meta:
         ordering = 'id',
@@ -40,7 +47,7 @@ class Event(Model):
             return queryset
 
         return queryset.filter(
-            Q(organizing_unit__board_members=user) |
+            Q(administration_unit__board_members=user) |
             Q(main_organizer=user) |
             Q(other_organizers=user) |
             Q(record__participants=user)
@@ -51,8 +58,7 @@ class Event(Model):
 class EventFinance(Model):
     event = OneToOneField(Event, related_name='finance', on_delete=CASCADE)
 
-    category = ForeignKey(FinanceCategory, on_delete=PROTECT, related_name='events')
-    grant_source = ForeignKey(GrantCategory, on_delete=PROTECT, related_name='events', null=True, blank=True)
+    grant_category = ForeignKey(GrantCategory, on_delete=CASCADE, related_name='events', null=True, blank=True)
     grant_amount = PositiveIntegerField(null=True, blank=True)
     total_event_cost = PositiveIntegerField(null=True, blank=True)
     budget = FileField(upload_to='budgets', blank=True)
@@ -69,14 +75,16 @@ class EventPropagation(Model):
     event = OneToOneField(Event, related_name='propagation', on_delete=CASCADE)
 
     is_shown_on_web = BooleanField()
-    vip_propagation = BooleanField(default=False)
 
     minimum_age = PositiveIntegerField(null=True, blank=True)
     maximum_age = PositiveIntegerField(null=True, blank=True)
     cost = PositiveIntegerField()
-    intended_for = ForeignKey(PropagationIntendedForCategory, on_delete=PROTECT, related_name='events')
-    # accommodation = ForeignKey to category?
-    diet = ForeignKey(DietCategory, on_delete=PROTECT, related_name='events')
+    intended_for = ForeignKey(PropagationIntendedForCategory, on_delete=CASCADE, related_name='events')
+    accommodation = CharField(max_length=255)
+    diet = ForeignKey(DietCategory, on_delete=CASCADE, related_name='events')
+    organizers = CharField(max_length=255)
+    web_url = URLField(blank=True)
+    _contact_url = URLField(blank=True)
 
     invitation_text_introduction = TextField()
     invitation_text_practical_information = TextField()
@@ -84,13 +92,27 @@ class EventPropagation(Model):
     invitation_text_about_us = TextField(blank=True)
     # propagation_images as Model below
 
-    contact_person = ForeignKey(User, on_delete=PROTECT, related_name='events_where_was_as_contact_person')
+    contact_person = ForeignKey(User, on_delete=CASCADE, related_name='events_where_was_as_contact_person', null=True)
 
     class Meta:
         ordering = 'id',
 
     def __str__(self):
         return f'Propagace k události {self.event}'
+
+
+@translate_model
+class VIPEventPropagation(Model):
+    event_propagation = OneToOneField(EventPropagation, related_name='vip_propagation', on_delete=CASCADE)
+
+    goals_of_event = TextField()
+    program = TextField()
+    short_invitation_text = TextField(max_length=200)
+
+    rover_propagation = BooleanField(default=False)
+
+    working_hours = PositiveSmallIntegerField()
+    working_days = PositiveSmallIntegerField()
 
 
 @translate_model
@@ -160,4 +182,3 @@ class EventPhoto(Model):
 
     def __str__(self):
         return basename(self.photo.name)
-

@@ -8,15 +8,19 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from phonenumber_field.modelfields import PhoneNumberField
 
-from administration_units.models import OrganizingUnit, BrontosaurusMovement
-from categories.models import QualificationCategory
+from administration_units.models import AdministrationUnit, BrontosaurusMovement
+from categories.models import QualificationCategory, MembershipCategory
 from translation.translate import translate_model
 
 
 @translate_model
 class Location(Model):
     name = CharField(max_length=63)
-    gps_location = PointField()
+    patron = ForeignKey('bis.User', on_delete=CASCADE, related_name='locations', null=True)
+    address = CharField(max_length=255, null=True)
+    gps_location = PointField(null=True)
+
+    _import_id = CharField(max_length=15, default='')
 
     class Meta:
         ordering = 'id',
@@ -54,7 +58,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     email = EmailField(unique=True)
     is_active = BooleanField(default=True)
+    email_exists = BooleanField(default=True)
     date_joined = DateTimeField(default=timezone.now)
+
+    _import_id = CharField(max_length=15, default='')
 
     objects = UserManager()
 
@@ -84,7 +91,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_board_member(self):
-        return OrganizingUnit.objects.filter(board_members=self).exists()
+        return AdministrationUnit.objects.filter(board_members=self).exists()
 
     def can_see_all(self):
         return self.is_director or self.is_admin or self.is_office_worker or self.is_auditor \
@@ -92,11 +99,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_staff(self):
+        print(self, flush=True)
         return self.is_director or self.is_admin or self.is_office_worker or self.is_auditor \
                or self.is_executive or self.is_education_member or self.is_board_member
 
     @property
     def is_superuser(self):
+        print(self, flush=True)
         return self.is_director or self.is_admin
 
     def has_usable_password(self):
@@ -120,13 +129,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         return name
 
     @admin.display(description='Aktivní kvalifikace')
-    def get_qualification(self):
-        if self.qualification and self.qualification.valid_till >= timezone.now().date():
-            return self.qualification
+    def get_qualifications(self):
+        return [q for q in self.qualifications.all() if q.valid_till >= timezone.now().date()]
 
     @admin.display(description='Aktivní členství')
-    def get_membership(self):
-        return self.memberships.filter(year=timezone.now().year).first()
+    def get_memberships(self):
+        return [m for m in self.memberships.all() if m.year == timezone.now().year]
 
     @classmethod
     def filter_queryset(cls, queryset, user):
@@ -137,10 +145,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             # ja
             Q(id=user.id)
             # lidi kolem akci od clanku kde user je board member
-            | Q(participated_in_events__event__organizing_unit__board_members=user)
-            | Q(events_where_was_as_main_organizer__organizing_unit__board_members=user)
-            | Q(events_where_was_as_other_organizer__organizing_unit__board_members=user)
-            | Q(events_where_was_as_contact_person__event__organizing_unit__board_members=user)
+            | Q(participated_in_events__event__administration_unit__board_members=user)
+            | Q(events_where_was_as_main_organizer__administration_unit__board_members=user)
+            | Q(events_where_was_as_other_organizer__administration_unit__board_members=user)
+            | Q(events_where_was_as_contact_person__event__administration_unit__board_members=user)
             # lidi kolem akci, kde user byl hlavas
             | Q(participated_in_events__event__main_organizer=user)
             | Q(events_where_was_as_other_organizer__main_organizer=user)
@@ -163,27 +171,49 @@ class User(AbstractBaseUser, PermissionsMixin):
             # participated_in_events__participants=user,
         ).distinct()
 
+
 @translate_model
-class Membership(Model):
-    user = ForeignKey(User, on_delete=PROTECT, related_name='memberships')
-    organizing_unit = ForeignKey(OrganizingUnit, on_delete=PROTECT, related_name='memberships')
-    year = PositiveIntegerField()
+class UserAddress(Model):
+    user = OneToOneField(User, on_delete=CASCADE, related_name='address')
+    street = CharField(max_length=127)
+    city = CharField(max_length=63)
+    zip_code = CharField(max_length=5)
 
     class Meta:
         ordering = 'id',
 
     def __str__(self):
-        return f'Člen {self.organizing_unit} (rok {self.year})'
+        return f'Adresa {self.user})'
+
+
+@translate_model
+class Membership(Model):
+    user = ForeignKey(User, on_delete=CASCADE, related_name='memberships')
+    category = ForeignKey(MembershipCategory, on_delete=CASCADE, related_name='memberships')
+    administration_unit = ForeignKey(AdministrationUnit, on_delete=CASCADE, related_name='memberships')
+    year = PositiveIntegerField()
+
+    _import_id = CharField(max_length=15, default='')
+
+    class Meta:
+        ordering = 'id',
+
+    def __str__(self):
+        return f'Člen {self.administration_unit} (rok {self.year})'
 
 
 @translate_model
 class Qualification(Model):
-    user = OneToOneField(User, on_delete=PROTECT, related_name='qualification')
-    category = ForeignKey(QualificationCategory, on_delete=PROTECT, related_name='qualifications')
+    user = ForeignKey(User, on_delete=CASCADE, related_name='qualifications')
+    category = ForeignKey(QualificationCategory, on_delete=CASCADE, related_name='qualifications')
+    valid_since = DateField()
     valid_till = DateField()
+    approved_by = ForeignKey(User, on_delete=CASCADE, related_name='approved_qualifications')
+
+    _import_id = CharField(max_length=15, default='')
 
     class Meta:
         ordering = 'id',
 
     def __str__(self):
-        return f'{self.category} (do {self.valid_till})'
+        return f'{self.category} (od {self.valid_since} do {self.valid_till})'

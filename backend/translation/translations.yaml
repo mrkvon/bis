@@ -28,11 +28,12 @@ models:
       date_joined: 'Datum vzniku účtu'
 
 
-  OrganizingUnit:
+  AdministrationUnit:
     name: 'Organizující jednotka'
     name_plural: 'Organizující jednotky'
     fields:
       name: 'Název'
+      category: 'Typ'
       board_members: 'Členové představenstva'
 
 
@@ -65,7 +66,7 @@ models:
     name_plural: 'Členství'
     fields:
       user: 'Uživatel'
-      organizing_unit: 'Administrativní jednotka'
+      administration_unit: 'Administrativní jednotka'
       year: 'Členství v roce'
 
   Qualification:
@@ -87,7 +88,7 @@ models:
       location: 'Lokalita'
       is_internal: 'Určeno pro členy?'
       number_of_sub_events: 'Počet akcí v uvedeném období'
-      organizing_unit: 'Administrativní jednotka'
+      administration_unit: 'Administrativní jednotka'
       main_organizer: 'Hlavní organizátor'
       other_organizers: 'Spoluorganizátoři'
 
@@ -190,12 +191,6 @@ models:
 
 
   # categories
-  FinanceCategory:
-    name: 'Kategorie dle financí'
-    name_plural: 'Kategorie dle financí'
-    fields:
-      name: 'Jméno'
-
   GrantCategory:
     name: 'Typ grantu'
     name_plural: 'Typy grantů'
@@ -221,3 +216,9 @@ models:
       name: 'Jméno'
       description: 'Popis'
       parent: 'Nadřazená kvalifikace'
+
+  AdministrationUnitCategory:
+    name: 'Typ organizující jednotky'
+    name_plural: 'Typy organizujících jednotek'
+    fields:
+      name: 'Jméno'

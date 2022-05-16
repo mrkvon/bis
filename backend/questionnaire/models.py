@@ -8,7 +8,8 @@ from translation.translate import translate_model
 class Questionnaire(Model):
     # one to one relationship to event
     # holds relations to its questions and answers
-    event_registration = OneToOneField(EventRegistration, on_delete=PROTECT, null=True, blank=True, related_name='questionnaire')
+    event_registration = OneToOneField(EventRegistration, on_delete=CASCADE, null=True, blank=True,
+                                       related_name='questionnaire')
 
     class Meta:
         ordering = 'id',
@@ -34,8 +35,8 @@ class Question(Model):
 @translate_model
 class QuestionnaireAnswers(Model):
     # hold set of answers by specific user for specific questionnaire
-    questionnaire = ForeignKey(Questionnaire, on_delete=PROTECT, related_name='answers')
-    user = ForeignKey('bis.User', on_delete=PROTECT, related_name='filled_questionnaires')
+    questionnaire = ForeignKey(Questionnaire, on_delete=CASCADE, related_name='answers')
+    user = ForeignKey('bis.User', on_delete=CASCADE, related_name='filled_questionnaires')
 
     class Meta:
         ordering = 'id',
@@ -47,8 +48,8 @@ class QuestionnaireAnswers(Model):
 @translate_model
 class Answer(Model):
     # holds answer for specific question
-    question = ForeignKey(Question, on_delete=PROTECT, related_name='answers')
-    part_of = ForeignKey(QuestionnaireAnswers, on_delete=PROTECT, related_name='answers')
+    question = ForeignKey(Question, on_delete=CASCADE, related_name='answers')
+    part_of = ForeignKey(QuestionnaireAnswers, on_delete=CASCADE, related_name='answers')
     answer = TextField()
 
     class Meta:

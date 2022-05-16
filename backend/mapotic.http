@@ -1,0 +1,8 @@
+### all pois
+GET https://www.mapotic.com/api/v1/maps/739/pois.geojson/
+
+### detail
+GET https://www.mapotic.com/api/v1/maps/739/public-pois/1021393/
+
+### obrazky k akci
+GET https://www.mapotic.com/api/v1/maps/739/pois/1021393/images/

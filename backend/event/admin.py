@@ -32,6 +32,8 @@ class EventPropagationAdmin(NestedStackedInline):
     inlines = EventPropagationImageAdmin,
     classes = 'collapse',
 
+    autocomplete_fields = 'contact_person',
+
 
 class EventRegistrationAdmin(NestedStackedInline):
     model = EventRegistration
@@ -44,6 +46,8 @@ class EventRecordAdmin(NestedStackedInline):
     inlines = EventPhotoAdmin,
     classes = 'collapse',
 
+    autocomplete_fields = 'participants',
+
 
 @admin.register(Event)
 class EventAdmin(FilterQuerysetMixin, NestedModelAdmin):
@@ -51,7 +55,7 @@ class EventAdmin(FilterQuerysetMixin, NestedModelAdmin):
     save_as = True
     filter_horizontal = 'other_organizers',
 
-    list_filter = 'organizing_unit', \
+    list_filter = 'administration_unit', \
                   ('start', DateRangeFilter), ('end', DateRangeFilter), \
                   'propagation__is_shown_on_web', 'propagation__intended_for', \
                   'propagation__vip_propagation', \
@@ -59,11 +63,13 @@ class EventAdmin(FilterQuerysetMixin, NestedModelAdmin):
                   'registration__is_registration_required', 'registration__is_event_full', \
                   'record__has_attendance_list',
 
-    list_display = 'name', 'start', 'location', 'organizing_unit', 'is_canceled'
-    list_select_related = 'location', 'organizing_unit'
+    list_display = 'name', 'start', 'location', 'administration_unit', 'is_canceled'
+    list_select_related = 'location', 'administration_unit'
 
     date_hierarchy = 'start'
     search_fields = 'name',
+
+    autocomplete_fields = 'main_organizer', 'other_organizers', 'location', 'administration_unit',
 
     def has_add_permission(self, request):
         user = request.user

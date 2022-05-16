@@ -71,9 +71,13 @@ INSTALLED_APPS = [
     'questionnaire',
     'event',
     'administration_units',
+    'debug_toolbar',
+    'login_code',
+    'mailjet',
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -204,3 +208,14 @@ APP_NAME = environ['APP_NAME']
 EMAIL = environ['EMAIL']
 
 AUTH_USER_MODEL = 'bis.User'
+
+# mailjet
+MAILJET_API_KEY = environ['MAILJET_API_KEY']
+MAILJET_SECRET = environ['MAILJET_SECRET']
+
+if DEBUG:
+    import socket  # only if you haven't already imported this
+
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
+    DEBUG_TOOLBAR_CONFIG = {'PROFILER_MAX_DEPTH': 20}

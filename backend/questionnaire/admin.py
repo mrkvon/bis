@@ -15,12 +15,16 @@ class AnswerAdmin(NestedTabularInline):
     extra = 0
     classes = ['collapse']
 
+    readonly_fields = 'question', 'answer'
+
 
 class QuestionnaireAnswersAdmin(NestedTabularInline):
     model = QuestionnaireAnswers
     inlines = AnswerAdmin,
     extra = 0
     classes = ['collapse']
+
+    autocomplete_fields = 'user',
 
 
 class QuestionnaireAdmin(NestedTabularInline):

@@ -1,3 +1,4 @@
+from logging import warning
 from os.path import join
 
 import yaml
@@ -12,7 +13,12 @@ ignored_attr_names = ['id', 'pk', 'is_superuser', 'last_login', 'password']
 
 
 def translate_model(model):
-    model_translations = translations['models'][model.__name__]
+    model_name = model.__name__
+    if model_name not in translations['models']:
+        warning(f'There is no translation for model {model_name}')
+        return model
+
+    model_translations = translations['models'][model_name]
     model._meta.verbose_name = model_translations['name']
     model._meta.verbose_name_plural = model_translations['name_plural']
     for attr_name in dir(model):
@@ -27,7 +33,8 @@ def translate_model(model):
             continue
 
         if not attr_name in model_translations['fields']:
-            raise Exception(f'Model {model.__name__} has no translation for attribute {attr_name}')
+            warning(f'Model {model_name} has no translation for attribute {attr_name}')
+            continue
 
         value = model_translations['fields'][attr_name]
         if not value:

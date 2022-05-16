@@ -49,18 +49,20 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
-      EMAIL: 'staff@maesty.online'
+      EMAIL: 'ondrej@maesty.online'
       FULL_HOSTNAME: 'https://bis.lomic.cz'
       DEBUG: 0
       TEST: 0
       ALLOWED_HOSTS: '*'
       APP_NAME: 'bis'
       API_BASE: 'api/'
+      MAILJET_API_KEY: '4edfa1bf2c83120a264db7749992505a'
+      MAILJET_SECRET: '4fc8856b04ba11991198cf19891ab865'
 
   postgres:
     container_name: bis-postgres
     image: postgis/postgis:11-3.1-alpine
-#    image: postgres:14-alpine
+    #    image: postgres:14-alpine
     volumes:
       - ./postgresqldata:/var/lib/postgresql/data
     ports:

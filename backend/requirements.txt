@@ -14,3 +14,6 @@ pytest-django
 pytest
 python-dotenv
 pyyaml
+django-debug-toolbar
+requests
+simplejson
