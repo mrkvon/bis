@@ -127,7 +127,7 @@ models:
       number_of_sub_events: 'Počet akcí v uvedeném období'
       administration_unit: 'Administrativní jednotka'
       main_organizer: 'Hlavní organizátor'
-      other_organizers: 'Spoluorganizátoři'
+      other_organizers: 'Všichni organizátoři'
 
   EventFinance:
     name: 'Finance události'

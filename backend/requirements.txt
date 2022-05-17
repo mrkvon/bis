@@ -18,3 +18,4 @@ django-debug-toolbar
 requests
 simplejson
 django-solo
+django-admin-autocomplete-filter

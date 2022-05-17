@@ -1,3 +1,5 @@
+from rangefilter.filters import DateRangeFilter
+
 from bis.models import *
 
 
@@ -12,7 +14,7 @@ class ActiveQualificationFilter(admin.SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        query = {'qualification__valid_till__gte': timezone.now().date()}
+        query = {'qualifications__valid_till__gte': timezone.now().date()}
         if self.value() == 'yes':
             queryset = queryset.filter(**query)
         if self.value() == 'no':
@@ -25,6 +27,7 @@ class ActiveMembershipFilter(admin.SimpleListFilter):
     parameter_name = 'active_membership'
 
     def lookups(self, request, model_admin):
+        # qs = model_admin.get_queryset(request)
         return (
             ('yes', 'Ano'),
             ('no', 'Ne'),
@@ -37,6 +40,7 @@ class ActiveMembershipFilter(admin.SimpleListFilter):
         if self.value() == 'no':
             queryset = queryset.exclude(**query)
         return queryset
+
 
 
 class EditableByAdminOnlyMixin:

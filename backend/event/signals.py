@@ -1,11 +1,8 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from rest_framework.authtoken.models import Token
-
-from bis.models import *
-from project import settings
+from event.models import Event
 
 
-@receiver(post_save, sender=settings.AUTH_USER_MODEL, dispatch_uid='create_auth_token_for_all_users')
-def create_auth_token_for_all_users(instance: User, **kwargs):
-    Token.objects.get_or_create(user=instance)
+@receiver(post_save, sender=Event, dispatch_uid='add_main_organizer_as_organizer')
+def add_main_organizer_as_organizer(instance: Event, **kwargs):
+    if instance.main_organizer: instance.other_organizers.add(instance.main_organizer)

@@ -50,7 +50,8 @@ def get_event_start(item):
 
     if not start:
         start = parse_date(item['do'])
-        start = datetime(year=start.year, month=start.month, day=start.day, tzinfo=ZoneInfo(key='Europe/Prague'))
+        if start:
+            start = datetime(year=start.year, month=start.month, day=start.day, tzinfo=ZoneInfo(key='Europe/Prague'))
     return start
 
 
@@ -194,15 +195,9 @@ class Command(BaseCommand):
         for i, (id, item) in enumerate(data['adresa'].items()):
             self.print_progress('users', i, len(data['adresa']))
 
-            email_exists = True
-            if not item['email']:
-                item['email'] = f'old_{id}@lomic.cz'
-                email_exists = False
+            birthday = parse_date(item['datum_narozeni'])
 
-            birthday = parse_date(item.get('birthday'))
-
-            user = User.objects.update_or_create(emails__email=item['email'], defaults=dict(
-                _import_id=id,
+            user = User.objects.update_or_create(_import_id=id, defaults=dict(
                 first_name=item['jmeno'],
                 last_name=item['prijmeni'],
                 nickname=item['prezdivka'] or '',
@@ -210,7 +205,7 @@ class Command(BaseCommand):
                 birthday=birthday,
                 is_active=True,
             ))[0]
-            if email_exists:
+            if item['email']:
                 UserEmail.objects.update_or_create(email=item['email'], defaults=dict(user=user))
 
             street = item["ulice"]

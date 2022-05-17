@@ -1,3 +1,4 @@
+from admin_auto_filters.filters import AutocompleteFilterFactory
 from nested_admin.forms import SortableHiddenMixin
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin, NestedStackedInline
 from rangefilter.filters import DateRangeFilter
@@ -55,10 +56,10 @@ class EventAdmin(FilterQuerysetMixin, NestedModelAdmin):
     save_as = True
     filter_horizontal = 'other_organizers',
 
-    list_filter = 'administration_unit', \
+    list_filter = AutocompleteFilterFactory('Článek', 'administration_unit'), \
                   ('start', DateRangeFilter), ('end', DateRangeFilter), \
+                  'category', 'program', \
                   'propagation__is_shown_on_web', 'propagation__intended_for', \
-                  'propagation__vip_propagation', \
                   'is_canceled', 'is_internal', \
                   'registration__is_registration_required', 'registration__is_event_full', \
                   'record__has_attendance_list',

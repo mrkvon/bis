@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'login_code',
     'mailjet',
     'solo',
+    'admin_auto_filters',
 ]
 
 MIDDLEWARE = [

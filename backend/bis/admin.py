@@ -1,7 +1,9 @@
+from admin_auto_filters.filters import AutocompleteFilterFactory
 from django.contrib.auth.models import Group
 from django.contrib.gis.admin import OSMGeoAdmin
 from nested_admin.forms import SortableHiddenMixin
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin
+from rangefilter.filters import DateRangeFilter
 from rest_framework.authtoken.models import TokenProxy
 
 from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter, FilterQuerysetMixin
@@ -88,15 +90,25 @@ class UserAdmin(FilterQuerysetMixin, NestedModelAdmin):
     )
 
     list_display = 'get_name', 'get_emails', 'phone', 'get_qualifications', 'get_memberships'
-    list_filter = ActiveQualificationFilter, ActiveMembershipFilter, 'memberships__year'
+    list_filter = ActiveMembershipFilter, \
+                  AutocompleteFilterFactory('Člen článku', 'memberships__administration_unit'), \
+                  ('memberships__year'), ActiveQualificationFilter, 'qualifications__category', \
+                  ('date_joined', DateRangeFilter), ('birthday', DateRangeFilter), \
+                  ('participated_in_events__event__start', DateRangeFilter), \
+                  ('events_where_was_organizer__start', DateRangeFilter)
+
     search_fields = 'emails__email', 'phone', 'first_name', 'last_name', 'nickname'
 
-    inlines = QualificationAdmin, MembershipAdmin, UserEmailAdmin
+    def get_inlines(self, request, obj):
+        if request.user.is_superuser:
+            return QualificationAdmin, MembershipAdmin, UserEmailAdmin
+        return QualificationAdmin, MembershipAdmin
 
-    # def get_inlines(self, request, obj):
-    #     if request.user.is_superuser:
-    #         return
-    #     return QualificationAdmin, MembershipAdmin
+    def get_rangefilter_participated_in_events__event__start_title(self, request, field_path):
+        return 'Jeli na akci v období'
+
+    def get_rangefilter_events_where_was_organizer__start_title(self, request, field_path):
+        return 'Organizovali akci v období'
 
     def get_readonly_fields(self, request, obj=None):
         if not request.user.is_education_member:

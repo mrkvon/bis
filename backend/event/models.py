@@ -26,7 +26,7 @@ class Event(Model):
 
     administration_unit = ForeignKey(AdministrationUnit, on_delete=CASCADE, related_name='events')
     main_organizer = ForeignKey(User, on_delete=CASCADE, related_name='events_where_was_as_main_organizer', null=True)
-    other_organizers = ManyToManyField(User, related_name='events_where_was_as_other_organizer', blank=True)
+    other_organizers = ManyToManyField(User, related_name='events_where_was_organizer', blank=True)
 
     is_internal = BooleanField(default=False)
     number_of_sub_events = PositiveIntegerField(default=1)
@@ -48,7 +48,6 @@ class Event(Model):
 
         return queryset.filter(
             Q(administration_unit__board_members=user) |
-            Q(main_organizer=user) |
             Q(other_organizers=user) |
             Q(record__participants=user)
         ).distinct()
