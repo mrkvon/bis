@@ -56,8 +56,8 @@ services:
       ALLOWED_HOSTS: '*'
       APP_NAME: 'bis'
       API_BASE: 'api/'
-      MAILJET_API_KEY: '4edfa1bf2c83120a264db7749992505a'
-      MAILJET_SECRET: '4fc8856b04ba11991198cf19891ab865'
+      MAILJET_API_KEY: ${MAILJET_API_KEY}
+      MAILJET_SECRET: ${MAILJET_SECRET}
 
   postgres:
     container_name: bis-postgres
