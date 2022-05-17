@@ -19,16 +19,16 @@ class LoginForm(Form):
 
     def clean_email(self):
         email = self.cleaned_data['email']
-        if not User.objects.filter(email=email, email_exists=True).exists():
+        if not User.objects.filter(emails__email=email).exists():
             raise ValidationError('Uživatel s tímto emailem neexistuje')
 
-        user = User.objects.get(email=email)
+        user = User.objects.get(emails__email=email)
         try:
             login_code = LoginCode.make(user)
         except Throttled:
             raise ValidationError('Příliš mnoho pokusů, zkuste to znovu za hodinu')
 
-        email_login_code(user, login_code.code)
+        email_login_code(email, login_code.code)
 
         return email
 
@@ -65,7 +65,7 @@ class CodeView(FormView):
         if not next:
             next = '/admin/'
 
-        user = User.objects.get(email=email)
+        user = User.objects.get(emails__email=email)
         LoginCode.is_valid(user, code)
 
         login(self.request, user)

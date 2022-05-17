@@ -8,7 +8,7 @@ from django.utils.datetime_safe import date, datetime
 from django.utils.timezone import now
 
 from administration_units.models import AdministrationUnit, AdministrationUnitAddress, BrontosaurusMovement
-from bis.models import User, UserAddress, Qualification, Location, Membership
+from bis.models import User, UserAddress, Qualification, Location, Membership, UserEmail
 from categories.models import MembershipCategory, EventCategory, EventProgramCategory, QualificationCategory, \
     AdministrationUnitCategory, PropagationIntendedForCategory, DietCategory, GrantCategory
 from event.models import Event, EventPropagation, EventRegistration, EventRecord, EventFinance, VIPEventPropagation
@@ -50,6 +50,7 @@ def get_event_start(item):
 
     if not start:
         start = parse_date(item['do'])
+        start = datetime(year=start.year, month=start.month, day=start.day, tzinfo=ZoneInfo(key='Europe/Prague'))
     return start
 
 
@@ -63,6 +64,7 @@ class Command(BaseCommand):
 
     director_id = "2780"
     headquarters_id = "179"
+    admin_ids = ['27987', '17371']
 
     membership_category_map = {
         "1": MembershipCategory.objects.get(slug='adult'),
@@ -199,16 +201,17 @@ class Command(BaseCommand):
 
             birthday = parse_date(item.get('birthday'))
 
-            user = User.objects.update_or_create(email=item['email'], defaults=dict(
+            user = User.objects.update_or_create(emails__email=item['email'], defaults=dict(
                 _import_id=id,
                 first_name=item['jmeno'],
                 last_name=item['prijmeni'],
                 nickname=item['prezdivka'] or '',
                 phone=item['telefon'] or '',
                 birthday=birthday,
-                email_exists=email_exists,
                 is_active=True,
             ))[0]
+            if email_exists:
+                UserEmail.objects.update_or_create(email=item['email'], defaults=dict(user=user))
 
             street = item["ulice"]
             city = item["mesto"]
@@ -403,7 +406,7 @@ class Command(BaseCommand):
 
             contact = None
             if item['kontakt_email']:
-                contact = User.objects.filter(email=item['kontakt_email']).first()
+                contact = User.objects.filter(emails__email=item['kontakt_email']).first()
 
             location = None
             if item['lokalita']:
@@ -514,4 +517,6 @@ class Command(BaseCommand):
         self.import_participants(data)
 
         director = self.user_map[self.director_id]
-        BrontosaurusMovement.objects.get_or_create(defaults=dict(director=director))
+
+        b = BrontosaurusMovement.objects.get_or_create(defaults=dict(director=director))[0]
+        b.bis_administrators.set([self.user_map[id] for id in self.admin_ids])

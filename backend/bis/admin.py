@@ -1,5 +1,7 @@
 from django.contrib.auth.models import Group
 from django.contrib.gis.admin import OSMGeoAdmin
+from nested_admin.forms import SortableHiddenMixin
+from nested_admin.nested import NestedTabularInline, NestedModelAdmin
 from rest_framework.authtoken.models import TokenProxy
 
 from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter, FilterQuerysetMixin
@@ -13,7 +15,7 @@ class BISAdminSite(admin.AdminSite):
     login_template = 'templates/login.html'
 
 
-class LocationPhotosAdmin(admin.TabularInline):
+class LocationPhotosAdmin(NestedTabularInline):
     model = LocationPhoto
     readonly_fields = 'photo_tag',
 
@@ -35,7 +37,7 @@ class LocationAdmin(OSMGeoAdmin):
         return self.has_add_permission(request)
 
 
-class MembershipAdmin(admin.TabularInline):
+class MembershipAdmin(NestedTabularInline):
     model = Membership
     extra = 1
 
@@ -54,7 +56,7 @@ class MembershipAdmin(admin.TabularInline):
         return self.has_add_permission(request, obj)
 
 
-class QualificationAdmin(admin.TabularInline):
+class QualificationAdmin(NestedTabularInline):
     model = Qualification
     fk_name = 'user'
 
@@ -63,14 +65,20 @@ class QualificationAdmin(admin.TabularInline):
     exclude = '_import_id',
 
 
+class UserEmailAdmin(SortableHiddenMixin, NestedTabularInline):
+    model = UserEmail
+    sortable_field_name = 'order'
+    extra = 0
+
+
 @admin.register(User)
-class UserAdmin(FilterQuerysetMixin, admin.ModelAdmin):
-    readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'email'
+class UserAdmin(FilterQuerysetMixin, NestedModelAdmin):
+    readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_emails'
     exclude = 'groups', 'user_permissions', 'password', 'is_superuser'
 
     fieldsets = (
         (None, {
-            'fields': ('first_name', 'last_name', 'nickname', 'email', 'phone', 'birthday')
+            'fields': ('first_name', 'last_name', 'nickname', 'get_emails', 'phone', 'birthday')
         }),
         ('Interní data', {
             'fields': ('is_active', 'last_login', 'date_joined'),
@@ -78,11 +86,16 @@ class UserAdmin(FilterQuerysetMixin, admin.ModelAdmin):
         })
     )
 
-    inlines = QualificationAdmin, MembershipAdmin
-
-    list_display = 'get_name', 'email', 'phone', 'get_qualifications', 'get_memberships'
+    list_display = 'get_name', 'get_emails', 'phone', 'get_qualifications', 'get_memberships'
     list_filter = ActiveQualificationFilter, ActiveMembershipFilter, 'memberships__year'
-    search_fields = 'email', 'phone', 'first_name', 'last_name', 'nickname'
+    search_fields = 'emails__email', 'phone', 'first_name', 'last_name', 'nickname'
+
+    inlines = QualificationAdmin, MembershipAdmin, UserEmailAdmin
+
+    # def get_inlines(self, request, obj):
+    #     if request.user.is_superuser:
+    #         return
+    #     return QualificationAdmin, MembershipAdmin
 
     def get_readonly_fields(self, request, obj=None):
         if not request.user.is_education_member:
@@ -106,4 +119,4 @@ class UserAdmin(FilterQuerysetMixin, admin.ModelAdmin):
         return self.has_add_permission(request)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('memberships', 'qualifications')
+        return super().get_queryset(request).prefetch_related('memberships', 'qualifications', 'emails')

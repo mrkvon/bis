@@ -4,12 +4,12 @@ from project.settings import EMAIL
 SENDER_NAME = 'BIS'
 
 
-def email_login_code(user, code):
+def email_login_code(email, code):
     mailjet.send_email(
         EMAIL, SENDER_NAME,
         'Kód pro přihlášení',
         '3937126',
-        [user.email],
+        [email],
         variables={'code': code}
     )
 

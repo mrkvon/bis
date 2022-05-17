@@ -2,8 +2,7 @@ from functools import cached_property
 from os.path import basename
 
 from django.contrib import admin
-from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import PermissionsMixin, UserManager
+from django.contrib.auth.models import UserManager
 from django.contrib.gis.db.models import *
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -47,9 +46,9 @@ class LocationPhoto(Model):
 
 
 @translate_model
-class User(AbstractBaseUser, PermissionsMixin):
-    USERNAME_FIELD = 'email'
-    EMAIL_FIELD = 'email'
+class User(Model):
+    REQUIRED_FIELDS = []
+    USERNAME_FIELD = 'id'
 
     first_name = CharField(max_length=63, blank=True)
     last_name = CharField(max_length=63, blank=True)
@@ -57,14 +56,22 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = PhoneNumberField(blank=True)
     birthday = DateField(blank=True, null=True)
 
-    email = EmailField(unique=True)
+    last_login = DateTimeField(blank=True, null=True)
+
     is_active = BooleanField(default=True)
-    email_exists = BooleanField(default=True)
     date_joined = DateTimeField(default=timezone.now)
 
     _import_id = CharField(max_length=15, default='')
 
     objects = UserManager()
+
+    @cached_property
+    def email(self):
+        return self.emails.first().email
+
+    @cached_property
+    def is_director(self):
+        return BrontosaurusMovement.get().director == self
 
     @cached_property
     def is_director(self):
@@ -111,11 +118,57 @@ class User(AbstractBaseUser, PermissionsMixin):
     def has_usable_password(self):
         return False
 
+    def has_perm(self, perm, obj=None):
+        return True
+
+    def has_module_perms(self, app_label):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    def get_username(self):
+        return None
+
     class Meta:
         ordering = '-id',
 
     def __str__(self):
         return self.get_name()
+
+    def merge_with(self, other):
+        assert other != self
+        if other.user.id > self.id:
+            return other.merge_with(self)
+
+        for field in self._meta.fields:
+            assert field.name in ['first_name', 'last_name', 'nickname', 'phone',
+                                  'birthday', 'email']
+
+            if field.name in ['id', 'password', '_import_id', 'is_active', 'last_login']:
+                continue
+
+            elif field.name in ['date_joined', ]:
+                if getattr(other, field.name) < getattr(self, field.name):
+                    setattr(self, field.name, getattr(other, field.name))
+
+            elif field.name == 'email':
+                pass
+
+
+
+
+
+            else:
+                raise RuntimeError('field not checked, database was updated, merge is outdated')
+
+        print('')
+        return
 
     @admin.display(description='Uživatel')
     def get_name(self):
@@ -124,9 +177,13 @@ class User(AbstractBaseUser, PermissionsMixin):
             name = f'{self.nickname} ({name})'
 
         if len(name) == 1:
-            return self.email
+            return f"{self.emails.first()}"
 
         return name
+
+    @admin.display(description='E-mailové adresy')
+    def get_emails(self):
+        return "\n".join(e.email for e in self.emails.all())
 
     @admin.display(description='Aktivní kvalifikace')
     def get_qualifications(self):
@@ -173,6 +230,19 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 @translate_model
+class UserEmail(Model):
+    user = ForeignKey(User, related_name='emails', on_delete=CASCADE)
+    email = EmailField(unique=True)
+    order = PositiveSmallIntegerField()
+
+    class Meta:
+        ordering = 'order',
+
+    def __str__(self):
+        return f'Email {self.email}'
+
+
+@translate_model
 class UserAddress(Model):
     user = OneToOneField(User, on_delete=CASCADE, related_name='address')
     street = CharField(max_length=127)
@@ -183,7 +253,7 @@ class UserAddress(Model):
         ordering = 'id',
 
     def __str__(self):
-        return f'Adresa {self.user})'
+        return f'{self.street}, {self.city}, {self.zip_code}'
 
 
 @translate_model
