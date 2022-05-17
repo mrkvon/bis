@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'login_code',
     'mailjet',
+    'solo',
 ]
 
 MIDDLEWARE = [

@@ -71,6 +71,8 @@ class EventAdmin(FilterQuerysetMixin, NestedModelAdmin):
 
     autocomplete_fields = 'main_organizer', 'other_organizers', 'location', 'administration_unit',
 
+    exclude = '_import_id',
+
     def has_add_permission(self, request):
         user = request.user
         return user.is_superuser or user.is_office_worker or user.is_board_member

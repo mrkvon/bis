@@ -1,8 +1,10 @@
 from django.contrib.gis.db.models import *
+from django.core.cache import cache
 from phonenumber_field.modelfields import PhoneNumberField
 
 from categories.models import AdministrationUnitCategory, AdministrationUnitBoardMemberCategory
 from translation.translate import translate_model
+from solo.models import SingletonModel
 
 
 @translate_model
@@ -65,7 +67,7 @@ class AdministrationUnitMember(Model):
 
 
 @translate_model
-class BrontosaurusMovement(Model):
+class BrontosaurusMovement(SingletonModel):
     director = ForeignKey('bis.User', related_name='+', on_delete=CASCADE, null=True)
     bis_administrators = ManyToManyField('bis.User', related_name='+')
     office_workers = ManyToManyField('bis.User', related_name='+')
@@ -73,14 +75,14 @@ class BrontosaurusMovement(Model):
     executive_committee = ManyToManyField('bis.User', related_name='+')
     education_members = ManyToManyField('bis.User', related_name='+')
 
-    cache = None
-
     @classmethod
     def get(cls):
-        if cls.cache is None:
-            cls.cache = cls.objects.first()
+        obj = cache.get('brontosaurus_movement')
+        if not obj:
+            obj = cls.objects.get()
+            cache.set('brontosaurus_movement', obj)
 
-        return cls.cache
+        return obj
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.cache = None

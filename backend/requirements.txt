@@ -17,3 +17,4 @@ pyyaml
 django-debug-toolbar
 requests
 simplejson
+django-solo

@@ -35,7 +35,7 @@ class Event(Model):
     _import_id = CharField(max_length=15, default='')
 
     class Meta:
-        ordering = 'id',
+        ordering = '-start',
         app_label = 'bis'
 
     def __str__(self):
@@ -43,7 +43,7 @@ class Event(Model):
 
     @classmethod
     def filter_queryset(cls, queryset, user):
-        if user.can_see_all():
+        if user.can_see_all:
             return queryset
 
         return queryset.filter(

@@ -1,3 +1,4 @@
+from functools import cached_property
 from os.path import basename
 
 from django.contrib import admin
@@ -65,47 +66,46 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    @property
+    @cached_property
     def is_director(self):
         return BrontosaurusMovement.get().director == self
 
-    @property
+    @cached_property
     def is_admin(self):
         return self in BrontosaurusMovement.get().bis_administrators.all()
 
-    @property
+    @cached_property
     def is_office_worker(self):
         return self in BrontosaurusMovement.get().office_workers.all()
 
-    @property
+    @cached_property
     def is_auditor(self):
         return self in BrontosaurusMovement.get().audit_committee.all()
 
-    @property
+    @cached_property
     def is_executive(self):
         return self in BrontosaurusMovement.get().executive_committee.all()
 
-    @property
+    @cached_property
     def is_education_member(self):
         return self in BrontosaurusMovement.get().education_members.all()
 
-    @property
+    @cached_property
     def is_board_member(self):
         return AdministrationUnit.objects.filter(board_members=self).exists()
 
+    @cached_property
     def can_see_all(self):
         return self.is_director or self.is_admin or self.is_office_worker or self.is_auditor \
                or self.is_executive
 
-    @property
+    @cached_property
     def is_staff(self):
-        print(self, flush=True)
         return self.is_director or self.is_admin or self.is_office_worker or self.is_auditor \
                or self.is_executive or self.is_education_member or self.is_board_member
 
-    @property
+    @cached_property
     def is_superuser(self):
-        print(self, flush=True)
         return self.is_director or self.is_admin
 
     def has_usable_password(self):
@@ -138,7 +138,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @classmethod
     def filter_queryset(cls, queryset, user):
-        if user.can_see_all() or user.is_education_member:
+        if user.can_see_all or user.is_education_member:
             return queryset
 
         return queryset.filter(
