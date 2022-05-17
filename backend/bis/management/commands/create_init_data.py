@@ -1,26 +1,29 @@
 from django.core.management.base import BaseCommand
 
 from categories.models import DietCategory, PropagationIntendedForCategory, QualificationCategory, \
-    AdministrationUnitCategory, AdministrationUnitBoardMemberCategory, MembershipCategory, EventProgramCategory, \
+    AdministrationUnitCategory, MembershipCategory, EventProgramCategory, \
     EventCategory, GrantCategory
 
 
 class Command(BaseCommand):
     help = "Creates categories etc."
 
-    def create_event_categories(self, data, prefix=''):
+    def create_event_categories(self, data, translations, prefix='', name_prefix=''):
         if len(prefix):
             prefix += '__'
+        if len(name_prefix):
+            name_prefix += ' - '
 
         for key, value in data.items():
             slug = prefix + key
+            name = name_prefix + translations[slug]
             if type(value) == str:
                 EventCategory.objects.update_or_create(
                     slug=slug,
-                    defaults=dict(name=value)
+                    defaults=dict(name=name)
                 )
             else:
-                self.create_event_categories(value, slug)
+                self.create_event_categories(value, translations, slug, name)
 
     def handle(self, *args, **options):
         DietCategory.objects.update_or_create(slug='no_food', defaults=dict(name='bez jídla'))
@@ -69,16 +72,6 @@ class Command(BaseCommand):
                                                             defaults=dict(name='Regionální centrum'))
         AdministrationUnitCategory.objects.update_or_create(slug="club", defaults=dict(name='Klub'))
 
-        AdministrationUnitBoardMemberCategory.objects.update_or_create(
-            slug='chairman',
-            defaults=dict(name='Předseda'))
-        AdministrationUnitBoardMemberCategory.objects.update_or_create(
-            slug='manager',
-            defaults=dict(name='Hospodář'))
-        AdministrationUnitBoardMemberCategory.objects.update_or_create(
-            slug='board_member',
-            defaults=dict(name='Člen představenstva'))
-
         MembershipCategory.objects.update_or_create(slug='family', defaults=dict(name='rodinné'))
         MembershipCategory.objects.update_or_create(slug='family_member', defaults=dict(name='rodinný příslušník'))
         MembershipCategory.objects.update_or_create(slug='kid', defaults=dict(name='dětské do 15 let'))
@@ -95,6 +88,32 @@ class Command(BaseCommand):
         EventProgramCategory.objects.update_or_create(slug='education', defaults=dict(name='Vzdělávání'))
         EventProgramCategory.objects.update_or_create(slug='international', defaults=dict(name='Mezinárodní'))
         EventProgramCategory.objects.update_or_create(slug='none', defaults=dict(name='Žádný'))
+
+        translations = {
+            'internal': 'Interní',
+            'internal__general_meeting': 'Valná hromada',
+            'internal__volunteer_meeting': 'Schůzka dobrovolníků, týmovka',
+            'internal__section_meeting': 'Oddílová, družinová schůzka',
+            'public': 'Veřejná',
+            'public__volunteering': 'Dobrovolnická',
+            'public__volunteering__only_volunteering': 'Čistě dobrovolnická',
+            'public__volunteering__with_experience': 'Dobrovolnická se zážitkovým programem',
+            'public__only_experiential': 'Čistě zážitková',
+            'public__sports': 'Sportovní',
+            'public__educational': 'Vzdělávací',
+            'public__educational__lecture': 'Přednáška',
+            'public__educational__course': 'Kurz, školení',
+            'public__educational__ohb': 'OHB',
+            'public__educational__educational': 'Výukový program',
+            'public__educational__educational_with_stay': 'Pobytový výukový program',
+            'public__club': 'Klub',
+            'public__club__lecture': 'Přednáška',
+            'public__club__meeting': 'Setkání',
+            'public__other': 'Ostatní',
+            'public__other__for_public': 'Akce pro veřejnost',
+            'public__other__exhibition': 'Výstava',
+            'public__other__eco_tent': 'Ekostan',
+        }
 
         event_categories = {
             'internal': {
@@ -128,7 +147,7 @@ class Command(BaseCommand):
             }
         }
 
-        self.create_event_categories(event_categories)
+        self.create_event_categories(event_categories, translations)
 
         GrantCategory.objects.update_or_create(slug='none', defaults=dict(name='žádné'))
         GrantCategory.objects.update_or_create(slug='msmt', defaults=dict(name='mšmt'))

@@ -5,6 +5,8 @@ models:
     fields:
       name: 'Název'
       gps_location: 'GPS lokace'
+      address: 'Adresa'
+      patron: 'Patron lokality'
 
   LocationPhoto:
     name: 'Fotka lokality'
@@ -24,8 +26,17 @@ models:
       phone: 'Tel. číslo'
       birthday: 'Den narození'
       email: 'E-mail'
+      email_exists: 'Je e-mail skutečný?'
       is_active: 'Může se uživatel přihlásit?'
       date_joined: 'Datum vzniku účtu'
+  UserAddress:
+    name: 'Adresa uživatele'
+    name_plural: 'Adresy uživatele'
+    fields:
+      user: 'Uživatel'
+      city: 'Město'
+      street: 'Ulice'
+      zip_code: 'PSČ'
 
 
   AdministrationUnit:
@@ -33,8 +44,28 @@ models:
     name_plural: 'Organizující jednotky'
     fields:
       name: 'Název'
+      abbreviation: 'Zkratka'
       category: 'Typ'
       board_members: 'Členové představenstva'
+      bank_account_number: 'Číslo účtu'
+      chairman: 'Předseda'
+      email: 'E-mail'
+      existed_since: 'Datum vzniku'
+      existed_till: 'Datum zániku'
+      ic: 'IČO'
+      is_for_kids: 'BRĎO?'
+      manager: 'Hospodář'
+      www: 'Webové stránky'
+
+  AdministrationUnitAddress:
+    name: 'Adresa'
+    name_plural: 'Adresy'
+    fields:
+      administration_unit: 'Organizující jednotka'
+      city: 'Město'
+      street: 'Ulice'
+      zip_code: 'PSČ'
+
 
 
   BrontosaurusMovement:
@@ -68,6 +99,7 @@ models:
       user: 'Uživatel'
       administration_unit: 'Administrativní jednotka'
       year: 'Členství v roce'
+      category: 'Typ'
 
   Qualification:
     name: 'Kvalifikace'
@@ -76,12 +108,17 @@ models:
       user: 'Uživatel'
       category: 'Typ kvalifikace'
       valid_till: 'Platnost do'
+      valid_since: 'Platnost od'
+      approved_by: 'Schválilo'
 
   Event:
     name: 'Událost'
     name_plural: 'Události'
     fields:
       name: 'Název'
+      category: 'Typ'
+      internal_note: 'Privátní poznámka'
+      program: 'Program'
       is_canceled: 'Zrušena?'
       start: 'Začátek akce'
       end: 'Konec akce'
@@ -98,7 +135,7 @@ models:
     fields:
       event: 'Událost'
       category: 'Kategorie dle financí'
-      grant_source: 'Typ grantu'
+      grant_category: 'Typ grantu'
       grant_amount: 'Přidělené dotace'
       total_event_cost: 'Celkové náklady akce'
       budget: 'Rozpočet'
@@ -115,11 +152,35 @@ models:
       cost: 'Účastnický poplatek'
       intended_for: 'Pro koho?'
       diet: 'Strava'
+      _contact_url: 'Kontaktní url'
+      accommodation: 'Ubytování'
+      organizers: 'Organizátoři (text do propagace)'
+      web_url: 'Web akce'
       invitation_text_introduction: 'Zvací text: Co nás čeká?'
       invitation_text_practical_information: 'Zvací text: Co, kde a jak'
       invitation_text_work_description: 'Zvací text: Dobrovolnická pomoc'
       invitation_text_about_us: 'Zvací text: Malá ochutnávka'
       contact_person: 'Kontaktní osoba'
+
+  VIPEventPropagation:
+    name: 'VIP propagace události'
+    name_plural: 'VIP propagace události'
+    fields:
+      event_propagation: 'Propagace'
+      goals_of_event:
+        - 'Cíle akce a přínos pro prvoúčastníky'
+        - 'Jaké je hlavní téma vaší akce? Jaké jsou hlavní cíle akce? Co nejvýstižněji popište, co akce přináší účastníkům, co zajímavého si zkusí, co se dozví, naučí, v čem se rozvinou...'
+      program:
+        - 'Programové pojetí akce pro prvoúčastníky'
+        - 'V základu uveďte, jak bude vaše akce programově a dramaturgicky koncipována (motivační příběh, zaměření programu – hry, diskuse, řemesla,...). Uveďte, jak náplň a program akce reflektují potřeby vaší cílové skupiny prvoúčastníků.'
+      rover_propagation:
+        - 'Propagovat akci v Roverském kmeni?'
+        - 'Placená propagace vaší vícedenní akce v časopisu Roverský kmen za poplatek 100 Kč.'
+      short_invitation_text:
+        - 'Krátký zvací text do propagace'
+        - 'Ve 2-4 větách nalákejte na vaši akci a zdůrazněte osobní přínos pro účastníky (max. 200 znaků).'
+      working_days: 'Odpracovaných hodin denně'
+      working_hours: 'Počet pracovních dní'
 
   EventRegistration:
     name: 'Registrace'
@@ -196,24 +257,28 @@ models:
     name_plural: 'Typy grantů'
     fields:
       name: 'Jméno'
+      slug: 'Zkratka'
 
   PropagationIntendedForCategory:
     name: 'Kategorie zaměření propagace'
     name_plural: 'Kategorie zaměření propagace'
     fields:
       name: 'Jméno'
+      slug: 'Zkratka'
 
   DietCategory:
     name: 'Typ stravy'
     name_plural: 'Typy stravy'
     fields:
       name: 'Jméno'
+      slug: 'Zkratka'
 
   QualificationCategory:
     name: 'Typ kvalifikace'
     name_plural: 'Typy kvalifikací'
     fields:
       name: 'Jméno'
+      slug: 'Zkratka'
       description: 'Popis'
       parent: 'Nadřazená kvalifikace'
 
@@ -222,3 +287,23 @@ models:
     name_plural: 'Typy organizujících jednotek'
     fields:
       name: 'Jméno'
+      slug: 'Zkratka'
+
+  MembershipCategory:
+    name: 'Členství'
+    name_plural: 'Členství'
+    fields:
+      name: 'Jméno'
+      slug: 'Zkratka'
+  EventCategory:
+    name: 'Typ akce'
+    name_plural: 'Typy akcí'
+    fields:
+      name: 'Jméno'
+      slug: 'Zkratka'
+  EventProgramCategory:
+    name: 'Program akce'
+    name_plural: 'Programy akcí'
+    fields:
+      name: 'Jméno'
+      slug: 'Zkratka'

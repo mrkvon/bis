@@ -9,7 +9,7 @@ from project.settings import BASE_DIR
 with open(join(BASE_DIR, 'translation', 'translations.yaml'), 'r') as f:
     translations = yaml.safe_load(f)
 
-ignored_attr_names = ['id', 'pk', 'is_superuser', 'last_login', 'password']
+ignored_attr_names = ['id', 'pk', 'is_superuser', 'last_login', 'password', '_import']
 
 
 def translate_model(model):
@@ -32,7 +32,7 @@ def translate_model(model):
         if attr_name in ignored_attr_names:
             continue
 
-        if not attr_name in model_translations['fields']:
+        if not attr_name in (model_translations.get('fields', dict()) or {}):
             warning(f'Model {model_name} has no translation for attribute {attr_name}')
             continue
 

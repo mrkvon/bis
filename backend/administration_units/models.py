@@ -2,7 +2,7 @@ from django.contrib.gis.db.models import *
 from django.core.cache import cache
 from phonenumber_field.modelfields import PhoneNumberField
 
-from categories.models import AdministrationUnitCategory, AdministrationUnitBoardMemberCategory
+from categories.models import AdministrationUnitCategory
 from translation.translate import translate_model
 from solo.models import SingletonModel
 
@@ -49,21 +49,6 @@ class AdministrationUnitAddress(Model):
 
     def __str__(self):
         return f'Adresa {self.administration_unit})'
-
-
-@translate_model
-class AdministrationUnitMember(Model):
-    user = ForeignKey('bis.User', related_name='+', on_delete=CASCADE)
-    administration_unit = ForeignKey(AdministrationUnit, on_delete=CASCADE)
-    category = ForeignKey(AdministrationUnitBoardMemberCategory, on_delete=CASCADE)
-    since = DateTimeField()
-    till = DateTimeField()
-
-    class Meta:
-        ordering = 'id',
-
-    def __str__(self):
-        return self.name
 
 
 @translate_model
