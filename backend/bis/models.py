@@ -233,7 +233,7 @@ class User(Model):
 class UserEmail(Model):
     user = ForeignKey(User, related_name='emails', on_delete=CASCADE)
     email = EmailField(unique=True)
-    order = PositiveSmallIntegerField()
+    order = PositiveSmallIntegerField(default=0)
 
     class Meta:
         ordering = 'order',

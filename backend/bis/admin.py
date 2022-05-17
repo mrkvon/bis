@@ -39,7 +39,7 @@ class LocationAdmin(OSMGeoAdmin):
 
 class MembershipAdmin(NestedTabularInline):
     model = Membership
-    extra = 1
+    extra = 0
 
     autocomplete_fields = 'administration_unit',
 
@@ -59,6 +59,7 @@ class MembershipAdmin(NestedTabularInline):
 class QualificationAdmin(NestedTabularInline):
     model = Qualification
     fk_name = 'user'
+    extra = 0
 
     autocomplete_fields = 'approved_by',
 
