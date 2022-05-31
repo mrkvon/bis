@@ -1,5 +1,6 @@
 import json
 from datetime import timedelta
+from os import mkdir
 from os.path import join, exists
 import re
 from urllib.error import HTTPError
@@ -513,6 +514,10 @@ class Command(BaseCommand):
                 event.record.participants.add(person)
 
     def handle(self, *args, **options):
+        images_dir = join(BASE_DIR, 'media', 'event_propagation_images')
+        if not exists(images_dir):
+            mkdir(images_dir)
+
         data = self.load_data()
 
         for id in data['zc']:
