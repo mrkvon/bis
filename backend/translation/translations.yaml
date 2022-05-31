@@ -29,6 +29,8 @@ models:
       email_exists: 'Je e-mail skutečný?'
       is_active: 'Může se uživatel přihlásit?'
       date_joined: 'Datum vzniku účtu'
+      administration_units: 'Administrativní jednotky'
+
   UserAddress:
     name: 'Adresa uživatele'
     name_plural: 'Adresy uživatele'
@@ -37,6 +39,13 @@ models:
       city: 'Město'
       street: 'Ulice'
       zip_code: 'PSČ'
+  UserEmail:
+    name: 'E-mail uživatele'
+    name_plural: 'E-maily uživatele'
+    fields:
+      email: 'E-mail'
+      order: 'Pořadí'
+      user: 'Uživatel'
 
 
   AdministrationUnit:
@@ -45,6 +54,7 @@ models:
     fields:
       name: 'Název'
       abbreviation: 'Zkratka'
+      phone: 'Telefon'
       category: 'Typ'
       board_members: 'Členové představenstva'
       bank_account_number: 'Číslo účtu'
@@ -161,6 +171,15 @@ models:
       invitation_text_work_description: 'Zvací text: Dobrovolnická pomoc'
       invitation_text_about_us: 'Zvací text: Malá ochutnávka'
       contact_person: 'Kontaktní osoba'
+      contact_name:
+        - 'Jméno kontaktní osoby'
+        - 'Nechte prázdné pokud chcete použít jméno kontaktní osoby'
+      contact_phone:
+        - 'Kontaktní telefon'
+        - 'Nechte prázdné pokud chcete použít telefon kontaktní osoby'
+      contact_email:
+        - 'Kontaktní e-mail'
+        - 'Nechte prázdné pokud chcete použít e-mail kontaktní osoby'
 
   VIPEventPropagation:
     name: 'VIP propagace události'
@@ -179,8 +198,8 @@ models:
       short_invitation_text:
         - 'Krátký zvací text do propagace'
         - 'Ve 2-4 větách nalákejte na vaši akci a zdůrazněte osobní přínos pro účastníky (max. 200 znaků).'
-      working_days: 'Odpracovaných hodin denně'
-      working_hours: 'Počet pracovních dní'
+      working_days: 'Počet pracovních dní'
+      working_hours: 'Odpracovaných hodin denně'
 
   EventRegistration:
     name: 'Registrace'

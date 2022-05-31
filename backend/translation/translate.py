@@ -2,7 +2,9 @@ from logging import warning
 from os.path import join
 
 import yaml
+from django.db.models.fields.related_descriptors import ManyToManyDescriptor
 from django.db.models.query_utils import DeferredAttribute
+from phonenumber_field.modelfields import PhoneNumberDescriptor
 
 from project.settings import BASE_DIR
 
@@ -24,7 +26,9 @@ def translate_model(model):
     for attr_name in dir(model):
         attr = getattr(model, attr_name)
         if not isinstance(attr, DeferredAttribute):
-            continue
+            if not isinstance(attr, ManyToManyDescriptor):
+                if not isinstance(attr, PhoneNumberDescriptor):
+                    continue
 
         if attr_name.endswith('_id'):
             attr_name = attr_name[:-3]

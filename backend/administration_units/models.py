@@ -31,10 +31,10 @@ class AdministrationUnit(Model):
     _import_id = CharField(max_length=15, default='')
 
     class Meta:
-        ordering = 'id',
+        ordering = 'abbreviation',
 
     def __str__(self):
-        return self.name
+        return self.abbreviation
 
 
 @translate_model
@@ -48,7 +48,7 @@ class AdministrationUnitAddress(Model):
         ordering = 'id',
 
     def __str__(self):
-        return f'Adresa {self.administration_unit})'
+        return f'{self.street}, {self.city}, {self.zip_code}'
 
 
 @translate_model

@@ -89,7 +89,7 @@ class UserAdmin(FilterQuerysetMixin, NestedModelAdmin):
         })
     )
 
-    list_display = 'get_name', 'get_emails', 'phone', 'get_qualifications', 'get_memberships'
+    list_display = 'get_name', 'birthday', 'address', 'get_emails', 'phone', 'get_qualifications', 'get_memberships'
     list_filter = ActiveMembershipFilter, \
                   AutocompleteFilterFactory('Člen článku', 'memberships__administration_unit'), \
                   ('memberships__year'), ActiveQualificationFilter, 'qualifications__category', \
@@ -98,6 +98,7 @@ class UserAdmin(FilterQuerysetMixin, NestedModelAdmin):
                   ('events_where_was_organizer__start', DateRangeFilter)
 
     search_fields = 'emails__email', 'phone', 'first_name', 'last_name', 'nickname'
+    list_select_related = 'address',
 
     def get_inlines(self, request, obj):
         if request.user.is_superuser:

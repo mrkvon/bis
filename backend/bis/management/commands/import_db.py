@@ -1,6 +1,10 @@
 import json
 from datetime import timedelta
 from os.path import join, exists
+import re
+from urllib.error import HTTPError
+from urllib.parse import quote
+from urllib.request import urlretrieve
 from zoneinfo import ZoneInfo
 
 from django.core.management.base import BaseCommand
@@ -11,7 +15,8 @@ from administration_units.models import AdministrationUnit, AdministrationUnitAd
 from bis.models import User, UserAddress, Qualification, Location, Membership, UserEmail
 from categories.models import MembershipCategory, EventCategory, EventProgramCategory, QualificationCategory, \
     AdministrationUnitCategory, PropagationIntendedForCategory, DietCategory, GrantCategory
-from event.models import Event, EventPropagation, EventRegistration, EventRecord, EventFinance, VIPEventPropagation
+from event.models import Event, EventPropagation, EventRegistration, EventRecord, EventFinance, VIPEventPropagation, \
+    EventPropagationImage
 from project.settings import BASE_DIR
 
 
@@ -441,7 +446,7 @@ class Command(BaseCommand):
                 is_shown_on_web=item['zverejnit'] == '1',
                 minimum_age=parse_int(item['vek_od']),
                 maximum_age=parse_int(item['vek_do']),
-                cost=''.join([c for c in (item['poplatek'] or '') if c in '0123456789']) or 0,
+                cost=re.split(r'\D+', item['poplatek'] or '')[0] or 0,
                 intended_for=self.propagation_indented_for_category_map[item['prokoho']],
                 accommodation=item.get('ubytovani') or '',
                 diet=self.diet_category_map[item.get('strava')],
@@ -453,6 +458,9 @@ class Command(BaseCommand):
                 invitation_text_work_description=item['text_dobr'] or '',
                 invitation_text_about_us=item['text_mnam'] or '',
                 contact_person=contact,
+                contact_name=item['kontakt'] or '',
+                contact_phone=item['kontakt_telefon'] or '',
+                contact_email=item['kontakt_email'] or '',
             ))[0]
             if item.get('vip') == '1':
                 VIPEventPropagation.objects.update_or_create(event_propagation=event_propagation, defaults=dict(
@@ -479,6 +487,20 @@ class Command(BaseCommand):
                 number_of_participants_under_26=item['lidi_do26'],
             ))
 
+            for attachment in attachments:
+                file_path = join(BASE_DIR, 'media', 'event_propagation_images', attachment)
+                if not exists(file_path):
+                    try:
+                        urlretrieve(f"https://bis.brontosaurus.cz/files/psb/{quote(attachment)}", file_path)
+                    except HTTPError:
+                        pass
+                if exists(file_path):
+                    EventPropagationImage.objects.get_or_create(
+                        propagation=event_propagation,
+                        image=join('event_propagation_images', attachment),
+                        defaults=dict(order=0)
+                    )
+
     def import_participants(self, data):
         for i, item in enumerate(data['ucastnik']):
             self.print_progress('participants', i, len(data['ucastnik']))
@@ -499,7 +521,7 @@ class Command(BaseCommand):
         for id in data['tabor']:
             assert id in data['akce']
 
-        # to_print = [item for item in data['ucastnik']]
+        # to_print = [item for item in data['akce'].values()]
         #
         # print(json.dumps(to_print, indent=2, ensure_ascii=False))
 

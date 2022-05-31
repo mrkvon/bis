@@ -7,13 +7,14 @@ from bis.admin_helpers import EditableByAdminOnlyMixin
 
 @admin.register(AdministrationUnit)
 class AdministrationUnitAdmin(EditableByAdminOnlyMixin, admin.ModelAdmin):
-    list_display = 'name',
-    search_fields = 'name',
-    filter_horizontal = 'board_members',
+    list_display = 'abbreviation', 'address', 'phone', 'email', 'www', 'chairman', 'category'
+    search_fields = 'abbreviation', 'name', 'address__city', 'address__street', 'address__zip_code', 'phone', 'email'
+    list_filter = 'category', 'is_for_kids'
 
     autocomplete_fields = 'chairman', 'manager', 'board_members'
 
     exclude = '_import_id',
+    list_select_related = 'address', 'chairman'
 
 
 @admin.register(BrontosaurusMovement)

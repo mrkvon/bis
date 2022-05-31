@@ -3,7 +3,9 @@ from os.path import basename
 from django.contrib import admin
 from django.contrib.gis.db.models import *
 from django.db.models import Q
+from django.utils import timezone
 from django.utils.safestring import mark_safe
+from phonenumber_field.modelfields import PhoneNumberField
 
 from administration_units.models import AdministrationUnit
 from bis.models import Location, User
@@ -40,6 +42,26 @@ class Event(Model):
 
     def __str__(self):
         return self.name
+
+    @admin.display(description='Termín akce')
+    def get_date(self):
+        time = timezone.localtime(self.start)
+        start_date = timezone.localdate(self.start)
+        end_date = self.end
+        result = f'{self.end.day}. {self.end.month}. {self.end.year}'
+
+        if start_date != end_date:
+            result = '- ' + result
+            if start_date.year != end_date.year:
+                result = f"{start_date.year}. " + result
+            if start_date.month != end_date.month:
+                result = f"{start_date.month}. " + result
+            if start_date.day != end_date.day:
+                result = f"{start_date.day}. " + result
+
+        if time.hour != 0:
+            result += f' {time.hour}:{time.minute:02d}'
+        return result
 
     @classmethod
     def filter_queryset(cls, queryset, user):
@@ -92,6 +114,9 @@ class EventPropagation(Model):
     # propagation_images as Model below
 
     contact_person = ForeignKey(User, on_delete=CASCADE, related_name='events_where_was_as_contact_person', null=True)
+    contact_name = CharField(max_length=63, blank=True)
+    contact_phone = PhoneNumberField(blank=True)
+    contact_email = EmailField(blank=True)
 
     class Meta:
         ordering = 'id',
@@ -154,7 +179,7 @@ class EventRecord(Model):
 class EventPropagationImage(Model):
     propagation = ForeignKey(EventPropagation, on_delete=CASCADE, related_name='propagation_images')
     order = PositiveIntegerField()
-    image = ImageField(upload_to='event_propagation_images')
+    image = ImageField(upload_to='event_propagation_images', max_length=200)
 
     @admin.display(description='Náhled')
     def image_tag(self):

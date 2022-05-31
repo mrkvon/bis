@@ -23,7 +23,7 @@ class Location(Model):
     _import_id = CharField(max_length=15, default='')
 
     class Meta:
-        ordering = 'id',
+        ordering = 'name',
 
     def __str__(self):
         return self.name

@@ -28,9 +28,14 @@ class EventFinanceAdmin(NestedStackedInline):
     classes = 'collapse',
 
 
+class EventVIPPropagationAdmin(NestedStackedInline):
+    model = VIPEventPropagation
+    classes = 'collapse',
+
+
 class EventPropagationAdmin(NestedStackedInline):
     model = EventPropagation
-    inlines = EventPropagationImageAdmin,
+    inlines = EventVIPPropagationAdmin, EventPropagationImageAdmin,
     classes = 'collapse',
 
     autocomplete_fields = 'contact_person',
@@ -64,7 +69,7 @@ class EventAdmin(FilterQuerysetMixin, NestedModelAdmin):
                   'registration__is_registration_required', 'registration__is_event_full', \
                   'record__has_attendance_list',
 
-    list_display = 'name', 'start', 'location', 'administration_unit', 'is_canceled'
+    list_display = 'name', 'get_date', 'location', 'administration_unit', 'is_canceled'
     list_select_related = 'location', 'administration_unit'
 
     date_hierarchy = 'start'
