@@ -1,0 +1,14 @@
+{% extends 'admin/change_form.html' %}
+
+{% block submit_buttons_bottom %}
+    {% if original.id %}
+        <div class="submit-row">
+            <input type="submit" value="Připojit duplicitního uživatele k primárnímu" name="_merge_users"
+                   {% if merge_disabled %}disabled{% endif %}/>
+            <input type="submit" value="Připojit primárního uživatele k duplicitnímu" name="_merge_users_rev"
+                   {% if merge_disabled %}disabled{% endif %}/>
+
+        </div>
+    {% endif %}
+    {{ block.super }}
+{% endblock %}

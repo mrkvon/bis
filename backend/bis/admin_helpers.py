@@ -57,4 +57,7 @@ class EditableByAdminOnlyMixin:
 class FilterQuerysetMixin:
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
+        if request.user.can_see_all:
+            return queryset
+
         return self.model.filter_queryset(queryset, request.user)

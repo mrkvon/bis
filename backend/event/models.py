@@ -65,9 +65,6 @@ class Event(Model):
 
     @classmethod
     def filter_queryset(cls, queryset, user):
-        if user.can_see_all:
-            return queryset
-
         return queryset.filter(
             Q(administration_unit__board_members=user) |
             Q(other_organizers=user) |

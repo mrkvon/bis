@@ -24,8 +24,8 @@ class AdministrationUnit(Model):
     existed_till = DateField(null=True, blank=True)
 
     category = ForeignKey(AdministrationUnitCategory, related_name='administration_units', on_delete=CASCADE)
-    chairman = ForeignKey('bis.User', related_name='+', on_delete=CASCADE, null=True)
-    manager = ForeignKey('bis.User', related_name='+', on_delete=CASCADE, null=True)
+    chairman = ForeignKey('bis.User', related_name='chairman_of', on_delete=CASCADE, null=True)
+    manager = ForeignKey('bis.User', related_name='manager_of', on_delete=CASCADE, null=True)
     board_members = ManyToManyField('bis.User', related_name='administration_units')
 
     _import_id = CharField(max_length=15, default='')
@@ -53,7 +53,7 @@ class AdministrationUnitAddress(Model):
 
 @translate_model
 class BrontosaurusMovement(SingletonModel):
-    director = ForeignKey('bis.User', related_name='+', on_delete=CASCADE, null=True)
+    director = ForeignKey('bis.User', related_name='director_of', on_delete=CASCADE, null=True)
     bis_administrators = ManyToManyField('bis.User', related_name='+')
     office_workers = ManyToManyField('bis.User', related_name='+')
     audit_committee = ManyToManyField('bis.User', related_name='+')

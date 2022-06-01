@@ -46,6 +46,12 @@ models:
       email: 'E-mail'
       order: 'Pořadí'
       user: 'Uživatel'
+  DuplicateUser:
+    name: 'Duplicita'
+    name_plural: 'Duplicity'
+    fields:
+      user: 'Primární uživatel'
+      other: 'Duplicitní uživatel'
 
 
   AdministrationUnit:

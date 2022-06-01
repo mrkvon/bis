@@ -143,13 +143,7 @@ class User(Model):
 
     def merge_with(self, other):
         assert other != self
-        if other.user.id > self.id:
-            return other.merge_with(self)
-
         for field in self._meta.fields:
-            assert field.name in ['first_name', 'last_name', 'nickname', 'phone',
-                                  'birthday', 'email']
-
             if field.name in ['id', 'password', '_import_id', 'is_active', 'last_login']:
                 continue
 
@@ -157,18 +151,44 @@ class User(Model):
                 if getattr(other, field.name) < getattr(self, field.name):
                     setattr(self, field.name, getattr(other, field.name))
 
-            elif field.name == 'email':
-                pass
-
-
-
-
+            elif field.name in ['first_name', 'last_name', 'nickname', 'phone',
+                                'birthday']:
+                if not getattr(self, field.name) and getattr(other, field.name):
+                    setattr(self, field.name, getattr(other, field.name))
 
             else:
                 raise RuntimeError('field not checked, database was updated, merge is outdated')
 
-        print('')
-        return
+        for relation in self._meta.related_objects:
+            if relation.name in ['auth_token']:
+                continue
+
+            elif relation.name == 'address':
+                if not hasattr(self, relation.name) and hasattr(other, relation.name):
+                    setattr(self, relation.name, getattr(other, relation.name))
+
+            elif relation.name == 'emails':
+                max_order = max(email.order for email in self.emails.all())
+                for i, obj in enumerate(UserEmail.objects.filter(user=other)):
+                    obj.user = self
+                    obj.order = max_order + i + 1
+                    obj.save()
+
+            elif isinstance(relation, ManyToOneRel) or isinstance(relation, OneToOneRel):
+                for obj in relation.field.model.objects.filter(**{relation.field.name: other}):
+                    setattr(obj, relation.field.name, self)
+                    obj.save()
+
+            elif isinstance(relation, ManyToManyRel):
+                for obj in relation.field.model.objects.filter(**{relation.field.name: other}):
+                    getattr(obj, relation.field.name).add(self)
+                    getattr(obj, relation.field.name).remove(other)
+
+            else:
+                raise RuntimeError('should not happen :)')
+
+        self.save()
+        other.delete()
 
     @admin.display(description='Uživatel')
     def get_name(self):
@@ -195,7 +215,7 @@ class User(Model):
 
     @classmethod
     def filter_queryset(cls, queryset, user):
-        if user.can_see_all or user.is_education_member:
+        if user.is_education_member:
             return queryset
 
         return queryset.filter(
@@ -231,7 +251,7 @@ class UserEmail(Model):
         ordering = 'order',
 
     def __str__(self):
-        return f'Email {self.email}'
+        return self.email
 
 
 @translate_model
@@ -246,6 +266,38 @@ class UserAddress(Model):
 
     def __str__(self):
         return f'{self.street}, {self.city}, {self.zip_code}'
+
+
+@translate_model
+class DuplicateUser(Model):
+    user = ForeignKey(User, on_delete=CASCADE, related_name='duplicates')
+    other = ForeignKey(User, on_delete=CASCADE, related_name='other_duplicates')
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if self.user == self.other:
+            if not self._state.adding:
+                self.delete()
+
+            return
+
+        super().save(force_insert, force_update, using, update_fields)
+
+    @classmethod
+    def filter_queryset(cls, queryset, user):
+        visible_users = User.filter_queryset(User.objects.all(), user)
+        return queryset.filter(user__in=visible_users, other__in=visible_users)
+
+    def can_be_merged_by(self, user):
+        if user.is_superuser: return True
+        if user.is_office_worker:
+            return not (self.user.is_superuser or self.other.is_superuser)
+        return False
+
+    def __str__(self):
+        return 'Duplicita'
+
+    class Meta:
+        ordering = 'id',
 
 
 @translate_model

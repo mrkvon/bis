@@ -14,7 +14,7 @@ class AdministrationUnitAdmin(EditableByAdminOnlyMixin, admin.ModelAdmin):
     autocomplete_fields = 'chairman', 'manager', 'board_members'
 
     exclude = '_import_id',
-    list_select_related = 'address', 'chairman'
+    list_select_related = 'address', 'chairman', 'category'
 
 
 @admin.register(BrontosaurusMovement)
