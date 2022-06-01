@@ -168,7 +168,7 @@ class User(Model):
                     setattr(self, relation.name, getattr(other, relation.name))
 
             elif relation.name == 'emails':
-                max_order = max(email.order for email in self.emails.all())
+                max_order = max([email.order for email in self.emails.all()] + [0])
                 for i, obj in enumerate(UserEmail.objects.filter(user=other)):
                     obj.user = self
                     obj.order = max_order + i + 1
