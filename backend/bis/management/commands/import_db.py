@@ -1,8 +1,8 @@
 import json
+import re
 from datetime import timedelta
 from os import mkdir
 from os.path import join, exists
-import re
 from urllib.error import HTTPError
 from urllib.parse import quote
 from urllib.request import urlretrieve

@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'categories',
     'questionnaire',
     'event',
+    'other',
     'administration_units',
     'debug_toolbar',
     'login_code',

@@ -1,7 +1,8 @@
 from django.core.management import BaseCommand
 from django.utils.timezone import now
 
-from bis.models import User, DuplicateUser
+from bis.models import User
+from other.models import DuplicateUser
 
 
 class Command(BaseCommand):
