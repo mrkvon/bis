@@ -6,7 +6,7 @@ from solo.admin import SingletonModelAdmin
 
 from bis.admin_helpers import EditableByAdminOnlyMixin, HasDonorFilter
 from donations.helpers import upload_bank_records
-from donations.models import UploadBankRecords, Donor, Donation
+from donations.models import UploadBankRecords, Donor, Donation, VariableSymbol
 from event.models import *
 
 
@@ -18,9 +18,27 @@ class DonationAdmin(NestedModelAdmin):
 
     list_select_related = 'donor__user', 'donation_source'
 
+    def has_add_permission(self, request): return False
+
+    def has_change_permission(self, request, obj=None): return False
+
+    def has_delete_permission(self, request, obj=None):
+        return not obj or not obj.donor
+
 
 class DonationAdminInline(NestedTabularInline):
     model = Donation
+
+    def has_add_permission(self, request, obj): return False
+
+    def has_change_permission(self, request, obj=None): return False
+
+    def has_delete_permission(self, request, obj=None): return False
+
+
+class VariableSymbolInline(NestedTabularInline):
+    model = VariableSymbol
+    extra = 0
 
 
 @admin.register(Donor)
@@ -28,7 +46,7 @@ class DonorAdmin(NestedModelAdmin):
     list_display = 'user', 'subscribed_to_newsletter', 'is_public', 'regional_center_support', 'basic_section_support', 'date_joined'
     readonly_fields = 'user',
     list_select_related = 'user', 'regional_center_support', 'basic_section_support'
-    inlines = DonationAdminInline,
+    inlines = VariableSymbolInline, DonationAdminInline,
     search_fields = 'user__emails__email', 'user__phone', 'user__first_name', 'user__last_name', 'user__nickname',
 
     autocomplete_fields = 'regional_center_support', 'basic_section_support'
