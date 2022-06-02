@@ -38,19 +38,21 @@ class Donor(Model):
     def merge_with(self, other):
         assert other != self
         for field in self._meta.fields:
-            if field.name in ['id', 'subscribed_to_newsletter', 'is_public']:
+            if field.name in ['id', 'subscribed_to_newsletter', 'is_public', 'user']:
                 continue
+
+            elif field.name in ['regional_center_support', 'basic_section_support']:
+                if not getattr(self, field.name) and getattr(other, field.name):
+                    setattr(self, field.name, getattr(other, field.name))
+
             elif field.name in ['date_joined', ]:
                 if getattr(other, field.name) < getattr(self, field.name):
                     setattr(self, field.name, getattr(other, field.name))
             else:
-                raise RuntimeError('field not checked, database was updated, merge is outdated')
+                raise RuntimeError(f'field {field.name} not checked, database was updated, merge is outdated')
 
         for relation in self._meta.related_objects:
-            if relation.name in ['user']:
-                continue
-
-            elif isinstance(relation, ManyToOneRel) or isinstance(relation, OneToOneRel):
+            if isinstance(relation, ManyToOneRel) or isinstance(relation, OneToOneRel):
                 for obj in relation.field.model.objects.filter(**{relation.field.name: other}):
                     setattr(obj, relation.field.name, self)
                     obj.save()
@@ -61,7 +63,7 @@ class Donor(Model):
                     getattr(obj, relation.field.name).remove(other)
 
         self.save()
-        other.remove()
+        other.delete()
 
 
 @translate_model

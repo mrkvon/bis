@@ -157,7 +157,7 @@ class User(Model):
                     setattr(self, field.name, getattr(other, field.name))
 
             else:
-                raise RuntimeError('field not checked, database was updated, merge is outdated')
+                raise RuntimeError(f'field {field.name} not checked, database was updated, merge is outdated')
 
         for relation in self._meta.related_objects:
             if relation.name in ['auth_token']:
