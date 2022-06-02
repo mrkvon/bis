@@ -332,3 +332,45 @@ models:
     fields:
       name: 'Jméno'
       slug: 'Zkratka'
+  DonationSourceCategory:
+    name: 'Zdroj dotace'
+    name_plural: 'Zdroje dotací'
+    fields:
+      name: 'Jméno'
+      slug: 'Zkratka'
+
+  Donor:
+    name: 'Dárce'
+    name_plural: 'Dárci'
+    fields:
+      user: 'Uživatel'
+      subscribed_to_newsletter: 'Odebírá novinky?'
+      is_public:
+       - 'Chce zveřejnit?'
+       - 'na webu a v závěrečné zprávě'
+      date_joined: 'Dárcem od'
+      regional_center_support: 'podpora RC'
+      basic_section_support: 'podpora ZČ'
+  Donation:
+    name: 'Dar'
+    name_plural: 'Dary'
+    fields:
+      donor: 'Dárce'
+      donated_at: 'Datum'
+      amount: 'Částka'
+      donation_source: 'Zdroj dotace'
+      info: 'Info'
+      _variable_symbol:
+        - 'Variabilní symbol platby'
+        - 'pro párování na dárce'
+  VariableSymbol:
+    name: 'Variabilní symbol'
+    name_plural: 'Variabilní symboly'
+    fields:
+      donor: 'Dárce'
+      variable_symbol: 'Variabilní symbol'
+  UploadBankRecords:
+    name: 'Nahrání bankovních záznamů'
+    name_plural: 'Nahrání bankovních záznamů'
+    fields:
+      file: 'Soubor .csv'

@@ -42,3 +42,8 @@ class EventCategoryAdmin(EditableByAdminOnlyMixin, admin.ModelAdmin):
 @admin.register(EventProgramCategory)
 class EventProgramCategoryAdmin(EditableByAdminOnlyMixin, admin.ModelAdmin):
     pass
+
+
+@admin.register(DonationSourceCategory)
+class DonationSourceCategoryAdmin(EditableByAdminOnlyMixin, admin.ModelAdmin):
+    pass

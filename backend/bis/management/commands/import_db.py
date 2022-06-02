@@ -16,6 +16,7 @@ from administration_units.models import AdministrationUnit, AdministrationUnitAd
 from bis.models import User, UserAddress, Qualification, Location, Membership, UserEmail
 from categories.models import MembershipCategory, EventCategory, EventProgramCategory, QualificationCategory, \
     AdministrationUnitCategory, PropagationIntendedForCategory, DietCategory, GrantCategory
+from donations.models import Donor, VariableSymbol
 from event.models import Event, EventPropagation, EventRegistration, EventRecord, EventFinance, VIPEventPropagation, \
     EventPropagationImage
 from project.settings import BASE_DIR
@@ -226,6 +227,20 @@ class Command(BaseCommand):
                 ))
 
             self.user_map[id] = user
+
+            if id in data['darce']:
+                item = data['darce'][id]
+                donor = Donor.objects.update_or_create(user=user, defaults=dict(
+                    subscribed_to_newsletter=item['info'] == '1',
+                    is_public=item['zverejnit'] == '1',
+                    date_joined=parse_date(item['zalozen']) or date.today(),
+                    regional_center_support=self.administration_unit_map.get(item['rc_podpora']),
+                    basic_section_support=self.administration_unit_map.get(item['zc_podpora']),
+                ))[0]
+                if item['vs']:
+                    VariableSymbol.objects.update_or_create(variable_symbol=item['vs'], defaults=dict(
+                        donor=donor
+                    ))
 
     def import_qualifications(self, data):
         print('importing qualifications')
@@ -526,9 +541,10 @@ class Command(BaseCommand):
         for id in data['tabor']:
             assert id in data['akce']
 
-        # to_print = [item for item in data['akce'].values()]
+        # to_print = [item for item in data['darce'].values()]
         #
         # print(json.dumps(to_print, indent=2, ensure_ascii=False))
+        # return
 
         self.import_users(data)
         self.import_qualifications(data)

@@ -99,3 +99,15 @@ class EventProgramCategory(Model):
 
     def __str__(self):
         return self.name
+
+
+@translate_model
+class DonationSourceCategory(Model):
+    name = CharField(max_length=63)
+    slug = SlugField(unique=True)
+
+    class Meta:
+        ordering = 'id',
+
+    def __str__(self):
+        return self.name

@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'questionnaire',
     'event',
     'other',
+    'donations',
     'administration_units',
     'debug_toolbar',
     'login_code',

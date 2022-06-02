@@ -3,6 +3,24 @@ from rangefilter.filters import DateRangeFilter
 from bis.models import *
 
 
+class HasDonorFilter(admin.SimpleListFilter):
+    title = 'Má přiřazeného dárce'
+    parameter_name = 'has_donor'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'Ano'),
+            ('no', 'Ne'),
+        )
+
+    def queryset(self, request, queryset):
+        query = {'donor__isnull': False}
+        if self.value() == 'yes':
+            queryset = queryset.filter(**query)
+        if self.value() == 'no':
+            queryset = queryset.exclude(**query)
+        return queryset
+
 class ActiveQualificationFilter(admin.SimpleListFilter):
     title = 'Má aktivní kvalifikaci'
     parameter_name = 'active_qualification'

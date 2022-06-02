@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from categories.models import DietCategory, PropagationIntendedForCategory, QualificationCategory, \
     AdministrationUnitCategory, MembershipCategory, EventProgramCategory, \
-    EventCategory, GrantCategory
+    EventCategory, GrantCategory, DonationSourceCategory
 
 
 class Command(BaseCommand):
@@ -152,3 +152,6 @@ class Command(BaseCommand):
         GrantCategory.objects.update_or_create(slug='none', defaults=dict(name='žádné'))
         GrantCategory.objects.update_or_create(slug='msmt', defaults=dict(name='mšmt'))
         GrantCategory.objects.update_or_create(slug='other', defaults=dict(name='z jiných projektů'))
+
+        DonationSourceCategory.objects.update_or_create(slug='bank_transfer', defaults=dict(name='bankovním převodem'))
+        DonationSourceCategory.objects.update_or_create(slug='darujme', defaults=dict(name='darujme.cz'))

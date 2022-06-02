@@ -167,6 +167,13 @@ class User(Model):
                 if not hasattr(self, relation.name) and hasattr(other, relation.name):
                     setattr(self, relation.name, getattr(other, relation.name))
 
+            elif relation.name == 'donor':
+                if hasattr(other, relation.name):
+                    if not hasattr(self, relation.name):
+                        setattr(self, relation.name, getattr(other, relation.name))
+                    else:
+                        self.donor.merge_with(other.donor)
+
             elif relation.name == 'emails':
                 max_order = max([email.order for email in self.emails.all()] + [0])
                 for i, obj in enumerate(UserEmail.objects.filter(user=other)):
