@@ -13,7 +13,7 @@ from event.models import *
 @admin.register(Donation)
 class DonationAdmin(NestedModelAdmin):
     autocomplete_fields = 'donor',
-    list_display = 'amount', 'donor', 'donated_at', 'donation_source', 'info'
+    list_display = '__str__', 'donor', 'donated_at', 'donation_source', 'info'
     list_filter = HasDonorFilter, 'donation_source',
 
     list_select_related = 'donor__user', 'donation_source'

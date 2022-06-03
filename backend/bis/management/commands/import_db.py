@@ -191,14 +191,6 @@ class Command(BaseCommand):
     user_map = {u._import_id: u for u in User.objects.all()}
 
     def import_users(self, data):
-        for item in data['falesne_duplicity']:
-            if item['adr1'] not in data['adresa'] or item['adr2'] not in data['adresa']:
-                continue
-            if data['adresa'][item['adr2']]['email']:
-                data['adresa'][item['adr1']]['email'] = data['adresa'][item['adr2']]['email']
-            if data['adresa'][item['adr1']]['email']:
-                data['adresa'][item['adr2']]['email'] = data['adresa'][item['adr1']]['email']
-
         for i, (id, item) in enumerate(data['adresa'].items()):
             self.print_progress('users', i, len(data['adresa']))
 
