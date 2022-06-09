@@ -54,11 +54,11 @@ class AdministrationUnitAddress(Model):
 @translate_model
 class BrontosaurusMovement(SingletonModel):
     director = ForeignKey('bis.User', related_name='director_of', on_delete=CASCADE, null=True)
-    bis_administrators = ManyToManyField('bis.User', related_name='+')
-    office_workers = ManyToManyField('bis.User', related_name='+')
-    audit_committee = ManyToManyField('bis.User', related_name='+')
-    executive_committee = ManyToManyField('bis.User', related_name='+')
-    education_members = ManyToManyField('bis.User', related_name='+')
+    bis_administrators = ManyToManyField('bis.User', related_name='+', blank=True)
+    office_workers = ManyToManyField('bis.User', related_name='+', blank=True)
+    audit_committee = ManyToManyField('bis.User', related_name='+', blank=True)
+    executive_committee = ManyToManyField('bis.User', related_name='+', blank=True)
+    education_members = ManyToManyField('bis.User', related_name='+', blank=True)
 
     @classmethod
     def get(cls):
