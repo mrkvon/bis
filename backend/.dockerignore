@@ -1,0 +1,16 @@
+.git
+*.pyc
+*.pyo
+*.log
+*.db
+*.pid
+.DS_Store
+.coverage
+local_settings.py
+/media
+/backend_static
+dj_static
+
+__pycache__
+
+/old_database_dump

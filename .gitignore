@@ -17,7 +17,7 @@ dj_static
 /postgresqldata*
 .venv
 /venv
-.dockerignore
+/.dockerignore
 __pycache__
 
 /postgresqldata_test
