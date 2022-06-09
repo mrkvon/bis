@@ -9,21 +9,21 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/templates/default.conf.template
       - ./logs:/app/logs
-      - ./frontend/build:/app/frontend
+#      - ./frontend/build:/app/frontend
       - ./backend/backend_static:/app/backend_static
       - ./backend/media:/app/media
 
-  frontend:
-    container_name: bis-frontend
-    build: ./frontend
-    volumes:
-      - ./logs:/logs
-      - ./frontend:/app
-    environment:
-      HOST: frontend
-      APP_NAME: 'bis'
-      API_BASE: 'api/'
-      DEBUG: 0
+#  frontend:
+#    container_name: bis-frontend
+#    build: ./frontend
+#    volumes:
+#      - ./logs:/logs
+#      - ./frontend:/app
+#    environment:
+#      HOST: frontend
+#      APP_NAME: 'bis'
+#      API_BASE: 'api/'
+#      DEBUG: 0
 
   backend:
     container_name: bis-backend
