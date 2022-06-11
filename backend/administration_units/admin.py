@@ -22,7 +22,7 @@ class BrontosaurusMovementAdmin(EditableByAdminOnlyMixin, SingletonModelAdmin):
     filter_horizontal = 'bis_administrators', 'office_workers', 'audit_committee', \
                         'executive_committee', 'education_members',
 
-    autocomplete_fields = 'director', 'bis_administrators', 'office_workers', 'audit_committee', \
+    autocomplete_fields = 'director', 'finance_director', 'bis_administrators', 'office_workers', 'audit_committee', \
                           'executive_committee', 'education_members'
 
     def has_add_permission(self, request, obj=None):

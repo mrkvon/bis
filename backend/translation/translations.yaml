@@ -91,6 +91,9 @@ models:
       director:
         - 'Ředitel'
         - 'Má veškerá oprávnění'
+      finance_director:
+        - 'Finanční ředitel'
+        - 'Má veškerá oprávnění'
       bis_administrators:
         - 'Správci BISu'
         - 'Mají veškeré oprávnění'

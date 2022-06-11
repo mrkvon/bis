@@ -53,7 +53,8 @@ class AdministrationUnitAddress(Model):
 
 @translate_model
 class BrontosaurusMovement(SingletonModel):
-    director = ForeignKey('bis.User', related_name='director_of', on_delete=CASCADE, null=True)
+    director = ForeignKey('bis.User', related_name='director_of', on_delete=CASCADE)
+    finance_director = ForeignKey('bis.User', related_name='finance_director_of', on_delete=CASCADE)
     bis_administrators = ManyToManyField('bis.User', related_name='+', blank=True)
     office_workers = ManyToManyField('bis.User', related_name='+', blank=True)
     audit_committee = ManyToManyField('bis.User', related_name='+', blank=True)

@@ -547,6 +547,10 @@ class Command(BaseCommand):
         self.import_participants(data)
 
         director = self.user_map[self.director_id]
+        finance_director = User.objects.filter(emails_email='josef.dvoracek@outlook.com')[0]
 
-        b = BrontosaurusMovement.objects.get_or_create(defaults=dict(director=director))[0]
+        b = BrontosaurusMovement.objects.update_or_create(defaults=dict(
+            director=director,
+            finance_director=finance_director
+        ))[0]
         b.bis_administrators.set([self.user_map[id] for id in self.admin_ids])

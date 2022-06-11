@@ -71,11 +71,7 @@ class User(Model):
 
     @cached_property
     def is_director(self):
-        return BrontosaurusMovement.get().director == self
-
-    @cached_property
-    def is_director(self):
-        return BrontosaurusMovement.get().director == self
+        return BrontosaurusMovement.get().director == self or BrontosaurusMovement.get().finance_director == self
 
     @cached_property
     def is_admin(self):
