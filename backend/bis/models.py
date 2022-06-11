@@ -142,7 +142,12 @@ class User(Model):
         ordering = '-id',
 
     def __str__(self):
-        return self.get_name()
+        name = self.get_name()
+
+        if self.age is not None:
+            name += f' ({self.age})'
+
+        return name
 
     def merge_with(self, other):
         assert other != self
@@ -208,9 +213,6 @@ class User(Model):
 
         if len(name) == 1:
             return f"{self.emails.first()}"
-
-        if self.age is not None:
-            name += f' ({self.age})'
 
         return name
 

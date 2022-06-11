@@ -14,7 +14,7 @@ urlpatterns = [
     path(f'', include('rest_framework.urls')),
     path(f'_nested_admin/', include('nested_admin.urls')),
 
-    path(f'{settings.API_BASE}bis/', include('bis.urls')),
+    path(f'{settings.API_BASE}web/', include('web_api.urls')),
 ]
 
 if settings.DEBUG:

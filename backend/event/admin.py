@@ -74,6 +74,7 @@ class EventAdmin(FilterQuerysetMixin, NestedModelAdmin):
 
     date_hierarchy = 'start'
     search_fields = 'name',
+    readonly_fields = 'duration',
 
     autocomplete_fields = 'main_organizer', 'other_organizers', 'location', 'administration_unit',
 

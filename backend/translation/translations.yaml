@@ -142,6 +142,7 @@ models:
       is_canceled: 'Zrušena?'
       start: 'Začátek akce'
       end: 'Konec akce'
+      duration: 'Délka trvání akce'
       location: 'Lokalita'
       is_internal: 'Určeno pro členy?'
       number_of_sub_events: 'Počet akcí v uvedeném období'

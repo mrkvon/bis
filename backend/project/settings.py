@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     'mailjet',
     'solo',
     'admin_auto_filters',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -163,10 +164,12 @@ MEDIA_ROOT = join(BASE_DIR, 'media')
 DATA_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = DATA_UPLOAD_MAX_MEMORY_SIZE
 
+
 #
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'rest_framework.filters.OrderingFilter',
+        'django_filters.rest_framework.DjangoFilterBackend'
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',

@@ -11,6 +11,7 @@ from administration_units.models import AdministrationUnit
 from bis.models import Location, User
 from categories.models import GrantCategory, PropagationIntendedForCategory, DietCategory, \
     EventCategory, EventProgramCategory
+from project import settings
 from translation.translate import translate_model
 
 
@@ -35,6 +36,7 @@ class Event(Model):
     internal_note = TextField(blank=True)
 
     _import_id = CharField(max_length=15, default='')
+    duration = PositiveIntegerField()
 
     class Meta:
         ordering = '-start',
@@ -174,7 +176,7 @@ class EventRecord(Model):
 
 @translate_model
 class EventPropagationImage(Model):
-    propagation = ForeignKey(EventPropagation, on_delete=CASCADE, related_name='propagation_images')
+    propagation = ForeignKey(EventPropagation, on_delete=CASCADE, related_name='images')
     order = PositiveIntegerField()
     image = ImageField(upload_to='event_propagation_images', max_length=200)
 
@@ -187,6 +189,10 @@ class EventPropagationImage(Model):
 
     def __str__(self):
         return basename(self.image.name)
+
+    @property
+    def url(self):
+        return settings.FULL_HOSTNAME + self.image.url
 
 
 @translate_model
