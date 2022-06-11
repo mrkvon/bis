@@ -25,6 +25,7 @@ class AdministrationUnit(Model):
 
     category = ForeignKey(AdministrationUnitCategory, related_name='administration_units', on_delete=CASCADE)
     chairman = ForeignKey('bis.User', related_name='chairman_of', on_delete=CASCADE, null=True)
+    vice_chairman = ForeignKey('bis.User', related_name='vice_chairman_of', on_delete=CASCADE, null=True)
     manager = ForeignKey('bis.User', related_name='manager_of', on_delete=CASCADE, null=True)
     board_members = ManyToManyField('bis.User', related_name='administration_units')
 

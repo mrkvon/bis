@@ -65,6 +65,7 @@ models:
       board_members: 'Členové představenstva'
       bank_account_number: 'Číslo účtu'
       chairman: 'Předseda'
+      vice_chairman: 'Místopředseda'
       email: 'E-mail'
       existed_since: 'Datum vzniku'
       existed_till: 'Datum zániku'

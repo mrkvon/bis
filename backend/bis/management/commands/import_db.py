@@ -293,6 +293,7 @@ class Command(BaseCommand):
             if item['predseda']:
                 chairman = self.user_map[item['predseda']]
 
+            vice_chairman = None
             manager = None
             board_members = []
             ic = None
@@ -302,7 +303,7 @@ class Command(BaseCommand):
                     manager = self.user_map[data['zc'][id]['hospodar']]
 
                 if data['zc'][id]['statutar'] in self.user_map:
-                    board_members.append(self.user_map[data['zc'][id]['statutar']])
+                    vice_chairman = self.user_map[data['zc'][id]['statutar']]
                 if data['zc'][id]['statutar2'] in self.user_map:
                     board_members.append(self.user_map[data['zc'][id]['statutar2']])
 
@@ -321,6 +322,7 @@ class Command(BaseCommand):
                     existed_since=parse_date(since),
                     existed_till=parse_date(till),
                     chairman=chairman,
+                    vice_chairman=vice_chairman,
                     manager=manager,
                     category=self.administration_unit_category_map[item['uroven']],
                     ic=ic,

@@ -11,7 +11,7 @@ class AdministrationUnitAdmin(EditableByAdminOnlyMixin, admin.ModelAdmin):
     search_fields = 'abbreviation', 'name', 'address__city', 'address__street', 'address__zip_code', 'phone', 'email'
     list_filter = 'category', 'is_for_kids'
 
-    autocomplete_fields = 'chairman', 'manager', 'board_members'
+    autocomplete_fields = 'chairman', 'vice_chairman', 'manager', 'board_members'
 
     exclude = '_import_id',
     list_select_related = 'address', 'chairman', 'category'
