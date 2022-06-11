@@ -1,11 +1,13 @@
 from functools import cached_property
 from os.path import basename
 
+from dateutil.relativedelta import relativedelta
 from django.contrib import admin
 from django.contrib.auth.models import UserManager
 from django.contrib.gis.db.models import *
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
 from phonenumber_field.modelfields import PhoneNumberField
 
 from administration_units.models import AdministrationUnit, BrontosaurusMovement
@@ -128,6 +130,11 @@ class User(Model):
     def is_authenticated(self):
         return True
 
+    @property
+    def age(self):
+        if self.birthday:
+            return relativedelta(now().date(), self.birthday).years
+
     def get_username(self):
         return None
 
@@ -201,6 +208,9 @@ class User(Model):
 
         if len(name) == 1:
             return f"{self.emails.first()}"
+
+        if self.age is not None:
+            name += f' ({self.age})'
 
         return name
 
