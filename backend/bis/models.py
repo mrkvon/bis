@@ -216,7 +216,10 @@ class User(Model):
 
     @admin.display(description='E-mailové adresy')
     def get_emails(self):
-        return "\n".join(e.email for e in self.emails.all())
+        def split_email(email):
+            name, host = email.split('@')
+            return f'{name}<br>@{host}'
+        return mark_safe("<br>".join(split_email(e.email) for e in self.emails.all()))
 
     @admin.display(description='Aktivní kvalifikace')
     def get_qualifications(self):
