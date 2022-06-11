@@ -59,8 +59,8 @@ class Event(Model):
             if start_date.day != end_date.day:
                 result = f"{start_date.day}. " + result
 
-        if time.hour != 0:
-            result += f' {time.hour}:{time.minute:02d}'
+        # if time.hour != 0:
+        #     result += f' {time.hour}:{time.minute:02d}'
         return result
 
     @classmethod
