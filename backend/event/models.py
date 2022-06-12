@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from phonenumber_field.modelfields import PhoneNumberField
+from tinymce.models import HTMLField
 
 from administration_units.models import AdministrationUnit
 from bis.models import Location, User
@@ -106,10 +107,10 @@ class EventPropagation(Model):
     web_url = URLField(blank=True)
     _contact_url = URLField(blank=True)
 
-    invitation_text_introduction = TextField()
-    invitation_text_practical_information = TextField()
-    invitation_text_work_description = TextField()
-    invitation_text_about_us = TextField(blank=True)
+    invitation_text_introduction = HTMLField()
+    invitation_text_practical_information = HTMLField()
+    invitation_text_work_description = HTMLField()
+    invitation_text_about_us = HTMLField(blank=True)
     # propagation_images as Model below
 
     contact_person = ForeignKey(User, on_delete=CASCADE, related_name='events_where_was_as_contact_person', null=True)

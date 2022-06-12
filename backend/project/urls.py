@@ -13,6 +13,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path(f'', include('rest_framework.urls')),
     path(f'_nested_admin/', include('nested_admin.urls')),
+    path('tinymce/', include('tinymce.urls')),
 
     path(f'{settings.API_BASE}web/', include('web_api.urls')),
 ]

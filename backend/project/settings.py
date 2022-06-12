@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'solo',
     'admin_auto_filters',
     'django_filters',
+    'tinymce',
 ]
 
 MIDDLEWARE = [
@@ -164,7 +165,6 @@ MEDIA_ROOT = join(BASE_DIR, 'media')
 DATA_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = DATA_UPLOAD_MAX_MEMORY_SIZE
 
-
 #
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
@@ -227,3 +227,14 @@ if DEBUG:
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
     INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
     DEBUG_TOOLBAR_CONFIG = {'PROFILER_MAX_DEPTH': 20}
+
+TINYMCE_DEFAULT_CONFIG = {
+    'menubar': False,
+    'plugins': 'autolink,lists,link,image,charmap,preview,searchreplace,'
+               'fullscreen,paste,code,help,wordcount,media',
+    'toolbar': 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | '
+               'bullist numlist | link image media emoticons | fullscreen removeformat | help',
+    'toolbar_mode': 'wrap',
+    'block_formats': 'Paragraph=p; Nadpis=h3',
+    'fontsize_formats': "12pt"
+}

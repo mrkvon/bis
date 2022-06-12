@@ -21,3 +21,4 @@ django-solo
 django-admin-autocomplete-filter
 python-dateutil
 django-filter
+django-tinymce
