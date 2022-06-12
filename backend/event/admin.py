@@ -1,4 +1,5 @@
 from admin_auto_filters.filters import AutocompleteFilterFactory
+from django.core.exceptions import ValidationError
 from nested_admin.forms import SortableHiddenMixin
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin, NestedStackedInline
 from rangefilter.filters import DateRangeFilter
@@ -14,6 +15,33 @@ class EventPropagationImageAdmin(SortableHiddenMixin, NestedTabularInline):
     readonly_fields = 'image_tag',
     extra = 3
     classes = 'collapse',
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+
+        if '_saveasnew' not in request.POST:
+            return formset
+
+        id = request.resolver_match.kwargs['object_id']
+        event = Event.objects.get(id=id)
+
+        if not hasattr(event, 'propagation'):
+            return formset
+
+        images = event.propagation.images.all()
+
+        class New(formset):
+            def is_valid(_self):
+                for i, form in enumerate(_self):
+                    if i >= len(images):
+                        continue
+
+                    form.instance.image = images[i].image
+                    form.fields['image'].required = False
+
+                return super(New, _self).is_valid()
+
+        return New
 
 
 class EventPhotoAdmin(NestedTabularInline):
@@ -90,3 +118,25 @@ class EventAdmin(FilterQuerysetMixin, NestedModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        form = super(EventAdmin, self).get_form(request, obj, change, **kwargs)
+
+        if '_saveasnew' not in request.POST:
+            return form
+
+        id = request.resolver_match.kwargs['object_id']
+        event = Event.objects.get(id=id)
+
+        class New(form):
+            def clean(_self):
+                super(New, _self).clean()
+                start = _self.cleaned_data['start']
+                end = _self.cleaned_data['end']
+
+                if start == event.start or end == event.end:
+                    raise ValidationError("Nová událost musí mít odlišný čas začátku a konce od původní události")
+
+                return _self.cleaned_data
+
+        return New
