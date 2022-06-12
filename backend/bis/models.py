@@ -64,12 +64,14 @@ class User(Model):
     date_joined = DateTimeField(default=timezone.now)
 
     _import_id = CharField(max_length=15, default='')
+    _str = CharField(max_length=255)
 
     objects = UserManager()
 
     @cached_property
     def email(self):
-        return self.emails.first().email
+        email = self.emails.first()
+        return email and email.email
 
     @cached_property
     def is_director(self):
@@ -142,12 +144,7 @@ class User(Model):
         ordering = '-id',
 
     def __str__(self):
-        name = self.get_name()
-
-        if self.age is not None:
-            name += f' ({self.age})'
-
-        return name
+        return self._str
 
     def merge_with(self, other):
         assert other != self
@@ -207,11 +204,14 @@ class User(Model):
 
     @admin.display(description='Uživatel')
     def get_name(self):
-        name = f'{self.first_name} {self.last_name}'
+        name = f'{self.first_name} {self.last_name}'.strip()
         if self.nickname:
-            name = f'{self.nickname} ({name})'
+            if name:
+                name = f'{self.nickname} ({name})'
+            else:
+                name = self.nickname
 
-        if len(name) == 1:
+        if not name.strip():
             return f"{self.emails.first()}"
 
         return name

@@ -88,7 +88,7 @@ class DuplicateUserAdminInline(NestedTabularInline):
 @admin.register(User)
 class UserAdmin(FilterQuerysetMixin, NestedModelAdmin):
     readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_emails'
-    exclude = 'groups', 'user_permissions', 'password', 'is_superuser'
+    exclude = 'groups', 'user_permissions', 'password', 'is_superuser', '_str'
 
     fieldsets = (
         (None, {
