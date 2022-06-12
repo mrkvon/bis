@@ -85,6 +85,14 @@ class DuplicateUserAdminInline(NestedTabularInline):
         return False
 
 
+class UserAddressAdmin(NestedTabularInline):
+    model = UserAddress
+
+
+class UserContactAddressAdmin(NestedTabularInline):
+    model = UserContactAddress
+
+
 @admin.register(User)
 class UserAdmin(FilterQuerysetMixin, NestedModelAdmin):
     readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_emails'
@@ -100,7 +108,7 @@ class UserAdmin(FilterQuerysetMixin, NestedModelAdmin):
         })
     )
 
-    list_display = 'get_name', 'birthday', 'address', 'get_emails', 'phone', 'get_qualifications', 'get_memberships'
+    list_display = 'get_name', 'birthday', 'address', 'contact_address', 'get_emails', 'phone', 'get_qualifications', 'get_memberships'
     list_filter = ActiveMembershipFilter, \
                   AutocompleteFilterFactory('Člen článku', 'memberships__administration_unit'), \
                   ('memberships__year'), ActiveQualificationFilter, 'qualifications__category', \
@@ -109,12 +117,14 @@ class UserAdmin(FilterQuerysetMixin, NestedModelAdmin):
                   ('events_where_was_organizer__start', DateRangeFilter)
 
     search_fields = 'emails__email', 'phone', 'first_name', 'last_name', 'nickname'
-    list_select_related = 'address',
+    list_select_related = 'address', 'contact_address'
 
     def get_inlines(self, request, obj):
+        inlines = [UserAddressAdmin, UserContactAddressAdmin, QualificationAdmin, MembershipAdmin,
+                   DuplicateUserAdminInline]
         if request.user.is_superuser:
-            return QualificationAdmin, MembershipAdmin, DuplicateUserAdminInline, UserEmailAdmin
-        return QualificationAdmin, MembershipAdmin, DuplicateUserAdminInline
+            inlines.append(UserEmailAdmin)
+        return inlines
 
     def get_rangefilter_participated_in_events__event__start_title(self, request, field_path):
         return 'Jeli na akci v období'

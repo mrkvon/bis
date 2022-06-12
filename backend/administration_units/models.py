@@ -7,6 +7,19 @@ from translation.translate import translate_model
 from solo.models import SingletonModel
 
 
+class BaseAddress(Model):
+    street = CharField(max_length=127)
+    city = CharField(max_length=63)
+    zip_code = CharField(max_length=5)
+
+    class Meta:
+        ordering = 'id',
+        abstract = True
+
+    def __str__(self):
+        return f'{self.street}, {self.city}, {self.zip_code}'
+
+
 @translate_model
 class AdministrationUnit(Model):
     name = CharField(max_length=255)
@@ -39,17 +52,8 @@ class AdministrationUnit(Model):
 
 
 @translate_model
-class AdministrationUnitAddress(Model):
+class AdministrationUnitAddress(BaseAddress):
     administration_unit = OneToOneField(AdministrationUnit, on_delete=CASCADE, related_name='address')
-    street = CharField(max_length=127)
-    city = CharField(max_length=63)
-    zip_code = CharField(max_length=5)
-
-    class Meta:
-        ordering = 'id',
-
-    def __str__(self):
-        return f'{self.street}, {self.city}, {self.zip_code}'
 
 
 @translate_model

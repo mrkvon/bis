@@ -1,12 +1,17 @@
 from django.contrib import admin
+from nested_admin.nested import NestedModelAdmin, NestedTabularInline
 from solo.admin import SingletonModelAdmin
 
-from administration_units.models import AdministrationUnit, BrontosaurusMovement
+from administration_units.models import AdministrationUnit, BrontosaurusMovement, AdministrationUnitAddress
 from bis.admin_helpers import EditableByAdminOnlyMixin
 
 
+class AdministrationUnitAddressAdmin(NestedTabularInline):
+    model = AdministrationUnitAddress
+
+
 @admin.register(AdministrationUnit)
-class AdministrationUnitAdmin(EditableByAdminOnlyMixin, admin.ModelAdmin):
+class AdministrationUnitAdmin(EditableByAdminOnlyMixin, NestedModelAdmin):
     list_display = 'abbreviation', 'address', 'phone', 'email', 'www', 'chairman', 'category'
     search_fields = 'abbreviation', 'name', 'address__city', 'address__street', 'address__zip_code', 'phone', 'email'
     list_filter = 'category', 'is_for_kids'
@@ -15,6 +20,8 @@ class AdministrationUnitAdmin(EditableByAdminOnlyMixin, admin.ModelAdmin):
 
     exclude = '_import_id',
     list_select_related = 'address', 'chairman', 'category'
+
+    inlines = AdministrationUnitAddressAdmin,
 
 
 @admin.register(BrontosaurusMovement)

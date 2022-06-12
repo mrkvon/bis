@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from phonenumber_field.modelfields import PhoneNumberField
 
-from administration_units.models import AdministrationUnit, BrontosaurusMovement
+from administration_units.models import AdministrationUnit, BrontosaurusMovement, BaseAddress
 from categories.models import QualificationCategory, MembershipCategory
 from translation.translate import translate_model
 
@@ -168,7 +168,7 @@ class User(Model):
             if relation.name in ['auth_token']:
                 continue
 
-            elif relation.name == 'address':
+            elif relation.name in ['address', 'contact_address']:
                 if not hasattr(self, relation.name) and hasattr(other, relation.name):
                     setattr(self, relation.name, getattr(other, relation.name))
 
@@ -221,6 +221,7 @@ class User(Model):
         def split_email(email):
             name, host = email.split('@')
             return f'{name}<br>@{host}'
+
         return mark_safe("<br>".join(split_email(e.email) for e in self.emails.all()))
 
     @admin.display(description='Aktivní kvalifikace')
@@ -273,18 +274,13 @@ class UserEmail(Model):
 
 
 @translate_model
-class UserAddress(Model):
+class UserAddress(BaseAddress):
     user = OneToOneField(User, on_delete=CASCADE, related_name='address')
-    street = CharField(max_length=127)
-    city = CharField(max_length=63)
-    zip_code = CharField(max_length=5)
 
-    class Meta:
-        ordering = 'id',
 
-    def __str__(self):
-        return f'{self.street}, {self.city}, {self.zip_code}'
-
+@translate_model
+class UserContactAddress(BaseAddress):
+    user = OneToOneField(User, on_delete=CASCADE, related_name='contact_address')
 
 
 @translate_model

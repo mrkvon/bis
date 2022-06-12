@@ -33,7 +33,15 @@ models:
 
   UserAddress:
     name: 'Adresa uživatele'
-    name_plural: 'Adresy uživatele'
+    name_plural: 'Adresa uživatele'
+    fields:
+      user: 'Uživatel'
+      city: 'Město'
+      street: 'Ulice'
+      zip_code: 'PSČ'
+  UserContactAddress:
+    name: 'Kontaktní adresa uživatele'
+    name_plural: 'Kontaktní adresa uživatele'
     fields:
       user: 'Uživatel'
       city: 'Město'
@@ -76,7 +84,7 @@ models:
 
   AdministrationUnitAddress:
     name: 'Adresa'
-    name_plural: 'Adresy'
+    name_plural: 'Adresa'
     fields:
       administration_unit: 'Organizující jednotka'
       city: 'Město'

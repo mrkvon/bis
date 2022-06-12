@@ -13,7 +13,7 @@ from django.utils.datetime_safe import date, datetime
 from django.utils.timezone import now
 
 from administration_units.models import AdministrationUnit, AdministrationUnitAddress, BrontosaurusMovement
-from bis.models import User, UserAddress, Qualification, Location, Membership, UserEmail
+from bis.models import User, UserAddress, Qualification, Location, Membership, UserEmail, UserContactAddress
 from categories.models import MembershipCategory, EventCategory, EventProgramCategory, QualificationCategory, \
     AdministrationUnitCategory, PropagationIntendedForCategory, DietCategory, GrantCategory
 from donations.models import Donor, VariableSymbol
@@ -67,8 +67,6 @@ class Command(BaseCommand):
     file_path = join(BASE_DIR, 'old_database_dump', 'db.json')
     id_table_names = ['adresa', 'akce', 'akce_typ', 'clen', 'clen_typ', 'dar', 'darce', 'dar_divne', 'klub',
                       'lokalita', 'program', 'tabor', 'zc', 'qual_typ', 'ohb_instruktor', 'ohb_konzultant', 'qal']
-
-    # TODO akce, dar, darce, dar_divne, tabor, prihlaska, ucastnik
 
     director_id = "2780"
     headquarters_id = "179"
@@ -213,6 +211,16 @@ class Command(BaseCommand):
 
             if street and city and zip_code:
                 UserAddress.objects.update_or_create(user=user, defaults=dict(
+                    street=street,
+                    city=city,
+                    zip_code=zip_code
+                ))
+            street = item["kont_ulice"]
+            city = item["kont_mesto"]
+            zip_code = item["kont_psc"]
+
+            if street and city and zip_code:
+                UserContactAddress.objects.update_or_create(user=user, defaults=dict(
                     street=street,
                     city=city,
                     zip_code=zip_code
