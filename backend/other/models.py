@@ -5,6 +5,18 @@ from translation.translate import translate_model
 
 
 @translate_model
+class Region(Model):
+    name = CharField(max_length=63)
+    area = PolygonField()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = 'id',
+
+
+@translate_model
 class DuplicateUser(Model):
     user = ForeignKey(User, on_delete=CASCADE, related_name='duplicates')
     other = ForeignKey(User, on_delete=CASCADE, related_name='other_duplicates')

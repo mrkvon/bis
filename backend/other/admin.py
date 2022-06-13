@@ -1,17 +1,22 @@
+from django.contrib.gis.admin import OSMGeoAdmin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from nested_admin.nested import NestedModelAdmin
 
-from bis.admin_helpers import FilterQuerysetMixin
+from bis.admin_helpers import FilterQuerysetMixin, EditableByAdminOnlyMixin
 from event.models import *
-from other.models import DuplicateUser
+from other.models import DuplicateUser, Region
+
+
+@admin.register(Region)
+class RegionAdmin(EditableByAdminOnlyMixin, OSMGeoAdmin):
+    pass
 
 
 @admin.register(DuplicateUser)
 class DuplicateUserAdmin(FilterQuerysetMixin, NestedModelAdmin):
     change_form_template = 'bis/duplicate_user_change_form.html'
 
-    model = DuplicateUser
     list_display = 'user', 'other', 'get_user_info', 'get_other_info'
     raw_id_fields = 'user', 'other'
 

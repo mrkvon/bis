@@ -387,3 +387,9 @@ models:
     name_plural: 'Nahrání bankovních záznamů'
     fields:
       file: 'Soubor .csv'
+  Region:
+    name: 'Kraj'
+    name_plural: 'Kraje'
+    fields:
+      name: 'Název'
+      area: 'Oblast'
