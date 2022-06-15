@@ -9,11 +9,13 @@ from translation.translate import translate_model
 
 
 def is_regional_center(value: AdministrationUnit):
+    if type(value) == int: value = AdministrationUnit.objects.get(id=value)
     if value.category.slug != 'regional_center':
         raise ValidationError('not regional_center')
 
 
 def is_basic_section(value: AdministrationUnit):
+    if type(value) == int: value = AdministrationUnit.objects.get(id=value)
     if value.category.slug != 'basic_section':
         raise ValidationError('not basic_section')
 

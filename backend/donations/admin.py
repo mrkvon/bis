@@ -40,6 +40,8 @@ class VariableSymbolInline(NestedTabularInline):
     model = VariableSymbol
     extra = 0
 
+    def has_change_permission(self, request, obj=None): return False
+
 
 @admin.register(Donor)
 class DonorAdmin(NestedModelAdmin):
@@ -50,7 +52,14 @@ class DonorAdmin(NestedModelAdmin):
     search_fields = 'user__emails__email', 'user__phone', 'user__first_name', 'user__last_name', 'user__nickname',
 
     autocomplete_fields = 'regional_center_support', 'basic_section_support'
-    pass
+
+    def save_formset(self, request, form, formset, change):
+        if formset.model is Donation:
+            formset.new_objects = []
+            formset.changed_objects = []
+            formset.deleted_objects = []
+            return
+        super().save_formset(request, form, formset, change)
 
 
 @admin.register(UploadBankRecords)
