@@ -62,9 +62,6 @@ class Command(BaseCommand):
         QualificationCategory.objects.update_or_create(
             slug='HVDT',
             defaults=dict(name='Hlavní vedoucí dětských táborů'))
-        QualificationCategory.objects.update_or_create(
-            slug='VP',
-            defaults=dict(name='Volnočasový pracovník s dětmi a mládeží'))
 
         AdministrationUnitCategory.objects.update_or_create(slug="basic_section", defaults=dict(name='Základní článek'))
         AdministrationUnitCategory.objects.update_or_create(slug="headquarter", defaults=dict(name='Ústředí'))

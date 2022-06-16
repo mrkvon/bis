@@ -114,7 +114,7 @@ class Command(BaseCommand):
         "1": QualificationCategory.objects.get(slug="OHB"),
         "4": QualificationCategory.objects.get(slug="HVDT"),
         "5": QualificationCategory.objects.get(slug="ODHB"),
-        "6": QualificationCategory.objects.get(slug="VP"),
+        "6": None, # VP
         "7": QualificationCategory.objects.get(slug="OpDHB"),
         "9": QualificationCategory.objects.get(slug="OvHB"),
         "Konzultant": QualificationCategory.objects.get(slug="Konzultant"),
@@ -247,6 +247,9 @@ class Command(BaseCommand):
         for id, item in data['qal'].items():
             if not item['od']: continue
 
+            category = self.qualification_category_map.get(item['druh'])
+            if not category: continue
+
             if not item['schvalil']:
                 item['schvalil'] = self.director_id
 
@@ -258,7 +261,7 @@ class Command(BaseCommand):
                 _import_id=id,
                 defaults=dict(
                     user=self.user_map[item['kdo']],
-                    category=self.qualification_category_map[item['druh']],
+                    category=category,
                     valid_since=since,
                     valid_till=till,
                     approved_by=self.user_map[item['schvalil']],
