@@ -30,8 +30,8 @@ class EventViewSet(ReadOnlyModelViewSet):
 
 class OpportunityViewSet(ReadOnlyModelViewSet):
     queryset = Opportunity.objects.filter(
-        on_web_start__gte=now(),
-        on_web_end__lte=now(),
+        on_web_start__lte=now(),
+        on_web_end__gte=now(),
     ).order_by('start').select_related(
         'category',
         'location',
