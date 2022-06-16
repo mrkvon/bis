@@ -58,6 +58,8 @@ services:
       API_BASE: 'api/'
       MAILJET_API_KEY: ${MAILJET_API_KEY}
       MAILJET_SECRET: ${MAILJET_SECRET}
+      DARUJME_API_KEY: ${DARUJME_API_KEY}
+      DARUJME_SECRET: ${DARUJME_SECRET}
 
   postgres:
     container_name: bis-postgres

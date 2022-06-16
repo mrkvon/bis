@@ -15,6 +15,7 @@ class DonationAdmin(NestedModelAdmin):
     autocomplete_fields = 'donor',
     list_display = '__str__', 'donor', 'donated_at', 'donation_source', 'info'
     list_filter = HasDonorFilter, 'donation_source',
+    exclude = '_import_id', '_variable_symbol'
 
     list_select_related = 'donor__user', 'donation_source'
 

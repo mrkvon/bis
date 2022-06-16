@@ -222,6 +222,10 @@ AUTH_USER_MODEL = 'bis.User'
 MAILJET_API_KEY = environ['MAILJET_API_KEY']
 MAILJET_SECRET = environ['MAILJET_SECRET']
 
+# darujme
+DARUJME_API_KEY = environ['DARUJME_API_KEY']
+DARUJME_SECRET = environ['DARUJME_SECRET']
+
 if DEBUG:
     import socket  # only if you haven't already imported this
 

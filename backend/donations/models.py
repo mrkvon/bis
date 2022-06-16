@@ -88,6 +88,7 @@ class Donation(Model):
     donation_source = ForeignKey(DonationSourceCategory, related_name='donations', on_delete=CASCADE)
 
     _variable_symbol = PositiveBigIntegerField(null=True, blank=True)
+    _import_id = PositiveIntegerField(null=True)
     info = TextField()
 
 
