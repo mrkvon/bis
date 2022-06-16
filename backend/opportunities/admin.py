@@ -1,13 +1,13 @@
 from nested_admin.nested import NestedModelAdmin
 from rangefilter.filters import DateRangeFilter
 
-from bis.admin_helpers import EditableByAdminOnlyMixin
+from bis.admin_helpers import EditableByAdminOnlyMixin, EditableByOfficeMixin
 from event.models import *
 from opportunities.models import Opportunity, OfferedHelp
 
 
 @admin.register(Opportunity)
-class OpportunityAdmin(EditableByAdminOnlyMixin, NestedModelAdmin):
+class OpportunityAdmin(EditableByOfficeMixin, NestedModelAdmin):
     list_display = 'name', 'category', 'contact_person', 'start', 'end', 'on_web_start', 'on_web_end', 'location'
     autocomplete_fields = 'location', 'contact_person'
     save_as = True
@@ -19,5 +19,5 @@ class OpportunityAdmin(EditableByAdminOnlyMixin, NestedModelAdmin):
 
 
 @admin.register(OfferedHelp)
-class OfferedHelpAdmin(EditableByAdminOnlyMixin, NestedModelAdmin):
+class OfferedHelpAdmin(EditableByOfficeMixin, NestedModelAdmin):
     autocomplete_fields = 'user',

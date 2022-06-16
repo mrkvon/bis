@@ -1,5 +1,3 @@
-from rangefilter.filters import DateRangeFilter
-
 from bis.models import *
 
 
@@ -20,6 +18,7 @@ class HasDonorFilter(admin.SimpleListFilter):
         if self.value() == 'no':
             queryset = queryset.exclude(**query)
         return queryset
+
 
 class ActiveQualificationFilter(admin.SimpleListFilter):
     title = 'Má aktivní kvalifikaci'
@@ -60,7 +59,6 @@ class ActiveMembershipFilter(admin.SimpleListFilter):
         return queryset
 
 
-
 class EditableByAdminOnlyMixin:
     def has_add_permission(self, request, obj=None):
         return request.user.is_superuser
@@ -72,10 +70,38 @@ class EditableByAdminOnlyMixin:
         return request.user.is_superuser
 
 
+class EditableByOfficeMixin:
+    def has_add_permission(self, request, obj=None):
+        return request.user.is_superuser or request.user.is_office_worker
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser or request.user.is_office_worker
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser or request.user.is_office_worker
+
+
+class EditableByBoardMixin:
+    def has_add_permission(self, request, obj=None):
+        return request.user.is_superuser or request.user.is_office_worker or request.user.is_board_member
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser or request.user.is_office_worker or request.user.is_board_member
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser or request.user.is_office_worker or request.user.is_board_member
+
+
 class FilterQuerysetMixin:
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         if request.user.can_see_all:
             return queryset
 
-        return self.model.filter_queryset(queryset, request.user)
+        queryset = self.model.filter_queryset(queryset, request.user)
+
+        ordering = self.get_ordering(request)
+        if ordering:
+            queryset = queryset.order_by(*ordering)
+
+        return queryset

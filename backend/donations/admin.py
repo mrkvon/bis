@@ -47,12 +47,15 @@ class VariableSymbolInline(NestedTabularInline):
 @admin.register(Donor)
 class DonorAdmin(NestedModelAdmin):
     list_display = 'user', 'subscribed_to_newsletter', 'is_public', 'regional_center_support', 'basic_section_support', 'date_joined'
-    readonly_fields = 'user',
     list_select_related = 'user', 'regional_center_support', 'basic_section_support'
     inlines = VariableSymbolInline, DonationAdminInline,
     search_fields = 'user__emails__email', 'user__phone', 'user__first_name', 'user__last_name', 'user__nickname',
 
-    autocomplete_fields = 'regional_center_support', 'basic_section_support'
+    autocomplete_fields = 'regional_center_support', 'basic_section_support', 'user'
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj: return 'user',
+        return []
 
     def save_formset(self, request, form, formset, change):
         if formset.model is Donation:

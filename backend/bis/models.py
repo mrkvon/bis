@@ -237,27 +237,31 @@ class User(Model):
         if user.is_education_member:
             return queryset
 
-        return queryset.filter(
+        ids = set()
+        for query in [
             # ja
-            Q(id=user.id)
+            Q(id=user.id),
             # lidi kolem akci od clanku kde user je board member
-            | Q(participated_in_events__event__administration_unit__board_members=user)
-            | Q(events_where_was_organizer__administration_unit__board_members=user)
-            | Q(events_where_was_as_contact_person__event__administration_unit__board_members=user)
+            Q(participated_in_events__event__administration_unit__board_members=user),
+            Q(events_where_was_organizer__administration_unit__board_members=user),
+            Q(events_where_was_as_contact_person__event__administration_unit__board_members=user),
             # lidi kolem akci, kde user byl other organizer
-            | Q(participated_in_events__event__other_organizers=user)
-            | Q(events_where_was_organizer__other_organizers=user)
-            | Q(events_where_was_as_contact_person__event__other_organizers=user)
+            Q(participated_in_events__event__other_organizers=user),
+            Q(events_where_was_organizer__other_organizers=user),
+            Q(events_where_was_as_contact_person__event__other_organizers=user),
             # lidi kolem akci, kde user byl kontaktni osoba
-            | Q(participated_in_events__event__propagation__contact_person=user)
-            | Q(events_where_was_organizer__propagation__contact_person=user)
-            | Q(events_where_was_as_contact_person__event__propagation__contact_person=user)
+            Q(participated_in_events__event__propagation__contact_person=user),
+            Q(events_where_was_organizer__propagation__contact_person=user),
+            Q(events_where_was_as_contact_person__event__propagation__contact_person=user),
             # orgove akci, kde user byl ucastnik
-            | Q(events_where_was_organizer__record__participants=user)
-            | Q(events_where_was_as_contact_person__event__record__participants=user)
+            Q(events_where_was_organizer__record__participants=user),
+            Q(events_where_was_as_contact_person__event__record__participants=user)
             # # # ostatni ucastnici akci, kde jsem byl
             # participated_in_events__participants=user,
-        ).distinct()
+        ]:
+            ids = ids.union(queryset.filter(query).order_by().values_list('id', flat=True))
+
+        return User.objects.filter(id__in=ids)
 
 
 @translate_model

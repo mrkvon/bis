@@ -6,7 +6,8 @@ from nested_admin.nested import NestedTabularInline, NestedModelAdmin
 from rangefilter.filters import DateRangeFilter
 from rest_framework.authtoken.models import TokenProxy
 
-from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter, FilterQuerysetMixin
+from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter, FilterQuerysetMixin, \
+    EditableByBoardMixin
 from bis.models import *
 from other.models import DuplicateUser
 
@@ -21,23 +22,13 @@ class LocationPhotosAdmin(NestedTabularInline):
 
 
 @admin.register(Location)
-class LocationAdmin(OSMGeoAdmin):
+class LocationAdmin(EditableByBoardMixin, OSMGeoAdmin):
     inlines = LocationPhotosAdmin,
     search_fields = 'name',
     autocomplete_fields = 'patron',
 
-    def has_add_permission(self, request):
-        user = request.user
-        return user.is_superuser or user.is_office_worker or user.is_board_member
 
-    def has_change_permission(self, request, obj=None):
-        return self.has_add_permission(request)
-
-    def has_delete_permission(self, request, obj=None):
-        return self.has_add_permission(request)
-
-
-class MembershipAdmin(NestedTabularInline):
+class MembershipAdmin(EditableByBoardMixin, NestedTabularInline):
     model = Membership
     extra = 0
 
@@ -45,15 +36,6 @@ class MembershipAdmin(NestedTabularInline):
 
     exclude = '_import_id',
 
-    def has_add_permission(self, request, obj):
-        user = request.user
-        return user.is_superuser or user.is_office_worker or user.is_board_member
-
-    def has_change_permission(self, request, obj=None):
-        return self.has_add_permission(request, obj)
-
-    def has_delete_permission(self, request, obj=None):
-        return self.has_add_permission(request, obj)
 
 
 class QualificationAdmin(NestedTabularInline):
@@ -91,7 +73,7 @@ class UserContactAddressAdmin(NestedTabularInline):
 
 
 @admin.register(User)
-class UserAdmin(FilterQuerysetMixin, NestedModelAdmin):
+class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
     readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_emails'
     exclude = 'groups', 'user_permissions', 'password', 'is_superuser', '_str'
 
@@ -139,16 +121,8 @@ class UserAdmin(FilterQuerysetMixin, NestedModelAdmin):
                 result.append(field)
         return result
 
-    def has_add_permission(self, request):
-        user = request.user
-        return user.is_superuser or user.is_office_worker or user.is_board_member
-
     def has_change_permission(self, request, obj=None):
-        user = request.user
-        return user.is_superuser or user.is_office_worker or user.is_board_member or user.is_education_member
-
-    def has_delete_permission(self, request, obj=None):
-        return self.has_add_permission(request)
+        return self.has_add_permission(request, obj) or request.user.is_education_member
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('memberships', 'qualifications', 'emails')

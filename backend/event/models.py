@@ -68,11 +68,14 @@ class Event(Model):
 
     @classmethod
     def filter_queryset(cls, queryset, user):
-        return queryset.filter(
-            Q(administration_unit__board_members=user) |
-            Q(other_organizers=user) |
-            Q(record__participants=user)
-        ).distinct()
+        ids = set()
+        for query in [
+            Q(administration_unit__board_members=user),
+            Q(other_organizers=user),
+            Q(record__participants=user),
+        ]:
+            ids = ids.union(queryset.filter(query).order_by().values_list('id', flat=True))
+        return Event.objects.filter(id__in=ids)
 
 
 @translate_model

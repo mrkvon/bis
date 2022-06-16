@@ -4,7 +4,7 @@ from nested_admin.forms import SortableHiddenMixin
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin, NestedStackedInline
 from rangefilter.filters import DateRangeFilter
 
-from bis.admin_helpers import FilterQuerysetMixin
+from bis.admin_helpers import FilterQuerysetMixin, EditableByBoardMixin
 from event.models import *
 from questionnaire.admin import QuestionnaireAdmin
 
@@ -84,7 +84,7 @@ class EventRecordAdmin(NestedStackedInline):
 
 
 @admin.register(Event)
-class EventAdmin(FilterQuerysetMixin, NestedModelAdmin):
+class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
     inlines = EventFinanceAdmin, EventPropagationAdmin, EventRegistrationAdmin, EventRecordAdmin
     save_as = True
     filter_horizontal = 'other_organizers',
@@ -107,17 +107,6 @@ class EventAdmin(FilterQuerysetMixin, NestedModelAdmin):
     autocomplete_fields = 'main_organizer', 'other_organizers', 'location', 'administration_unit',
 
     exclude = '_import_id',
-
-    def has_add_permission(self, request):
-        user = request.user
-        return user.is_superuser or user.is_office_worker or user.is_board_member
-
-    def has_change_permission(self, request, obj=None):
-        user = request.user
-        return user.is_superuser or user.is_office_worker or user.is_board_member
-
-    def has_delete_permission(self, request, obj=None):
-        return self.has_change_permission(request, obj)
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super(EventAdmin, self).get_form(request, obj, change, **kwargs)

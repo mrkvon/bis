@@ -6,7 +6,7 @@ from administration_units.models import AdministrationUnit, BrontosaurusMovement
 from bis.admin_helpers import EditableByAdminOnlyMixin
 
 
-class AdministrationUnitAddressAdmin(NestedTabularInline):
+class AdministrationUnitAddressAdmin(EditableByAdminOnlyMixin, NestedTabularInline):
     model = AdministrationUnitAddress
 
 
