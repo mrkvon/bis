@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from categories.models import DietCategory, PropagationIntendedForCategory, QualificationCategory, \
     AdministrationUnitCategory, MembershipCategory, EventProgramCategory, \
-    EventCategory, GrantCategory, DonationSourceCategory
+    EventCategory, GrantCategory, DonationSourceCategory, OrganizerRoleCategory, TeamRoleCategory, OpportunityCategory
 
 
 class Command(BaseCommand):
@@ -155,3 +155,35 @@ class Command(BaseCommand):
 
         DonationSourceCategory.objects.update_or_create(slug='bank_transfer', defaults=dict(name='bankovním převodem'))
         DonationSourceCategory.objects.update_or_create(slug='darujme', defaults=dict(name='darujme.cz'))
+
+        OrganizerRoleCategory.objects.update_or_create(slug='program', defaults=dict(name='Tvorba a vedení her'))
+        OrganizerRoleCategory.objects.update_or_create(slug='material',
+                                                       defaults=dict(name='Materiálně-technické zajištění'))
+        OrganizerRoleCategory.objects.update_or_create(slug='cook', defaults=dict(name='Kuchař/ka'))
+        OrganizerRoleCategory.objects.update_or_create(slug='photo', defaults=dict(name='Fotograf/ka'))
+        OrganizerRoleCategory.objects.update_or_create(slug='propagation', defaults=dict(name='Propagace akcí'))
+        OrganizerRoleCategory.objects.update_or_create(slug='communication',
+                                                       defaults=dict(name='Komunikace s účastníky/lektory/lokalitou'))
+        OrganizerRoleCategory.objects.update_or_create(slug='manager', defaults=dict(name='Hospodář/ka'))
+        OrganizerRoleCategory.objects.update_or_create(slug='medic', defaults=dict(name='Zdravotník/ce'))
+        OrganizerRoleCategory.objects.update_or_create(slug='singer', defaults=dict(name='Hudebník/ce'))
+        OrganizerRoleCategory.objects.update_or_create(slug='generic', defaults=dict(name='Všeuměl / podržtaška'))
+
+        TeamRoleCategory.objects.update_or_create(slug='lector', defaults=dict(name='Lektor'))
+        TeamRoleCategory.objects.update_or_create(slug='lecturer', defaults=dict(name='Přednášející'))
+        TeamRoleCategory.objects.update_or_create(slug='graphic', defaults=dict(name='Grafik'))
+        TeamRoleCategory.objects.update_or_create(slug='translator', defaults=dict(name='Překladatel'))
+        TeamRoleCategory.objects.update_or_create(slug='copywriter', defaults=dict(name='Copywriter'))
+        TeamRoleCategory.objects.update_or_create(slug='marketing', defaults=dict(name='Markeťák'))
+        TeamRoleCategory.objects.update_or_create(slug='web', defaults=dict(name='Webař'))
+        TeamRoleCategory.objects.update_or_create(slug='manager', defaults=dict(name='Hospodář'))
+
+        OpportunityCategory.objects.update_or_create(slug='organizing', defaults=dict(
+            name='Organizování akcí',
+            description='Příležitosti organizovat či pomáhat s pořádáním našich akcí.'))
+        OpportunityCategory.objects.update_or_create(slug='collaboration', defaults=dict(
+            name='Spolupráce',
+            description='Příležitosti ke spolupráci na chodu a rozvoji Hnutí Brontosaurus.'))
+        OpportunityCategory.objects.update_or_create(slug='location_help', defaults=dict(
+            name='Pomoc lokalitě',
+            description='Příležitosti k pomoci dané lokalitě, která to aktuálně potřebuje.'))

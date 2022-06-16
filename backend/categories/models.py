@@ -111,3 +111,41 @@ class DonationSourceCategory(Model):
 
     def __str__(self):
         return self.name
+
+
+@translate_model
+class OrganizerRoleCategory(Model):
+    name = CharField(max_length=63)
+    slug = SlugField(unique=True)
+
+    class Meta:
+        ordering = 'id',
+
+    def __str__(self):
+        return self.name
+
+
+@translate_model
+class TeamRoleCategory(Model):
+    name = CharField(max_length=63)
+    slug = SlugField(unique=True)
+
+    class Meta:
+        ordering = 'id',
+
+    def __str__(self):
+        return self.name
+
+
+
+@translate_model
+class OpportunityCategory(Model):
+    name = CharField(max_length=63)
+    description = CharField(max_length=255)
+    slug = SlugField(unique=True)
+
+    class Meta:
+        ordering = 'id',
+
+    def __str__(self):
+        return self.name

@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'admin_auto_filters',
     'django_filters',
     'tinymce',
+    'opportunities',
 ]
 
 MIDDLEWARE = [

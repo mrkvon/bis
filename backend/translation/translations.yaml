@@ -351,6 +351,25 @@ models:
     fields:
       name: 'Jméno'
       slug: 'Zkratka'
+  OrganizerRoleCategory:
+    name: 'Organizátorská role'
+    name_plural: 'Organizátorské role'
+    fields:
+      name: 'Jméno'
+      slug: 'Zkratka'
+  TeamRoleCategory:
+    name: 'Týmová role'
+    name_plural: 'Týmové role'
+    fields:
+      name: 'Jméno'
+      slug: 'Zkratka'
+  OpportunityCategory:
+    name: 'Kagegorie příležitosti'
+    name_plural: 'Kagegorie příležitostí'
+    fields:
+      name: 'Jméno'
+      description: 'Popis'
+      slug: 'Zkratka'
 
   Donor:
     name: 'Dárce'
@@ -359,8 +378,8 @@ models:
       user: 'Uživatel'
       subscribed_to_newsletter: 'Odebírá novinky?'
       is_public:
-       - 'Chce zveřejnit?'
-       - 'na webu a v závěrečné zprávě'
+        - 'Chce zveřejnit?'
+        - 'na webu a v závěrečné zprávě'
       date_joined: 'Dárcem od'
       regional_center_support: 'podpora RC'
       basic_section_support: 'podpora ZČ'
@@ -393,3 +412,44 @@ models:
     fields:
       name: 'Název'
       area: 'Oblast'
+
+  Opportunity:
+    name: 'Příležitost'
+    name_plural: 'Příležitosti'
+    fields:
+      category: 'Kategorie'
+      name: 'Název'
+      start: 'Začátek příležitosti'
+      end: 'Konec příležitosti'
+      on_web_start: 'Zobrazit na webu od'
+      on_web_end: 'Zobrazit na webu do'
+      location: 'Místo příležitosti'
+      introduction:
+        - 'Představení příležitosti'
+        - 'Krátce vysvětli význam činnosti a její přínos, aby přilákala zájemce'
+      description:
+        - 'Popis činnosti'
+        - 'Přibliž konkrétní činnosti a aktivity, které budou součástí příležitosti'
+      location_benefits:
+        - 'Přínos pro lokalitu'
+        - 'Popiš dopad a přínos činnosti pro dané místě (nezobrazí se u typu spolupráce)'
+      personal_benefits:
+        - ''
+        - ''
+      requirements:
+        - ''
+        - ''
+      contact_person: 'Kontaktní osoba'
+      image: 'Obrázek'
+  OfferedHelp:
+    name: 'Nabízená pomoc'
+    name_plural: 'Nabízená pomoc'
+    fields:
+      user: 'Uživatel'
+      programs: 'Programy'
+      organizer_roles: 'Organizátorské role'
+      additional_organizer_role: 'Jiná organizátorské role'
+      team_roles: 'Týmové role'
+      additional_team_role: 'Jiné týmové role'
+      info: 'Popis pomoci'
+
