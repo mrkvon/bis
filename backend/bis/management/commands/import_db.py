@@ -107,7 +107,7 @@ class Command(BaseCommand):
         "4": EventProgramCategory.objects.get(slug='kids'),
         "5": EventProgramCategory.objects.get(slug='eco_tent'),
         "6": EventProgramCategory.objects.get(slug='education'),
-        None: EventProgramCategory.objects.get(slug='none'),
+        None: None,
     }
 
     qualification_category_map = {

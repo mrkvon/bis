@@ -1,7 +1,8 @@
 from django_filters import *
 
-from categories.models import EventCategory, EventProgramCategory, PropagationIntendedForCategory
+from categories.models import EventCategory, EventProgramCategory, PropagationIntendedForCategory, OpportunityCategory
 from event.models import Event
+from opportunities.models import Opportunity
 
 
 class ChoiceInFilter(BaseInFilter, ChoiceFilter):
@@ -27,4 +28,15 @@ class EventFilter(FilterSet):
 
     class Meta:
         model = Event
+        fields = []
+
+
+class OpportunityFilter(FilterSet):
+    category = ChoiceInFilter(
+        field_name='category__slug',
+        choices=[(c.slug, c.name) for c in OpportunityCategory.objects.all()]
+    )
+
+    class Meta:
+        model = Opportunity
         fields = []

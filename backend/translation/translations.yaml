@@ -434,11 +434,11 @@ models:
         - 'Přínos pro lokalitu'
         - 'Popiš dopad a přínos činnosti pro dané místě (nezobrazí se u typu spolupráce)'
       personal_benefits:
-        - ''
-        - ''
+        - 'Přínos ze spolupráce'
+        - 'Uveď konkrétní osobní přínos do života z realizace této příležitosti'
       requirements:
-        - ''
-        - ''
+        - 'Požadavky příležitosti'
+        - 'Napiš dovednosti, zkušenosti či vybavení potřebné k zapojení do příležitosti'
       contact_person: 'Kontaktní osoba'
       image: 'Obrázek'
   OfferedHelp:

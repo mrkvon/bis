@@ -6,6 +6,7 @@ from web_api.views import *
 router = routers.DefaultRouter()
 
 router.register('events', EventViewSet, 'events')
+router.register('opportunities', OpportunityViewSet, 'opportunities')
 
 
 urlpatterns = [

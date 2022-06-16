@@ -87,7 +87,6 @@ class Command(BaseCommand):
             name='PsB (Prázdniny s Brontosaurem = vícedenní letní akce)'))
         EventProgramCategory.objects.update_or_create(slug='education', defaults=dict(name='Vzdělávání'))
         EventProgramCategory.objects.update_or_create(slug='international', defaults=dict(name='Mezinárodní'))
-        EventProgramCategory.objects.update_or_create(slug='none', defaults=dict(name='Žádný'))
 
         translations = {
             'internal': 'Interní',

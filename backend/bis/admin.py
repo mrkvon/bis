@@ -14,9 +14,6 @@ admin.site.unregister(TokenProxy)
 admin.site.unregister(Group)
 
 
-class BISAdminSite(admin.AdminSite):
-    login_template = 'templates/login.html'
-
 
 class LocationPhotosAdmin(NestedTabularInline):
     model = LocationPhoto

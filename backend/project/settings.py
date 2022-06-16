@@ -52,7 +52,7 @@ except IndexError:
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'project.apps.MyAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

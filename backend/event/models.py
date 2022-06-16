@@ -26,7 +26,7 @@ class Event(Model):
     location = ForeignKey(Location, on_delete=CASCADE, related_name='events', null=True)
 
     category = ForeignKey(EventCategory, on_delete=CASCADE, related_name='events')
-    program = ForeignKey(EventProgramCategory, on_delete=CASCADE, related_name='events')
+    program = ForeignKey(EventProgramCategory, on_delete=CASCADE, related_name='events', blank=True, null=True)
 
     administration_unit = ForeignKey(AdministrationUnit, on_delete=CASCADE, related_name='events')
     main_organizer = ForeignKey(User, on_delete=CASCADE, related_name='events_where_was_as_main_organizer', null=True)

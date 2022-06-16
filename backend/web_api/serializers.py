@@ -1,7 +1,10 @@
+from rest_framework.fields import SerializerMethodField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer
 
+from bis.models import User
 from event.models import Event, EventPropagation, EventRegistration
+from opportunities.models import Opportunity
 
 
 class EventPropagationSerializer(ModelSerializer):
@@ -73,4 +76,46 @@ class EventSerializer(ModelSerializer):
             'administration_unit',
             'propagation',
             'registration',
+        )
+
+
+class UserContactSerializer(ModelSerializer):
+    name = SerializerMethodField()
+
+    class Meta:
+        model = User
+
+        fields = (
+            'name',
+            'email',
+            'phone',
+        )
+
+    def get_name(self, instance):
+        return instance.get_name()
+
+
+class OpportunitySerializer(ModelSerializer):
+    category = SlugRelatedField(slug_field='slug', read_only=True)
+    location = SlugRelatedField(slug_field='name', read_only=True)
+    contact_person = UserContactSerializer(read_only=True)
+
+    class Meta:
+        model = Opportunity
+
+        fields = (
+            'category',
+            'name',
+            'start',
+            'end',
+            'on_web_start',
+            'on_web_end',
+            'location',
+            'introduction',
+            'description',
+            'location_benefits',
+            'personal_benefits',
+            'requirements',
+            'contact_person',
+            'image',
         )

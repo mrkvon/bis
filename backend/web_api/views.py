@@ -2,8 +2,9 @@ from django.utils.timezone import now
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from event.models import Event
-from web_api.filters import EventFilter
-from web_api.serializers import EventSerializer
+from opportunities.models import Opportunity
+from web_api.filters import EventFilter, OpportunityFilter
+from web_api.serializers import EventSerializer, OpportunitySerializer
 
 
 class EventViewSet(ReadOnlyModelViewSet):
@@ -25,3 +26,18 @@ class EventViewSet(ReadOnlyModelViewSet):
     )
     serializer_class = EventSerializer
     filterset_class = EventFilter
+
+
+class OpportunityViewSet(ReadOnlyModelViewSet):
+    queryset = Opportunity.objects.filter(
+        on_web_start__gte=now(),
+        on_web_end__lte=now(),
+    ).order_by('start').select_related(
+        'category',
+        'location',
+        'contact_person',
+    ).prefetch_related(
+        'contact_person__emails'
+    )
+    serializer_class = OpportunitySerializer
+    filterset_class = OpportunityFilter
