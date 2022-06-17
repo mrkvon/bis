@@ -216,6 +216,9 @@ class User(Model):
 
         return name
 
+    def get_short_name(self): # for admin
+        return self.get_name()
+
     @admin.display(description='E-mailové adresy')
     def get_emails(self):
         def split_email(email):
