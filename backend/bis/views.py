@@ -66,8 +66,10 @@ class CodeView(FormView):
             next = '/admin/'
 
         user = User.objects.get(emails__email=email)
-        LoginCode.is_valid(user, code)
+        if LoginCode.is_valid(user, code, raise_exception=False):
+            login(self.request, user)
 
-        login(self.request, user)
+            return HttpResponseRedirect(next)
 
-        return HttpResponseRedirect(next)
+        form.add_error('code', 'Kód není validní (chybný či expirovaný)')
+        return self.form_invalid(form)
