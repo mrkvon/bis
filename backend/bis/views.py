@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 from django import forms
 from django.contrib.auth import REDIRECT_FIELD_NAME, login
 from django.core.exceptions import ValidationError
-from django.forms import Form, EmailField, TextInput
+from django.forms import Form, EmailField, TextInput, NumberInput
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import FormView
@@ -51,7 +51,7 @@ class LoginView(FormView):
 
 
 class CodeForm(Form):
-    code = forms.IntegerField(label='Kód z e-mailu')
+    code = forms.IntegerField(label='Kód z e-mailu', widget=NumberInput(attrs={'autofocus': 'autofocus'}))
 
 
 class CodeView(FormView):
