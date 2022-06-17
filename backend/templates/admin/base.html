@@ -1,5 +1,53 @@
 {% extends 'admin/base.html' %}
 {% load static %}
-{% block extrahead %}
-<script src="{% static 'clickable_select2.js' %}"></script>
+{% block extrahead %}{{ block.super }}
+    <script src="{% static 'clickable_select2.js' %}"></script>
+    <style>
+        :root {
+            --primary: rgba(30, 150, 70, 0.85);
+            --secondary: #377D69;
+            --accent: #fffd7f;
+            --primary-fg: #fff;
+            --body-fg: #333;
+            --body-bg: #fff;
+            --body-quiet-color: #666;
+            --body-loud-color: #000;
+            --header-color: rgb(255, 251, 200);
+            --header-branding-color: var(--accent);
+            --header-bg: var(--secondary);
+            --header-link-color: var(--primary-fg);
+            --breadcrumbs-fg: rgb(221, 255, 234);
+            --breadcrumbs-link-fg: var(--body-bg);
+            --breadcrumbs-bg: var(--primary);
+            --link-fg: #009a35;
+            --link-hover-color: #00802b;
+            --link-selected-fg: var(--link-fg);
+            --hairline-color: #e8e8e8;
+            --border-color: #ccc;
+            --error-fg: #ba2121;
+            --message-success-bg: #dfd;
+            --message-warning-bg: #ffc;
+            --message-error-bg: #ffefef;
+            --darkened-bg: #f8f8f8;
+            --selected-bg: #e4e4e4;
+            --selected-row: rgb(255, 249, 217);
+            --button-fg: #fff;
+            --button-bg: var(--primary);
+            --button-hover-bg: rgb(30, 150, 70);
+            --default-button-bg: var(--secondary);
+            --default-button-hover-bg: #307360;
+            --close-button-bg: #888;
+            --close-button-hover-bg: #747474;
+            --delete-button-bg: #ba2121;
+            --delete-button-hover-bg: #a41515;
+            --object-tools-fg: var(--button-fg);
+            --object-tools-bg: var(--close-button-bg);
+            --object-tools-hover-bg: var(--close-button-hover-bg);
+        }
+
+        input[type="checkbox"] {
+            filter: hue-rotate(230deg) brightness(1.2);
+        }
+    </style>
+    <link rel="icon" href="{% static 'favicon.png' %}" sizes="32x32"/>
 {% endblock %}
