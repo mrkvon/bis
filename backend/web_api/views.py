@@ -8,24 +8,34 @@ from web_api.serializers import EventSerializer, OpportunitySerializer
 
 
 class EventViewSet(ReadOnlyModelViewSet):
-    queryset = Event.objects.filter(
-        start__gte=now(),
-        is_canceled=False,
-        propagation__is_shown_on_web=True
-    ).order_by('start').select_related(
-        'location',
-        'category',
-        'program',
-        'administration_unit',
-        'propagation',
-        'propagation__intended_for',
-        'propagation__diet',
-        'registration',
-    ).prefetch_related(
-        'propagation__images'
-    )
     serializer_class = EventSerializer
     filterset_class = EventFilter
+
+    def get_queryset(self):
+        queryset = Event.objects.filter(
+            start__gte=now()
+        ).exclude(
+            propagation__isnull=True
+        ).order_by('start').select_related(
+            'location',
+            'category',
+            'program',
+            'administration_unit',
+            'propagation',
+            'propagation__intended_for',
+            'propagation__diet',
+            'registration',
+        ).prefetch_related(
+            'propagation__images'
+        )
+
+        if self.action == 'list':
+            queryset = queryset.filter(
+                is_canceled=False,
+                propagation__is_shown_on_web=True
+            )
+
+        return queryset
 
 
 class OpportunityViewSet(ReadOnlyModelViewSet):

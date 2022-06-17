@@ -110,16 +110,32 @@ class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super(EventAdmin, self).get_form(request, obj, change, **kwargs)
+        user = request.user
+
+        class F1(form):
+            def clean(_self):
+                super().clean()
+                if not user.can_see_all:
+                    if not any([
+                        _self.cleaned_data['administration_unit'] in user.administration_units.all(),
+                        _self.cleaned_data['main_organizer'] == user,
+                        user in _self.cleaned_data['other_organizers'].all(),
+                    ]):
+                        raise ValidationError('Akci musíš vytvořit pod svým článkem nebo '
+                                              'musíš být v organizátorském týmu')
+
+                return _self.cleaned_data
+
 
         if '_saveasnew' not in request.POST:
-            return form
+            return F1
 
         id = request.resolver_match.kwargs['object_id']
         event = Event.objects.get(id=id)
 
-        class New(form):
+        class F2(F1):
             def clean(_self):
-                super(New, _self).clean()
+                super().clean()
                 start = _self.cleaned_data['start']
                 end = _self.cleaned_data['end']
 
@@ -128,4 +144,4 @@ class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
 
                 return _self.cleaned_data
 
-        return New
+        return F2

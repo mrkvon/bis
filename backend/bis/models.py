@@ -103,12 +103,12 @@ class User(Model):
 
     @cached_property
     def can_see_all(self):
-        return self.is_director or self.is_admin or self.is_office_worker or self.is_auditor \
+        return self.is_superuser or self.is_office_worker or self.is_auditor \
                or self.is_executive
 
     @cached_property
     def is_staff(self):
-        return self.is_director or self.is_admin or self.is_office_worker or self.is_auditor \
+        return self.is_superuser or self.is_office_worker or self.is_auditor \
                or self.is_executive or self.is_education_member or self.is_board_member
 
     @cached_property
