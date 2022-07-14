@@ -1,4 +1,11 @@
+from django.urls import reverse
+
 from bis.models import *
+
+
+def get_admin_edit_url(obj):
+    url = reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.id])
+    return mark_safe(f'<a href="{url}">{obj}</a>')
 
 
 class HasDonorFilter(admin.SimpleListFilter):
@@ -57,6 +64,17 @@ class ActiveMembershipFilter(admin.SimpleListFilter):
         if self.value() == 'no':
             queryset = queryset.exclude(**query)
         return queryset
+
+
+class ReadOnlyMixin:
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class EditableByAdminOnlyMixin:

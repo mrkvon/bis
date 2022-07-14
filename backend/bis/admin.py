@@ -2,13 +2,14 @@ from admin_auto_filters.filters import AutocompleteFilterFactory
 from django.contrib.auth.models import Group
 from django.contrib.gis.admin import OSMGeoAdmin
 from nested_admin.forms import SortableHiddenMixin
-from nested_admin.nested import NestedTabularInline, NestedModelAdmin
+from nested_admin.nested import NestedTabularInline, NestedModelAdmin, NestedStackedInline
 from rangefilter.filters import DateRangeFilter
 from rest_framework.authtoken.models import TokenProxy
 
 from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter, FilterQuerysetMixin, \
-    EditableByBoardMixin
+    EditableByBoardMixin, ReadOnlyMixin
 from bis.models import *
+from event.models import Event
 from other.models import DuplicateUser
 
 admin.site.unregister(TokenProxy)
@@ -74,12 +75,15 @@ class UserContactAddressAdmin(NestedTabularInline):
 
 @admin.register(User)
 class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
-    readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_emails'
+    readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_emails', 'get_events_where_was_organizer', 'get_participated_in_events'
     exclude = 'groups', 'user_permissions', 'password', 'is_superuser', '_str'
 
     fieldsets = (
         (None, {
             'fields': ('first_name', 'last_name', 'nickname', 'get_emails', 'phone', 'birthday')
+        }),
+        ('Události', {
+            'fields': ('get_events_where_was_organizer', 'get_participated_in_events')
         }),
         ('Interní data', {
             'fields': ('is_active', 'last_login', 'date_joined'),
@@ -99,7 +103,8 @@ class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
     list_select_related = 'address', 'contact_address'
 
     def get_inlines(self, request, obj):
-        inlines = [UserAddressAdmin, UserContactAddressAdmin, QualificationAdmin, MembershipAdmin,
+        inlines = [UserAddressAdmin, UserContactAddressAdmin,
+                   QualificationAdmin, MembershipAdmin,
                    DuplicateUserAdminInline]
         if request.user.is_superuser:
             inlines.append(UserEmailAdmin)
@@ -125,4 +130,4 @@ class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
         return self.has_add_permission(request, obj) or request.user.is_education_member
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('memberships', 'qualifications', 'emails')
+        return super().get_queryset(request).prefetch_related('memberships', 'qualifications', 'emails', 'events_where_was_organizer', 'participated_in_events__event')

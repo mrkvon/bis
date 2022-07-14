@@ -11,6 +11,7 @@ from django.utils.timezone import now
 from phonenumber_field.modelfields import PhoneNumberField
 
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, BaseAddress
+from bis.admin_helpers import get_admin_edit_url
 from categories.models import QualificationCategory, MembershipCategory
 from translation.translate import translate_model
 
@@ -234,6 +235,14 @@ class User(Model):
     @admin.display(description='Aktivní členství')
     def get_memberships(self):
         return [m for m in self.memberships.all() if m.year == timezone.now().year]
+
+    @admin.display(description='Zorganizované akce')
+    def get_events_where_was_organizer(self):
+        return mark_safe(', '.join(get_admin_edit_url(e) for e in self.events_where_was_organizer.all()))
+
+    @admin.display(description='Akce, kde byl účastníkem')
+    def get_participated_in_events(self):
+        return mark_safe(', '.join(get_admin_edit_url(e.event) for e in self.participated_in_events.all()))
 
     @classmethod
     def filter_queryset(cls, queryset, user):
