@@ -52,6 +52,7 @@ except IndexError:
 # Application definition
 
 INSTALLED_APPS = [
+    'admin_numeric_filter',
     'project.apps.MyAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -81,6 +82,7 @@ INSTALLED_APPS = [
     'django_filters',
     'tinymce',
     'opportunities',
+    'more_admin_filters',
 ]
 
 MIDDLEWARE = [

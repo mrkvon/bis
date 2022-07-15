@@ -1,20 +1,22 @@
 from admin_auto_filters.filters import AutocompleteFilterFactory
+from admin_numeric_filter.admin import NumericFilterModelAdmin
 from django.contrib.auth.models import Group
 from django.contrib.gis.admin import OSMGeoAdmin
+from more_admin_filters import MultiSelectRelatedDropdownFilter
 from nested_admin.forms import SortableHiddenMixin
-from nested_admin.nested import NestedTabularInline, NestedModelAdmin, NestedStackedInline
+from nested_admin.nested import NestedTabularInline, NestedStackedInline, NestedModelAdminMixin
 from rangefilter.filters import DateRangeFilter
 from rest_framework.authtoken.models import TokenProxy
 
 from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter, FilterQuerysetMixin, \
-    EditableByBoardMixin, ReadOnlyMixin
+    EditableByBoardMixin, MembershipsYearFilter, AgeFilter, IsChairmanFilter, IsViceChairmanFilter, IsManagerFilter, \
+    IsBoardMemberFilter
 from bis.models import *
-from event.models import Event
+from opportunities.models import OfferedHelp
 from other.models import DuplicateUser
 
 admin.site.unregister(TokenProxy)
 admin.site.unregister(Group)
-
 
 
 class LocationPhotosAdmin(NestedTabularInline):
@@ -36,7 +38,6 @@ class MembershipAdmin(EditableByBoardMixin, NestedTabularInline):
     autocomplete_fields = 'administration_unit',
 
     exclude = '_import_id',
-
 
 
 class QualificationAdmin(NestedTabularInline):
@@ -73,8 +74,12 @@ class UserContactAddressAdmin(NestedTabularInline):
     model = UserContactAddress
 
 
+class UserOfferedHelpAdmin(NestedStackedInline):
+    model = OfferedHelp
+
+
 @admin.register(User)
-class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
+class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdminMixin, NumericFilterModelAdmin):
     readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_emails', 'get_events_where_was_organizer', 'get_participated_in_events'
     exclude = 'groups', 'user_permissions', 'password', 'is_superuser', '_str'
 
@@ -94,16 +99,28 @@ class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
     list_display = 'get_name', 'birthday', 'address', 'contact_address', 'get_emails', 'phone', 'get_qualifications', 'get_memberships'
     list_filter = ActiveMembershipFilter, \
                   AutocompleteFilterFactory('Člen článku', 'memberships__administration_unit'), \
-                  ('memberships__year'), ActiveQualificationFilter, 'qualifications__category', \
+                  ('memberships__year', MembershipsYearFilter), \
+                  AgeFilter, \
+                  ActiveQualificationFilter, \
+                  ('qualifications__category', MultiSelectRelatedDropdownFilter), \
                   ('date_joined', DateRangeFilter), ('birthday', DateRangeFilter), \
                   ('participated_in_events__event__start', DateRangeFilter), \
-                  ('events_where_was_organizer__start', DateRangeFilter)
+                  ('events_where_was_organizer__start', DateRangeFilter), \
+                  ('events_where_was_as_main_organizer__start', DateRangeFilter), \
+                  IsChairmanFilter, \
+                  IsViceChairmanFilter, \
+                  IsManagerFilter, \
+                  IsBoardMemberFilter, \
+                  ('offers__programs', MultiSelectRelatedDropdownFilter), \
+                  ('offers__organizer_roles', MultiSelectRelatedDropdownFilter), \
+                  ('offers__team_roles', MultiSelectRelatedDropdownFilter)
 
     search_fields = 'emails__email', 'phone', 'first_name', 'last_name', 'nickname'
     list_select_related = 'address', 'contact_address'
 
     def get_inlines(self, request, obj):
         inlines = [UserAddressAdmin, UserContactAddressAdmin,
+                   UserOfferedHelpAdmin,
                    QualificationAdmin, MembershipAdmin,
                    DuplicateUserAdminInline]
         if request.user.is_superuser:
@@ -115,6 +132,9 @@ class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
 
     def get_rangefilter_events_where_was_organizer__start_title(self, request, field_path):
         return 'Organizovali akci v období'
+
+    def get_rangefilter_events_where_was_as_main_organizer__start_title(self, request, field_path):
+        return 'Vedli akci v období'
 
     def get_readonly_fields(self, request, obj=None):
         if not request.user.is_education_member:
@@ -130,4 +150,6 @@ class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
         return self.has_add_permission(request, obj) or request.user.is_education_member
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('memberships', 'qualifications', 'emails', 'events_where_was_organizer', 'participated_in_events__event')
+        return super().get_queryset(request).prefetch_related('memberships', 'qualifications', 'emails',
+                                                              'events_where_was_organizer',
+                                                              'participated_in_events__event')

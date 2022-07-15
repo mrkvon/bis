@@ -4,6 +4,7 @@ django-cors-headers
 django-phonenumber-field
 django-nested-admin
 django-admin-rangefilter
+git+https://github.com/lukasvinclav/django-admin-numeric-filter.git
 phonenumbers
 Django
 gunicorn
@@ -19,6 +20,7 @@ requests
 simplejson
 django-solo
 django-admin-autocomplete-filter
+django-more-admin-filters
 python-dateutil
 django-filter
 django-tinymce

@@ -8,12 +8,15 @@ from urllib.parse import quote
 from urllib.request import urlretrieve
 from zoneinfo import ZoneInfo
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db.models.signals import post_save
 from django.utils.datetime_safe import date, datetime
 from django.utils.timezone import now
 
 from administration_units.models import AdministrationUnit, AdministrationUnitAddress, BrontosaurusMovement
 from bis.models import User, UserAddress, Qualification, Location, Membership, UserEmail, UserContactAddress
+from bis.signals import set_unique_str
 from categories.models import MembershipCategory, EventCategory, EventProgramCategory, QualificationCategory, \
     AdministrationUnitCategory, PropagationIntendedForCategory, DietCategory, GrantCategory
 from donations.models import Donor, VariableSymbol
@@ -29,7 +32,7 @@ def parse_date(data):
         if not month: month = 1
         if not day: day = 1
         if not year: return
-        data = date(year, month, day)
+        return date(year, month, day)
 
     return data
 
@@ -114,7 +117,7 @@ class Command(BaseCommand):
         "1": QualificationCategory.objects.get(slug="OHB"),
         "4": QualificationCategory.objects.get(slug="HVDT"),
         "5": QualificationCategory.objects.get(slug="ODHB"),
-        "6": None, # VP
+        "6": None,  # VP
         "7": QualificationCategory.objects.get(slug="OpDHB"),
         "9": QualificationCategory.objects.get(slug="OvHB"),
         "Konzultant": QualificationCategory.objects.get(slug="Konzultant"),
@@ -145,7 +148,7 @@ class Command(BaseCommand):
     }
 
     grant_category_map = {
-        "0": GrantCategory.objects.get(slug='none'),
+        "0": None,
         "1": GrantCategory.objects.get(slug='msmt'),
         "2": GrantCategory.objects.get(slug='other'),
         "3": GrantCategory.objects.get(slug='other'),
@@ -189,6 +192,7 @@ class Command(BaseCommand):
     user_map = {u._import_id: u for u in User.objects.all()}
 
     def import_users(self, data):
+        post_save.disconnect(sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
         for i, (id, item) in enumerate(data['adresa'].items()):
             self.print_progress('users', i, len(data['adresa']))
 
@@ -228,19 +232,8 @@ class Command(BaseCommand):
 
             self.user_map[id] = user
 
-            if id in data['darce']:
-                item = data['darce'][id]
-                donor = Donor.objects.update_or_create(user=user, defaults=dict(
-                    subscribed_to_newsletter=item['info'] == '1',
-                    is_public=item['zverejnit'] == '1',
-                    date_joined=parse_date(item['zalozen']) or date.today(),
-                    regional_center_support=self.administration_unit_map.get(item['rc_podpora']),
-                    basic_section_support=self.administration_unit_map.get(item['zc_podpora']),
-                ))[0]
-                if item['vs']:
-                    VariableSymbol.objects.update_or_create(variable_symbol=item['vs'], defaults=dict(
-                        donor=donor
-                    ))
+        post_save.connect(set_unique_str, sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
+        User.objects.first().save()
 
     def import_qualifications(self, data):
         print('importing qualifications')
@@ -258,7 +251,7 @@ class Command(BaseCommand):
             if not till: till = since + timedelta(days=365)
 
             Qualification.objects.update_or_create(
-                _import_id=id,
+                _import_id='a' + id,
                 defaults=dict(
                     user=self.user_map[item['kdo']],
                     category=category,
@@ -270,7 +263,7 @@ class Command(BaseCommand):
 
         for id, item in data['ohb_instruktor'].items():
             Qualification.objects.update_or_create(
-                _import_id=id,
+                _import_id='b' + id,
                 defaults=dict(
                     user=self.user_map[item['kdo']],
                     category=self.qualification_category_map['Instruktor'],
@@ -282,7 +275,7 @@ class Command(BaseCommand):
 
         for id, item in data['ohb_konzultant'].items():
             Qualification.objects.update_or_create(
-                _import_id=id,
+                _import_id='c' + id,
                 defaults=dict(
                     user=self.user_map[item['kdo']],
                     category=self.qualification_category_map['Konzultant'],
@@ -359,6 +352,24 @@ class Command(BaseCommand):
 
             self.administration_unit_map[id] = administration_unit
 
+    def import_donors(self, data):
+        for i, (id, item) in enumerate(data['darce'].items()):
+            self.print_progress('donors', i, len(data['darce']))
+            if id not in self.user_map: continue
+
+            user = self.user_map[id]
+            donor = Donor.objects.update_or_create(user=user, defaults=dict(
+                subscribed_to_newsletter=item['info'] == '1',
+                is_public=item['zverejnit'] == '1',
+                date_joined=parse_date(item['zalozen']) or date.today(),
+                regional_center_support=self.administration_unit_map.get(item['rc_podpora']),
+                basic_section_support=self.administration_unit_map.get(item['zc_podpora']),
+            ))[0]
+            if item['vs']:
+                VariableSymbol.objects.update_or_create(variable_symbol=item['vs'], defaults=dict(
+                    donor=donor
+                ))
+
     location_map = {l._import_id: l for l in Location.objects.all()}
 
     def import_locations(self, data):
@@ -422,7 +433,7 @@ class Command(BaseCommand):
             is_canceled = False
             if not start:
                 start = datetime(2000, 1, 1, tzinfo=ZoneInfo(key='Europe/Prague'))
-                end = datetime(2000, 1, 1, tzinfo=ZoneInfo(key='Europe/Prague'))
+                end = datetime(2000, 1, 1, tzinfo=ZoneInfo(key='Europe/Prague')).date()
                 is_canceled = True
 
             contact = None
@@ -554,13 +565,14 @@ class Command(BaseCommand):
         self.import_users(data)
         self.import_qualifications(data)
         self.import_administration_units(data)
+        self.import_donors(data)
         self.import_locations(data)
         self.import_memberships(data)
         self.import_events(data)
         self.import_participants(data)
 
         director = self.user_map[self.director_id]
-        finance_director = User.objects.filter(emails_email='josef.dvoracek@outlook.com')[0]
+        finance_director = User.objects.filter(emails__email='josef.dvoracek@outlook.com')[0]
 
         b = BrontosaurusMovement.objects.update_or_create(defaults=dict(
             director=director,

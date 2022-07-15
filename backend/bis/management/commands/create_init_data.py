@@ -145,7 +145,6 @@ class Command(BaseCommand):
 
         self.create_event_categories(event_categories, translations)
 
-        GrantCategory.objects.update_or_create(slug='none', defaults=dict(name='žádné'))
         GrantCategory.objects.update_or_create(slug='msmt', defaults=dict(name='mšmt'))
         GrantCategory.objects.update_or_create(slug='other', defaults=dict(name='z jiných projektů'))
 

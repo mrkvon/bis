@@ -1,3 +1,4 @@
+from django.db.utils import ProgrammingError
 from django_filters import *
 
 from categories.models import EventCategory, EventProgramCategory, PropagationIntendedForCategory, OpportunityCategory
@@ -9,18 +10,25 @@ class ChoiceInFilter(BaseInFilter, ChoiceFilter):
     pass
 
 
+def get_choices(model):
+    try:
+        return [(c.slug, c.name) for c in model.objects.all()]
+    except ProgrammingError:
+        return []
+
+
 class EventFilter(FilterSet):
     category = ChoiceInFilter(
         field_name='category__slug',
-        choices=[(c.slug, c.name) for c in EventCategory.objects.all()]
+        choices=get_choices(EventCategory)
     )
     program = ChoiceInFilter(
         field_name='program__slug',
-        choices=[(c.slug, c.name) for c in EventProgramCategory.objects.all()]
+        choices=get_choices(EventProgramCategory)
     )
     intended_for = ChoiceInFilter(
         field_name='propagation__intended_for__slug',
-        choices=[(c.slug, c.name) for c in PropagationIntendedForCategory.objects.all()]
+        choices=get_choices(PropagationIntendedForCategory)
     )
     duration = NumberFilter(field_name='duration')
     duration__lte = NumberFilter(field_name='duration', lookup_expr='gte')
@@ -34,7 +42,7 @@ class EventFilter(FilterSet):
 class OpportunityFilter(FilterSet):
     category = ChoiceInFilter(
         field_name='category__slug',
-        choices=[(c.slug, c.name) for c in OpportunityCategory.objects.all()]
+        choices=get_choices(OpportunityCategory)
     )
 
     class Meta:

@@ -45,13 +45,13 @@ class Opportunity(Model):
 class OfferedHelp(Model):
     user = OneToOneField(User, on_delete=CASCADE, related_name='offers')
 
-    programs = ManyToManyField(EventProgramCategory, related_name='offered_help')
-    organizer_roles = ManyToManyField(OrganizerRoleCategory, related_name='offered_help')
-    additional_organizer_role = CharField(max_length=63)
-    team_roles = ManyToManyField(TeamRoleCategory, related_name='offered_help')
-    additional_team_role = CharField(max_length=63)
+    programs = ManyToManyField(EventProgramCategory, related_name='offered_help', blank=True)
+    organizer_roles = ManyToManyField(OrganizerRoleCategory, related_name='offered_help', blank=True)
+    additional_organizer_role = CharField(max_length=63, blank=True)
+    team_roles = ManyToManyField(TeamRoleCategory, related_name='offered_help', blank=True)
+    additional_team_role = CharField(max_length=63, blank=True)
 
-    info = TextField()
+    info = TextField(blank=True)
 
     def __str__(self):
         return self.info

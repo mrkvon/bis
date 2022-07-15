@@ -6,7 +6,7 @@ WORKDIR /app
 ARG BUILD_DEPENDENCIES="build-base openssh perl zlib-dev postgresql-dev"
 
 ENV VIRTUAL_ENV=/venv
-RUN apk add --no-cache ${BUILD_DEPENDENCIES} db-dev jpeg-dev geos proj gdal binutils postgresql-client \
+RUN apk add --no-cache ${BUILD_DEPENDENCIES} db-dev jpeg-dev geos proj gdal binutils postgresql-client git \
  && python3 -m venv $VIRTUAL_ENV
 
 # this 'activates' virtual environment, since classic activate does not work
