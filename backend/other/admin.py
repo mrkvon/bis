@@ -3,9 +3,9 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from nested_admin.nested import NestedModelAdmin
 
-from bis.admin_helpers import FilterQuerysetMixin, EditableByAdminOnlyMixin
+from bis.admin_helpers import FilterQuerysetMixin, EditableByAdminOnlyMixin, ReadOnlyMixin
 from event.models import *
-from other.models import DuplicateUser, Region
+from other.models import DuplicateUser, Region, Feedback
 
 
 @admin.register(Region)
@@ -55,3 +55,26 @@ class DuplicateUserAdmin(FilterQuerysetMixin, NestedModelAdmin):
     def render_change_form(self, request, context, obj=None, *args, **kwargs):
         if obj: context['merge_disabled'] = not obj.can_be_merged_by(request.user)
         return super().render_change_form(request, context, obj, *args, **kwargs)
+
+
+@admin.register(Feedback)
+class FeedbackAdmin(ReadOnlyMixin, NestedModelAdmin):
+    list_display = 'user', 'feedback', 'created_at'
+
+    def has_add_permission(self, request, obj=None):
+        return True
+
+    def get_exclude(self, request, obj=None):
+        if obj is None:
+            return 'user',
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        form = super(FeedbackAdmin, self).get_form(request, obj, change, **kwargs)
+
+        class F1(form):
+            def clean(_self):
+                super().clean()
+                _self.instance.user = request.user
+                return _self.cleaned_data
+
+        return F1

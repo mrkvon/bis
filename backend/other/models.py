@@ -46,3 +46,16 @@ class DuplicateUser(Model):
 
     class Meta:
         ordering = 'id',
+
+
+@translate_model
+class Feedback(Model):
+    user = ForeignKey(User, on_delete=CASCADE, related_name='feedbacks')
+    feedback = TextField()
+    created_at = DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return 'Zpětná vazba'
+
+    class Meta:
+        ordering = 'id',

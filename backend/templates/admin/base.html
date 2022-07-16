@@ -1,5 +1,5 @@
 {% extends 'admin/base.html' %}
-{% load static %}
+{% load static i18n %}
 {% block extrahead %}{{ block.super }}
     <script src="{% static 'clickable_select2.js' %}"></script>
     <style>
@@ -51,3 +51,13 @@
     </style>
     <link rel="icon" href="{% static 'favicon.png' %}" sizes="32x32"/>
 {% endblock %}
+{% block userlinks %}
+    {% if site_url %}
+        <a href="{{ site_url }}">{% translate 'View site' %}</a> /
+    {% endif %}
+
+    <a href="{% url 'admin:bis_user_change' request.user.id %}">Můj profil</a> /
+    <a href="{% url 'admin:other_feedback_add' %}">Dát zpětnou vazbu</a> /
+    <a href="{% url 'admin:logout' %}">{% translate 'Log out' %}</a>
+{% endblock %}
+

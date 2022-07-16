@@ -481,3 +481,10 @@ models:
       additional_team_role: 'Jiné týmové role'
       info: 'Popis pomoci'
 
+  Feedback:
+    name: 'Zpětná vazba'
+    name_plural: 'Zpětné vazby'
+    fields:
+      user: 'Uživatel'
+      feedback: 'Zpětná vazba'
+      created_at: 'Vytvořeno'
