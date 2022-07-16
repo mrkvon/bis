@@ -44,7 +44,6 @@ models:
       email_exists: 'Je e-mail skutečný?'
       is_active: 'Může se uživatel přihlásit?'
       date_joined: 'Datum vzniku účtu'
-      administration_units: 'Administrativní jednotky'
 
   UserAddress:
     name: 'Adresa uživatele'
