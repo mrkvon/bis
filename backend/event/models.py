@@ -28,7 +28,7 @@ class Event(Model):
     category = ForeignKey(EventCategory, on_delete=CASCADE, related_name='events')
     program = ForeignKey(EventProgramCategory, on_delete=CASCADE, related_name='events', blank=True, null=True)
 
-    administration_unit = ForeignKey(AdministrationUnit, on_delete=CASCADE, related_name='events')
+    administration_units = ManyToManyField(AdministrationUnit, related_name='events')
     main_organizer = ForeignKey(User, on_delete=CASCADE, related_name='events_where_was_as_main_organizer', null=True)
     other_organizers = ManyToManyField(User, related_name='events_where_was_organizer', blank=True)
 
@@ -70,7 +70,7 @@ class Event(Model):
     def filter_queryset(cls, queryset, user):
         ids = set()
         for query in [
-            Q(administration_unit__board_members=user),
+            Q(administration_units__board_members=user),
             Q(other_organizers=user),
             Q(record__participants=user),
         ]:

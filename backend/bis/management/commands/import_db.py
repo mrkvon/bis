@@ -417,9 +417,10 @@ class Command(BaseCommand):
     def import_events(self, data):
         event_organizer_map = {}
         for item in data['porada']:
-            # throw away M2M, since there are only few events (200/10000)
-            # that had multiple organizing units
-            event_organizer_map[item['akce']] = item['klub']
+            if item['klub'] not in self.administration_unit_map: continue
+
+            event_organizer_map.setdefault(item['akce'], [])\
+                .append(self.administration_unit_map[item['klub']])
 
         for i, (id, item) in enumerate(data['akce'].items()):
             self.print_progress('events', i, len(data['akce']))
@@ -459,12 +460,14 @@ class Command(BaseCommand):
                 location=location,
                 category=self.event_category_map[item['typ']],
                 program=self.event_program_category_map[item['program']],
-                administration_unit=self.administration_unit_map[event_organizer_map.get(id, self.headquarters_id)],
                 main_organizer=self.user_map.get(item.get('odpovedna')),
                 is_internal=item['zamereno_na_cleny'] == '1',
                 number_of_sub_events=item['pocet'],
                 internal_note=item['poznamka'] or '',
             ))[0]
+
+            for au in event_organizer_map.get(id, [self.administration_unit_map[self.headquarters_id]]):
+                event.administration_units.add(au)
 
             self.event_map[id] = event
 

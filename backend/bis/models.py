@@ -254,9 +254,9 @@ class User(Model):
             # ja
             Q(id=user.id),
             # lidi kolem akci od clanku kde user je board member
-            Q(participated_in_events__event__administration_unit__board_members=user),
-            Q(events_where_was_organizer__administration_unit__board_members=user),
-            Q(events_where_was_as_contact_person__event__administration_unit__board_members=user),
+            Q(participated_in_events__event__administration_units__board_members=user),
+            Q(events_where_was_organizer__administration_units__board_members=user),
+            Q(events_where_was_as_contact_person__event__administration_units__board_members=user),
             # lidi kolem akci, kde user byl other organizer
             Q(participated_in_events__event__other_organizers=user),
             Q(events_where_was_organizer__other_organizers=user),

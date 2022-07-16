@@ -20,13 +20,13 @@ class EventViewSet(ReadOnlyModelViewSet):
             'location',
             'category',
             'program',
-            'administration_unit',
             'propagation',
             'propagation__intended_for',
             'propagation__diet',
             'registration',
         ).prefetch_related(
-            'propagation__images'
+            'propagation__images',
+            'administration_units',
         )
 
         if self.action == 'list':

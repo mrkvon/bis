@@ -90,7 +90,7 @@ class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
     save_as = True
     filter_horizontal = 'other_organizers',
 
-    list_filter = AutocompleteFilterFactory('Článek', 'administration_unit'), \
+    list_filter = AutocompleteFilterFactory('Článek', 'administration_units'), \
                   ('start', DateRangeFilter), ('end', DateRangeFilter), \
                   ('category', MultiSelectRelatedDropdownFilter), ('program', MultiSelectRelatedDropdownFilter), \
                   'propagation__is_shown_on_web', ('propagation__intended_for', MultiSelectRelatedDropdownFilter), \
@@ -98,14 +98,21 @@ class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
                   'registration__is_registration_required', 'registration__is_event_full', \
                   'record__has_attendance_list',
 
-    list_display = 'name', 'get_date', 'location', 'administration_unit', 'is_canceled'
-    list_select_related = 'location', 'administration_unit'
+    list_display = 'name', 'get_date', 'location', 'get_administration_units', 'is_canceled'
+    list_select_related = 'location',
+
+    @admin.display(description='Administrativní jednotky')
+    def get_administration_units(self, obj):
+        return mark_safe('<br>'.join([str(au) for au in obj.administration_units.all()]))
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('administration_units')
 
     date_hierarchy = 'start'
     search_fields = 'name',
     readonly_fields = 'duration',
 
-    autocomplete_fields = 'main_organizer', 'other_organizers', 'location', 'administration_unit',
+    autocomplete_fields = 'main_organizer', 'other_organizers', 'location', 'administration_units',
 
     exclude = '_import_id',
 
@@ -117,13 +124,14 @@ class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
             def clean(_self):
                 super().clean()
                 if not user.can_see_all:
-                    if not any([
-                        _self.cleaned_data['administration_unit'] in user.administration_units.all(),
-                        _self.cleaned_data['main_organizer'] == user,
-                        user in _self.cleaned_data['other_organizers'].all(),
-                    ]):
-                        raise ValidationError('Akci musíš vytvořit pod svým článkem nebo '
-                                              'musíš být v organizátorském týmu')
+                    if 'main_organizer' in _self.cleaned_data:
+                        if not any([
+                            any([au in user.administration_units.all() for au in _self.cleaned_data['administration_units']]),
+                            _self.cleaned_data['main_organizer'] == user,
+                            user in _self.cleaned_data['other_organizers'].all(),
+                        ]):
+                            raise ValidationError('Akci musíš vytvořit pod svým článkem nebo '
+                                                  'musíš být v organizátorském týmu')
 
                 return _self.cleaned_data
 

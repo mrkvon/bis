@@ -60,7 +60,7 @@ class EventSerializer(ModelSerializer):
     location = SlugRelatedField(slug_field='name', read_only=True)
     category = SlugRelatedField(slug_field='slug', read_only=True)
     program = SlugRelatedField(slug_field='slug', read_only=True)
-    administration_unit = SlugRelatedField(slug_field='abbreviation', read_only=True)
+    administration_units = SlugRelatedField(slug_field='abbreviation', read_only=True, many=True)
 
     class Meta:
         model = Event
@@ -73,7 +73,7 @@ class EventSerializer(ModelSerializer):
             'location',
             'category',
             'program',
-            'administration_unit',
+            'administration_units',
             'propagation',
             'registration',
         )

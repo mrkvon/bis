@@ -154,7 +154,7 @@ models:
       location: 'Lokalita'
       is_internal: 'Určeno pro členy?'
       number_of_sub_events: 'Počet akcí v uvedeném období'
-      administration_unit: 'Administrativní jednotka'
+      administration_units: 'Administrativní jednotky'
       main_organizer: 'Hlavní organizátor'
       other_organizers: 'Všichni organizátoři'
 
