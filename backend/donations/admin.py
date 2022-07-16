@@ -1,7 +1,9 @@
+from admin_auto_filters.filters import AutocompleteFilter, AutocompleteFilterFactory
 from django.contrib.messages import INFO, ERROR
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from nested_admin.nested import NestedModelAdmin, NestedTabularInline
+from rangefilter.filters import DateRangeFilter
 from solo.admin import SingletonModelAdmin
 
 from bis.admin_helpers import EditableByAdminOnlyMixin, HasDonorFilter
@@ -50,6 +52,9 @@ class DonorAdmin(NestedModelAdmin):
     list_select_related = 'user', 'regional_center_support', 'basic_section_support'
     inlines = VariableSymbolInline, DonationAdminInline,
     search_fields = 'user__emails__email', 'user__phone', 'user__first_name', 'user__last_name', 'user__nickname',
+    list_filter = 'subscribed_to_newsletter', 'is_public', ('date_joined', DateRangeFilter), \
+                  AutocompleteFilterFactory('Podporující RC', 'regional_center_support'), \
+                  AutocompleteFilterFactory('Podporující ZČ', 'basic_section_support')
 
     autocomplete_fields = 'regional_center_support', 'basic_section_support', 'user'
 
