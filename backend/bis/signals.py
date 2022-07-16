@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
 from bis.models import *
+from other.models import Region
 from project import settings
 
 
@@ -45,3 +46,15 @@ def set_unique_str(instance: User, **kwargs):
 
     if to_update:
         User.objects.bulk_update(to_update, ['_str'], batch_size=100)
+
+
+@receiver(post_save, sender=Location, dispatch_uid='set_region_for_location')
+def set_region_for_location(instance: Location, created, **kwargs):
+    if instance.gps_location:
+        region = Region.objects.filter(area__contains=instance.gps_location).first()
+        if region != instance.region:
+            instance.region = region
+            instance.save()
+
+
+

@@ -2,7 +2,7 @@ from admin_auto_filters.filters import AutocompleteFilterFactory
 from admin_numeric_filter.admin import NumericFilterModelAdmin
 from django.contrib.auth.models import Group
 from django.contrib.gis.admin import OSMGeoAdmin
-from more_admin_filters import MultiSelectRelatedDropdownFilter
+from more_admin_filters import MultiSelectRelatedDropdownFilter, MultiSelectDropdownFilter
 from nested_admin.forms import SortableHiddenMixin
 from nested_admin.nested import NestedTabularInline, NestedStackedInline, NestedModelAdminMixin
 from rangefilter.filters import DateRangeFilter
@@ -28,7 +28,13 @@ class LocationPhotosAdmin(NestedTabularInline):
 class LocationAdmin(EditableByBoardMixin, OSMGeoAdmin):
     inlines = LocationPhotosAdmin,
     search_fields = 'name',
-    autocomplete_fields = 'patron',
+    autocomplete_fields = 'patron', 'contact_person'
+    exclude = '_import_id',
+
+    list_filter = 'program', 'for_beginners', 'is_full', 'is_unexplored', \
+                  ('accessibility_from_prague', MultiSelectRelatedDropdownFilter), \
+                  ('accessibility_from_brno', MultiSelectRelatedDropdownFilter), \
+                  ('region', MultiSelectRelatedDropdownFilter)
 
 
 class MembershipAdmin(EditableByBoardMixin, NestedTabularInline):

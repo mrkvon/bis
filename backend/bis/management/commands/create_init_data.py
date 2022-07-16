@@ -2,7 +2,8 @@ from django.core.management.base import BaseCommand
 
 from categories.models import DietCategory, PropagationIntendedForCategory, QualificationCategory, \
     AdministrationUnitCategory, MembershipCategory, EventProgramCategory, \
-    EventCategory, GrantCategory, DonationSourceCategory, OrganizerRoleCategory, TeamRoleCategory, OpportunityCategory
+    EventCategory, GrantCategory, DonationSourceCategory, OrganizerRoleCategory, TeamRoleCategory, OpportunityCategory, \
+    LocationProgram, LocationAccessibility
 
 
 class Command(BaseCommand):
@@ -182,3 +183,10 @@ class Command(BaseCommand):
         OpportunityCategory.objects.update_or_create(slug='location_help', defaults=dict(
             name='Pomoc lokalitě',
             description='Příležitosti k pomoci dané lokalitě, která to aktuálně potřebuje.'))
+
+        LocationProgram.objects.update_or_create(slug='nature', defaults=dict(name='AP - Akce příroda'))
+        LocationProgram.objects.update_or_create(slug='monuments', defaults=dict(name='APAM - Akce památky'))
+
+        LocationAccessibility.objects.update_or_create(slug='good', defaults=dict(name='Snadná (0-1,5h)'))
+        LocationAccessibility.objects.update_or_create(slug='ok', defaults=dict(name='Středně obtížná (1,5-3h)'))
+        LocationAccessibility.objects.update_or_create(slug='bad', defaults=dict(name='Obtížná (více než 3h)'))

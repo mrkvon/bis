@@ -4,9 +4,24 @@ models:
     name_plural: 'Lokality'
     fields:
       name: 'Název'
-      gps_location: 'GPS lokace'
+      description: 'Popis'
+      patron: 'Kontakt v hnutí'
+      contact_person: 'Kontakt na lokalitě'
+      for_beginners: 'Vhodné pro začínající organizátory?'
+      is_full: 'Je lokalita plně vytížená?'
+      is_unexplored: 'Nová lokalita'
+      program: 'Program lokality'
+      accessibility_from_prague: 'Dostupnost z Prahy'
+      accessibility_from_brno: 'Dostupnost z Brna'
+      volunteering_work: 'Práce na lokalitě'
+      volunteering_work_done: 'Čeho jsme na lokalitě dosáhli'
+      volunteering_work_goals: 'Čeho chceme dosáhnout / péče o lokalitu'
+      options_around: 'Možnosti programu a vzdělávání'
+      facilities: 'Zázemí'
       address: 'Adresa'
-      patron: 'Patron lokality'
+      web: 'Web'
+      gps_location: 'GPS lokace'
+      region: 'Kraj'
 
   LocationPhoto:
     name: 'Fotka lokality'
@@ -370,6 +385,18 @@ models:
     fields:
       name: 'Jméno'
       description: 'Popis'
+      slug: 'Zkratka'
+  LocationProgram:
+    name: 'Program lokality'
+    name_plural: 'Programy lokalit'
+    fields:
+      name: 'Jméno'
+      slug: 'Zkratka'
+  LocationAccessibility:
+    name: 'Dostupnost lokality'
+    name_plural: 'Dostupnosti lokalit'
+    fields:
+      name: 'Jméno'
       slug: 'Zkratka'
 
   Donor:

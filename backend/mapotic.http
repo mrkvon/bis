@@ -1,3 +1,6 @@
+### info
+GET https://www.mapotic.com/api/v1/maps/739/
+
 ### all pois
 GET https://www.mapotic.com/api/v1/maps/739/pois.geojson/
 

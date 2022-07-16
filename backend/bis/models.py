@@ -12,16 +12,36 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, BaseAddress
 from bis.admin_helpers import get_admin_edit_url
-from categories.models import QualificationCategory, MembershipCategory
+from categories.models import QualificationCategory, MembershipCategory, LocationProgram, LocationAccessibility
 from translation.translate import translate_model
 
 
 @translate_model
 class Location(Model):
     name = CharField(max_length=63)
-    patron = ForeignKey('bis.User', on_delete=CASCADE, related_name='locations', null=True)
-    address = CharField(max_length=255, null=True)
+    description = TextField()
+
+    patron = ForeignKey('bis.User', on_delete=CASCADE, related_name='patron_of', null=True)
+    contact_person = ForeignKey('bis.User', on_delete=CASCADE, related_name='locations_where_is_contact_person', null=True)
+
+    for_beginners = BooleanField(default=False)
+    is_full = BooleanField(default=False)
+    is_unexplored = BooleanField(default=False)
+
+    program = ForeignKey(LocationProgram, on_delete=CASCADE, null=True, blank=True)
+    accessibility_from_prague = ForeignKey(LocationAccessibility, on_delete=CASCADE, related_name='+', null=True)
+    accessibility_from_brno = ForeignKey(LocationAccessibility, on_delete=CASCADE, related_name='+', null=True)
+
+    volunteering_work = TextField()
+    volunteering_work_done = TextField()
+    volunteering_work_goals = TextField()
+    options_around = TextField()
+    facilities = TextField()
+
+    web = URLField(blank=True)
+    address = CharField(max_length=255, blank=True)
     gps_location = PointField(null=True)
+    region = ForeignKey('other.Region', related_name='locations', on_delete=CASCADE)
 
     _import_id = CharField(max_length=15, default='')
 
