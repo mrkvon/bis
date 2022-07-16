@@ -11,6 +11,7 @@ class EventPropagationSerializer(ModelSerializer):
     intended_for = SlugRelatedField(slug_field='slug', read_only=True)
     diet = SlugRelatedField(slug_field='slug', read_only=True)
     images = SlugRelatedField(slug_field='url', read_only=True, many=True)
+    cost = SerializerMethodField()
 
     class Meta:
         model = EventPropagation
@@ -41,6 +42,13 @@ class EventPropagationSerializer(ModelSerializer):
 
     def get_contact_email(self, instance):
         return instance.contact_email or (instance.contact_person and instance.contact_person.emails.first())
+
+    def get_cost(self, instance):
+        cost = f"{instance.cost} Kč"
+        if instance.discounted_cost is not None:
+            cost = f"{instance.discounted_cost}/{cost}"
+
+        return cost
 
 
 class EventRegistrationSerializer(ModelSerializer):

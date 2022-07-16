@@ -103,6 +103,7 @@ class EventPropagation(Model):
     minimum_age = PositiveIntegerField(null=True, blank=True)
     maximum_age = PositiveIntegerField(null=True, blank=True)
     cost = PositiveIntegerField()
+    discounted_cost = PositiveIntegerField(blank=True, null=True)
     intended_for = ForeignKey(PropagationIntendedForCategory, on_delete=CASCADE, related_name='events')
     accommodation = CharField(max_length=255)
     diet = ForeignKey(DietCategory, on_delete=CASCADE, related_name='events')

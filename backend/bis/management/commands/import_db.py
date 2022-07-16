@@ -65,6 +65,22 @@ def get_event_start(item):
     return start
 
 
+def get_event_cost(cost):
+    cost = cost or ''
+    cost = cost.replace('; 26+', '')
+    cost = cost.replace('.', '')
+    cost = re.sub(r"\s+", '', cost)
+    cost = re.split(r'\D+', cost)
+    cost = [c for c in cost if len(c)] or list('0')
+    cost = [int(c) for c in cost]
+    cost.sort()
+    assert 1 <= len(cost) <= 2
+    res = {'cost': cost[-1]}
+    if len(cost) == 2:
+        res['discounted_cost'] = cost[0]
+    return res
+
+
 class Command(BaseCommand):
     help = "Import old BIS's database, exported as json from https://phpmyadmin.brontosaurus.cz/, user: bis_ro"
     file_path = join(BASE_DIR, 'old_database_dump', 'db.json')
@@ -481,7 +497,7 @@ class Command(BaseCommand):
                 is_shown_on_web=item['zverejnit'] == '1',
                 minimum_age=parse_int(item['vek_od']),
                 maximum_age=parse_int(item['vek_do']),
-                cost=re.split(r'\D+', item['poplatek'] or '')[0] or 0,
+                **get_event_cost(item['poplatek']),
                 intended_for=self.propagation_indented_for_category_map[item['prokoho']],
                 accommodation=item.get('ubytovani') or '',
                 diet=self.diet_category_map[item.get('strava')],
