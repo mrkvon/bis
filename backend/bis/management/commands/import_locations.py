@@ -72,7 +72,6 @@ class Command(BaseCommand):
         return requests.get(self.base_url + f'pois/{id}/images/').json()
 
     def parse_attribute(self, attr):
-        print(attr)
         if attr['attribute']['id'] == 2259:
             return dict(is_full=attr['value'][0] == 'nrrx')
         if attr['attribute']['id'] == 2260:
@@ -133,7 +132,6 @@ class Command(BaseCommand):
             _import_id = feature['properties']['id']
             point = Point(feature['geometry']['coordinates'], srid=4326)
             data = self.get_location_data(_import_id)
-            print(data)
 
             location = Location.objects.update_or_create(_import_id=f'm{_import_id}', defaults=dict(
                 name=feature['properties']['name'],
@@ -149,14 +147,9 @@ class Command(BaseCommand):
                 file_path = join(settings.BASE_DIR, 'media', 'location_photos', file_name)
                 if not exists(file_path):
                     try:
-                        """
-                        curl 'https://media.mapotic.com/media/image/geo/739/47370/praha-pt_-budky_jpg-2.jpg' --compressed
-                        """
-                        print(f"https://media.mapotic.com{path}", path, file_path)
                         urlretrieve(f"https://media.mapotic.com{path}", file_path)
                     except HTTPError:
-                        print('error retrieveing image')
-                        raise 'asdf'
+                        pass
                 if exists(file_path):
                     LocationPhoto.objects.get_or_create(
                         location=location,
