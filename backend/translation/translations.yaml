@@ -104,6 +104,14 @@ models:
       city: 'Město'
       street: 'Ulice'
       zip_code: 'PSČ'
+  AdministrationUnitContactAddress:
+    name: 'Kontaktní adresa'
+    name_plural: 'Kontaktní adresa'
+    fields:
+      administration_unit: 'Organizující jednotka'
+      city: 'Město'
+      street: 'Ulice'
+      zip_code: 'PSČ'
 
 
 

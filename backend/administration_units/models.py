@@ -57,6 +57,11 @@ class AdministrationUnitAddress(BaseAddress):
 
 
 @translate_model
+class AdministrationUnitContactAddress(BaseAddress):
+    administration_unit = OneToOneField(AdministrationUnit, on_delete=CASCADE, related_name='contact_address')
+
+
+@translate_model
 class BrontosaurusMovement(SingletonModel):
     director = ForeignKey('bis.User', related_name='director_of', on_delete=CASCADE)
     finance_director = ForeignKey('bis.User', related_name='finance_director_of', on_delete=CASCADE)
