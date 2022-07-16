@@ -239,7 +239,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'menubar': False,
     'plugins': 'autolink,lists,link,image,charmap,preview,searchreplace,'
                'fullscreen,paste,code,help,wordcount,media',
-    'toolbar': 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | '
+    'toolbar': 'undo redo | formatselect | bold italic | '
                'bullist numlist | link image media emoticons | fullscreen removeformat | help',
     'toolbar_mode': 'wrap',
     'block_formats': 'Paragraph=p; Nadpis=h3',
