@@ -79,6 +79,8 @@ class User(Model):
     phone = PhoneNumberField(blank=True)
     birthday = DateField(blank=True, null=True)
 
+    close_person = ForeignKey('bis.User', on_delete=SET_NULL, null=True, blank=True)
+
     last_login = DateTimeField(blank=True, null=True)
 
     is_active = BooleanField(default=True)

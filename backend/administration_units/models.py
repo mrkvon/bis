@@ -56,7 +56,7 @@ class AdministrationUnit(Model):
     board_members = ManyToManyField('bis.User', related_name='administration_units')
 
     _import_id = CharField(max_length=15, default='')
-    _history = JSONField(default=dict, encoder=DjangoJSONEncoder)
+    _history = JSONField(default=dict)
 
     class Meta:
         ordering = 'abbreviation',

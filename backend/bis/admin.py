@@ -91,7 +91,7 @@ class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdminMixin
 
     fieldsets = (
         (None, {
-            'fields': ('first_name', 'last_name', 'nickname', 'get_emails', 'phone', 'birthday')
+            'fields': ('first_name', 'last_name', 'nickname', 'get_emails', 'phone', 'birthday', 'close_person')
         }),
         ('Události', {
             'fields': ('get_events_where_was_organizer', 'get_participated_in_events')
@@ -101,6 +101,8 @@ class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdminMixin
             'classes': ('collapse',)
         })
     )
+
+    autocomplete_fields = 'close_person',
 
     list_display = 'get_name', 'birthday', 'address', 'contact_address', 'get_emails', 'phone', 'get_qualifications', 'get_memberships'
     list_filter = ActiveMembershipFilter, \
