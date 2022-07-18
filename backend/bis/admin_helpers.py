@@ -70,6 +70,12 @@ class IsBoardMemberFilter(YesNoFilter):
     query = {'administration_units__isnull': False}
 
 
+class IsAdministrationUnitActiveFilter(YesNoFilter):
+    title = 'Je článek aktivní'
+    parameter_name = 'administration_unit_active'
+    query = {'existed_till__isnull': True}
+
+
 class RawSliderNumericFilter(ListFilter):
     parameter_name = None
     min_value = 0
