@@ -26,7 +26,7 @@ def translate_model(model):
     for attr_name in dir(model):
         attr = getattr(model, attr_name)
         if not isinstance(attr, DeferredAttribute):
-            if not isinstance(attr, ManyToManyDescriptor):
+            if not (isinstance(attr, ManyToManyDescriptor) and not attr.reverse):
                 if not isinstance(attr, PhoneNumberDescriptor):
                     continue
 

@@ -53,6 +53,7 @@ models:
       city: 'Město'
       street: 'Ulice'
       zip_code: 'PSČ'
+      region: 'Kraj'
   UserContactAddress:
     name: 'Kontaktní adresa uživatele'
     name_plural: 'Kontaktní adresa uživatele'
@@ -61,6 +62,7 @@ models:
       city: 'Město'
       street: 'Ulice'
       zip_code: 'PSČ'
+      region: 'Kraj'
   UserEmail:
     name: 'E-mail uživatele'
     name_plural: 'E-maily uživatele'
@@ -104,6 +106,7 @@ models:
       city: 'Město'
       street: 'Ulice'
       zip_code: 'PSČ'
+      region: 'Kraj'
   AdministrationUnitContactAddress:
     name: 'Kontaktní adresa'
     name_plural: 'Kontaktní adresa'
@@ -112,6 +115,7 @@ models:
       city: 'Město'
       street: 'Ulice'
       zip_code: 'PSČ'
+      region: 'Kraj'
 
 
 
@@ -447,6 +451,12 @@ models:
     fields:
       name: 'Název'
       area: 'Oblast'
+  ZipCode:
+    name: 'PSČ'
+    name_plural: 'PSČ'
+    fields:
+      zip_code: 'PSČ'
+      region: 'Kraj'
 
   Opportunity:
     name: 'Příležitost'
