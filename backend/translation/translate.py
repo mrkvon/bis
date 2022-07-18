@@ -11,7 +11,7 @@ from project.settings import BASE_DIR
 with open(join(BASE_DIR, 'translation', 'translations.yaml'), 'r') as f:
     translations = yaml.safe_load(f)
 
-ignored_attr_names = ['id', 'pk', 'is_superuser', 'last_login', 'password', '_import', '_str']
+ignored_attr_names = ['id', 'pk', 'is_superuser', 'last_login', 'password', '_import', '_str', '_history']
 
 
 def translate_model(model):

@@ -3,9 +3,11 @@ import re
 from django.apps import apps
 from django.contrib.gis.db.models import *
 from django.core.cache import cache
+from django.core.serializers.json import DjangoJSONEncoder
 from phonenumber_field.modelfields import PhoneNumberField
 from solo.models import SingletonModel
 
+from bis.helpers import record_history
 from categories.models import AdministrationUnitCategory
 from translation.translate import translate_model
 
@@ -54,12 +56,23 @@ class AdministrationUnit(Model):
     board_members = ManyToManyField('bis.User', related_name='administration_units')
 
     _import_id = CharField(max_length=15, default='')
+    _history = JSONField(default=dict, encoder=DjangoJSONEncoder)
 
     class Meta:
         ordering = 'abbreviation',
 
     def __str__(self):
         return self.abbreviation
+
+    def record_history(self, date):
+        record_history(self._history, date, self.chairman, "Předseda")
+        record_history(self._history, date, self.vice_chairman, 'Místopředseda')
+        record_history(self._history, date, self.manager, 'Hospodář')
+        for user in self.board_members.all():
+            if user not in [self.chairman, self.vice_chairman, self.manager]:
+                record_history(self._history, date, user, 'Člen představenstva')
+
+        self.save()
 
 
 @translate_model
@@ -81,6 +94,7 @@ class BrontosaurusMovement(SingletonModel):
     audit_committee = ManyToManyField('bis.User', related_name='+', blank=True)
     executive_committee = ManyToManyField('bis.User', related_name='+', blank=True)
     education_members = ManyToManyField('bis.User', related_name='+', blank=True)
+    _history = JSONField(default=dict)
 
     @classmethod
     def get(cls):
@@ -97,3 +111,19 @@ class BrontosaurusMovement(SingletonModel):
 
     def __str__(self):
         return "Hnutí Brontosaurus"
+
+    def record_history(self, date):
+        record_history(self._history, date, self.director, "Ředitel")
+        record_history(self._history, date, self.finance_director, 'Finanční ředitel')
+        for user in self.bis_administrators.all():
+            record_history(self._history, date, user, 'Správce BISu')
+        for user in self.office_workers.all():
+            record_history(self._history, date, user, 'Člen kanclu')
+        for user in self.audit_committee.all():
+            record_history(self._history, date, user, 'KRK')
+        for user in self.executive_committee.all():
+            record_history(self._history, date, user, 'VV')
+        for user in self.education_members.all():
+            record_history(self._history, date, user, 'EDU')
+
+        self.save()

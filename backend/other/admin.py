@@ -18,7 +18,7 @@ class ZipCodeAdmin(ReadOnlyMixin, NestedModelAdmin):
     list_filter = 'region',
     list_display = 'zip_code', 'region'
     list_select_related = 'region',
-    search_fields = 'zip_code', 'region'
+    search_fields = 'zip_code',
 
 
 @admin.register(DuplicateUser)

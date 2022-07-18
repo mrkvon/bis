@@ -7,6 +7,7 @@ from solo.admin import SingletonModelAdmin
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, AdministrationUnitAddress, \
     AdministrationUnitContactAddress
 from bis.admin_helpers import EditableByAdminOnlyMixin, IsAdministrationUnitActiveFilter
+from bis.helpers import show_history
 
 
 class AdministrationUnitAddressAdmin(EditableByAdminOnlyMixin, NestedTabularInline):
@@ -26,14 +27,19 @@ class AdministrationUnitAdmin(EditableByAdminOnlyMixin, NestedModelAdmin):
 
     autocomplete_fields = 'chairman', 'vice_chairman', 'manager', 'board_members'
 
-    exclude = '_import_id',
+    exclude = '_import_id', '_history'
     list_select_related = 'address', 'chairman', 'category'
+    readonly_fields = 'history',
 
     inlines = AdministrationUnitAddressAdmin, AdministrationUnitContactAddressAdmin
 
     @admin.display(description='Je aktivní', boolean=True)
     def is_active(self, obj):
         return obj.existed_till is None
+
+    @admin.display(description='Historie')
+    def history(self, obj):
+        return show_history(obj._history)
 
     @admin.display(description='E-mail')
     def get_email(self, obj):
@@ -49,9 +55,16 @@ class BrontosaurusMovementAdmin(EditableByAdminOnlyMixin, SingletonModelAdmin):
 
     autocomplete_fields = 'director', 'finance_director', 'bis_administrators', 'office_workers', 'audit_committee', \
                           'executive_committee', 'education_members'
+    readonly_fields = 'history',
+    exclude = '_history',
 
     def has_add_permission(self, request, obj=None):
         return False
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    @admin.display(description='Historie')
+    def history(self, obj):
+        return show_history(obj._history)
+
