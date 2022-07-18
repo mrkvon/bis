@@ -8,7 +8,7 @@ from administration_units.models import AdministrationUnit, BrontosaurusMovement
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        date = today().date() + timedelta(days=6)
+        date = today().date()
         BrontosaurusMovement.get().record_history(date)
 
         for administration_unit in AdministrationUnit.objects.all():
