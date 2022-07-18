@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from more_admin_filters import MultiSelectRelatedDropdownFilter
 from nested_admin.nested import NestedModelAdmin, NestedTabularInline
 from solo.admin import SingletonModelAdmin
@@ -18,7 +19,7 @@ class AdministrationUnitContactAddressAdmin(EditableByAdminOnlyMixin, NestedTabu
 
 @admin.register(AdministrationUnit)
 class AdministrationUnitAdmin(EditableByAdminOnlyMixin, NestedModelAdmin):
-    list_display = 'abbreviation', 'is_active', 'address', 'phone', 'email', 'www', 'chairman', 'category'
+    list_display = 'abbreviation', 'is_active', 'address', 'phone', 'get_email', 'www', 'chairman', 'category'
     search_fields = 'abbreviation', 'name', 'address__city', 'address__street', 'address__zip_code', 'phone', 'email'
     list_filter = IsAdministrationUnitActiveFilter, 'category', 'is_for_kids', \
                   ('address__region', MultiSelectRelatedDropdownFilter)
@@ -33,6 +34,12 @@ class AdministrationUnitAdmin(EditableByAdminOnlyMixin, NestedModelAdmin):
     @admin.display(description='Je aktivní', boolean=True)
     def is_active(self, obj):
         return obj.existed_till is None
+
+    @admin.display(description='E-mail')
+    def get_email(self, obj):
+        if not obj.email: return None
+        name, host = obj.email.split('@')
+        return mark_safe(f'{name}<br>@{host}')
 
 
 @admin.register(BrontosaurusMovement)
