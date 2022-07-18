@@ -84,7 +84,7 @@ class User(Model):
     last_login = DateTimeField(blank=True, null=True)
 
     is_active = BooleanField(default=True)
-    date_joined = DateTimeField(default=timezone.now)
+    date_joined = DateField(default=timezone.now)
 
     _import_id = CharField(max_length=15, default='')
     _str = CharField(max_length=255)
