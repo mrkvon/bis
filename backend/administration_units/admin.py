@@ -1,4 +1,5 @@
 from django.contrib import admin
+from more_admin_filters import MultiSelectRelatedDropdownFilter
 from nested_admin.nested import NestedModelAdmin, NestedTabularInline
 from solo.admin import SingletonModelAdmin
 
@@ -19,7 +20,7 @@ class AdministrationUnitContactAddressAdmin(EditableByAdminOnlyMixin, NestedTabu
 class AdministrationUnitAdmin(EditableByAdminOnlyMixin, NestedModelAdmin):
     list_display = 'abbreviation', 'address', 'phone', 'email', 'www', 'chairman', 'category'
     search_fields = 'abbreviation', 'name', 'address__city', 'address__street', 'address__zip_code', 'phone', 'email'
-    list_filter = 'category', 'is_for_kids'
+    list_filter = 'category', 'is_for_kids', ('address__region', MultiSelectRelatedDropdownFilter)
 
     autocomplete_fields = 'chairman', 'vice_chairman', 'manager', 'board_members'
 

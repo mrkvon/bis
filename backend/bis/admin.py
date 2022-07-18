@@ -119,7 +119,8 @@ class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdminMixin
                   IsBoardMemberFilter, \
                   ('offers__programs', MultiSelectRelatedDropdownFilter), \
                   ('offers__organizer_roles', MultiSelectRelatedDropdownFilter), \
-                  ('offers__team_roles', MultiSelectRelatedDropdownFilter)
+                  ('offers__team_roles', MultiSelectRelatedDropdownFilter), \
+                  ('address__region', MultiSelectRelatedDropdownFilter)
 
     search_fields = 'emails__email', 'phone', 'first_name', 'last_name', 'nickname'
     list_select_related = 'address', 'contact_address'

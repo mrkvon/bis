@@ -1,16 +1,20 @@
+import re
+
+from django.apps import apps
 from django.contrib.gis.db.models import *
 from django.core.cache import cache
 from phonenumber_field.modelfields import PhoneNumberField
+from solo.models import SingletonModel
 
 from categories.models import AdministrationUnitCategory
 from translation.translate import translate_model
-from solo.models import SingletonModel
 
 
 class BaseAddress(Model):
     street = CharField(max_length=127)
     city = CharField(max_length=63)
     zip_code = CharField(max_length=5)
+    region = ForeignKey('other.Region', related_name='+', on_delete=CASCADE, null=True, blank=True)
 
     class Meta:
         ordering = 'id',
@@ -18,6 +22,13 @@ class BaseAddress(Model):
 
     def __str__(self):
         return f'{self.street}, {self.city}, {self.zip_code}'
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.zip_code = re.sub(r'\s+', '', str(self.zip_code))[:5]
+        zip_code = apps.get_model('other', 'ZipCode').objects.filter(zip_code=self.zip_code).first()
+        if zip_code and zip_code.region:
+            self.region = zip_code.region
+        super().save(force_insert, force_update, using, update_fields)
 
 
 @translate_model

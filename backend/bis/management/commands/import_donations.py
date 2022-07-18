@@ -41,7 +41,7 @@ class Command(BaseCommand):
             UserAddress.objects.get_or_create(user=user, defaults=dict(
                 street=donor['address']['street'],
                 city=donor['address']['city'],
-                zip_code=donor['address']['postCode'].replace(' ', '')[:5],
+                zip_code=donor['address']['postCode'],
             ))
 
             donor = Donor.objects.get_or_create(user=user, defaults=dict(
