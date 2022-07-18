@@ -11,8 +11,6 @@ from other.models import Region, ZipCode
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        ZipCode.objects.all().delete()
-
         path = join(settings.BASE_DIR, 'other', 'zip_codes', 'zv_cobce_psc.csv')
         with open(path, 'r', encoding='windows-1250') as file:
             data = StringIO(file.read().strip())
@@ -28,6 +26,3 @@ class Command(BaseCommand):
             zip_codes = set(zip_codes)
             for zip_code in zip_codes:
                 ZipCode.objects.get_or_create(zip_code=zip_code, defaults=dict(region=region))
-
-        for a in UserAddress.objects.iterator():
-            a.save()
