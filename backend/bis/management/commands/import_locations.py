@@ -1,13 +1,13 @@
 import re
 from os.path import basename, join, exists
 from urllib import request
+from urllib.request import urlretrieve
 
 import requests
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand
-from urllib.request import urlretrieve
-
+from pip._vendor.pep517.dirtools import mkdir_p
 from requests import HTTPError
 
 from bis.models import Location, User, UserEmail, LocationPhoto
@@ -121,7 +121,8 @@ class Command(BaseCommand):
         return res
 
     def handle(self, *args, **options):
-        # info = self.get_info()
+        dir_path = join(settings.BASE_DIR, 'media', 'location_photos')
+        mkdir_p(dir_path)
 
         opener = request.build_opener()
         opener.addheaders = [('User-agent', 'Mozilla/5.0')]
@@ -144,7 +145,7 @@ class Command(BaseCommand):
                 path = image['image']['origin']['path']
                 file_name = basename(path)
 
-                file_path = join(settings.BASE_DIR, 'media', 'location_photos', file_name)
+                file_path = join(dir_path, file_name)
                 if not exists(file_path):
                     try:
                         urlretrieve(f"https://media.mapotic.com{path}", file_path)
@@ -155,5 +156,3 @@ class Command(BaseCommand):
                         location=location,
                         photo=join('location_photos', file_name)
                     )
-
-
