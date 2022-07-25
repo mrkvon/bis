@@ -124,18 +124,16 @@ class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
         class F1(form):
             def clean(_self):
                 super().clean()
-                if not user.can_see_all:
-                    if 'main_organizer' in _self.cleaned_data:
-                        if not any([
-                            any([au in user.administration_units.all() for au in _self.cleaned_data['administration_units']]),
-                            _self.cleaned_data['main_organizer'] == user,
-                            user in _self.cleaned_data['other_organizers'].all(),
-                        ]):
-                            raise ValidationError('Akci musíš vytvořit pod svým článkem nebo '
+                if not user.is_superuser and not user.is_office_worker:
+                    if not any([
+                        any([au in user.administration_units.all() for au in _self.cleaned_data.get('administration_units', [])]),
+                        _self.cleaned_data.get('main_organizer') == user,
+                        user in _self.cleaned_data.get('other_organizers', []).all(),
+                    ]):
+                        raise ValidationError('Akci musíš vytvořit pod svým článkem nebo '
                                                   'musíš být v organizátorském týmu')
 
                 return _self.cleaned_data
-
 
         if '_saveasnew' not in request.POST:
             return F1
