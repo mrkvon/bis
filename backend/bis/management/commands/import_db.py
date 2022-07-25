@@ -533,7 +533,7 @@ class Command(BaseCommand):
             EventRecord.objects.update_or_create(event=event, defaults=dict(
                 total_hours_worked=item['odpracovano'],
                 comment_on_work_done=item['prace_jine'] or '',
-                has_attendance_list=item['adresar'] == '1',
+                # has_attendance_list=item['adresar'] == '1',
                 number_of_participants=item['lidi'],
                 number_of_participants_under_26=item['lidi_do26'],
             ))

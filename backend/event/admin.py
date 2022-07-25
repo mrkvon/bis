@@ -96,7 +96,7 @@ class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
                   'propagation__is_shown_on_web', ('propagation__intended_for', MultiSelectRelatedDropdownFilter), \
                   'is_canceled', 'is_internal', \
                   'registration__is_registration_required', 'registration__is_event_full', \
-                  'record__has_attendance_list', \
+                  'is_attendance_list_required', \
                   ('location__region', MultiSelectRelatedDropdownFilter)
 
     list_display = 'name', 'get_date', 'location', 'get_administration_units', 'is_canceled'

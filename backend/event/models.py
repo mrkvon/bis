@@ -2,6 +2,7 @@ from os.path import basename
 
 from django.contrib import admin
 from django.contrib.gis.db.models import *
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -32,6 +33,7 @@ class Event(Model):
     main_organizer = ForeignKey(User, on_delete=CASCADE, related_name='events_where_was_as_main_organizer', null=True)
     other_organizers = ManyToManyField(User, related_name='events_where_was_organizer', blank=True)
 
+    is_attendance_list_required = BooleanField(default=False)
     is_internal = BooleanField(default=False)
     number_of_sub_events = PositiveIntegerField(default=1)
     internal_note = TextField(blank=True)
@@ -165,12 +167,18 @@ class EventRecord(Model):
 
     total_hours_worked = PositiveIntegerField(null=True, blank=True)
     comment_on_work_done = TextField(blank=True)
-    has_attendance_list = BooleanField(default=True)
+    attendance_list = ImageField(upload_to='attendance_lists', null=True, blank=True)
     participants = ManyToManyField(User, 'participated_in_events', blank=True)
     number_of_participants = PositiveIntegerField(null=True, blank=True)
     number_of_participants_under_26 = PositiveIntegerField(null=True, blank=True)
 
-    # photos as Model below
+    def clean(self):
+        if self.event.is_attendance_list_required and not self.attendance_list:
+            raise ValidationError('Prezenční listina není vyplněna')
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.clean()
+        super().save(force_insert, force_update, using, update_fields)
 
     class Meta:
         ordering = 'id',

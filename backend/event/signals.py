@@ -11,4 +11,8 @@ def add_main_organizer_as_organizer(instance: Event, **kwargs):
 
 @receiver(pre_save, sender=Event, dispatch_uid='compute_duration_of_event')
 def compute_duration_of_event(instance: Event, **kwargs):
-    instance.duration = max((instance.end - instance.start.date()).days + 1, 0)
+    new_value = max((instance.end - instance.start.date()).days + 1, 0)
+    if instance.duration != new_value:
+        instance.duration = new_value
+
+        instance.is_attendance_list_required = new_value > 1

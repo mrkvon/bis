@@ -184,6 +184,7 @@ models:
       administration_units: 'Administrativní jednotky'
       main_organizer: 'Hlavní organizátor'
       other_organizers: 'Všichni organizátoři'
+      is_attendance_list_required: 'Je prezenční listina vyžadována?'
 
   EventFinance:
     name: 'Finance události'
@@ -264,7 +265,7 @@ models:
       event: 'Událost'
       total_hours_worked: 'Odpracováno člověkohodin'
       comment_on_work_done: 'Okomentování vykonané práce'
-      has_attendance_list: 'Má prezenční listinu?'
+      attendance_list: 'Prezenční listina'
       participants: 'Účastníci'
       number_of_participants: 'Počet účastníků'
       number_of_participants_under_26: 'Počet účastníků pod 26 let'
