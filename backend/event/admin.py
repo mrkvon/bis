@@ -20,18 +20,27 @@ class EventPropagationImageAdmin(SortableHiddenMixin, NestedTabularInline):
     def get_formset(self, request, obj=None, **kwargs):
         formset = super().get_formset(request, obj, **kwargs)
 
+        class New1(formset):
+            def clean(_self):
+                super().clean()
+                forms = [form for form in _self.forms if form.is_valid()]
+                forms = [form for form in forms if form.cleaned_data.get('image')]
+                forms = [form for form in forms if not form.cleaned_data.get('DELETE', False)]
+                if len(forms) < 1:
+                    raise ValidationError('Nutno nahrát alespoň jeden obrázek')
+
         if '_saveasnew' not in request.POST:
-            return formset
+            return New1
 
         id = request.resolver_match.kwargs['object_id']
         event = Event.objects.get(id=id)
 
         if not hasattr(event, 'propagation'):
-            return formset
+            return New1
 
         images = event.propagation.images.all()
 
-        class New(formset):
+        class New(New1):
             def is_valid(_self):
                 for i, form in enumerate(_self):
                     if i >= len(images):
