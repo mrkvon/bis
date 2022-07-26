@@ -1,4 +1,5 @@
 from admin_auto_filters.filters import AutocompleteFilterFactory
+from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from more_admin_filters import MultiSelectRelatedDropdownFilter
 from nested_admin.forms import SortableHiddenMixin
@@ -65,6 +66,8 @@ class EventFinanceAdmin(NestedStackedInline):
     model = EventFinance
     classes = 'collapse',
 
+    exclude = 'grant_category', 'grant_amount', 'total_event_cost'
+
 
 class EventVIPPropagationAdmin(NestedStackedInline):
     model = VIPEventPropagation
@@ -108,15 +111,32 @@ class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
                   'is_attendance_list_required', \
                   ('location__region', MultiSelectRelatedDropdownFilter)
 
-    list_display = 'name', 'get_date', 'location', 'get_administration_units', 'is_canceled'
-    list_select_related = 'location',
+    list_display = 'name', 'get_date', 'get_administration_units', 'location', 'category', 'program', \
+                   'get_participants_count', 'get_young_percentage', 'get_total_hours_worked'
+    list_select_related = 'location', 'category', 'program', 'record'
 
     @admin.display(description='Administrativní jednotky')
     def get_administration_units(self, obj):
         return mark_safe('<br>'.join([str(au) for au in obj.administration_units.all()]))
 
+    @admin.display(description='Počet účastníků')
+    def get_participants_count(self, obj):
+        if not hasattr(obj, 'record'): return None
+        return len(obj.record.participants.all())
+
+    @admin.display(description='% do 26 let')
+    def get_young_percentage(self, obj):
+        if not hasattr(obj, 'record'): return None
+        if not len(obj.record.participants.all()): return '0%'
+        return f"{int(len([p for p in obj.record.participants.all() if p.birthday and relativedelta(obj.start.date(), p.birthday).years <= 26]) / len(obj.record.participants.all()) * 100)}%"
+
+    @admin.display(description='Odpracováno hodin')
+    def get_total_hours_worked(self, obj):
+        if not hasattr(obj, 'record'): return None
+        return obj.record.total_hours_worked
+
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('administration_units')
+        return super().get_queryset(request).prefetch_related('administration_units', 'record__participants')
 
     date_hierarchy = 'start'
     search_fields = 'name',
