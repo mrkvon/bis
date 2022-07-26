@@ -124,6 +124,14 @@ class EventPropagation(Model):
     contact_phone = PhoneNumberField(blank=True)
     contact_email = EmailField(blank=True)
 
+    def clean(self):
+        if self.event.category.slug.startswith('public__volunteering') and not self.invitation_text_work_description:
+            raise ValidationError('Popis dobrovolnické pomoci je povinný pro dobrovolnické akce')
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.clean()
+        super().save(force_insert, force_update, using, update_fields)
+
     class Meta:
         ordering = 'id',
 
