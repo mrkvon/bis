@@ -9,7 +9,7 @@ from opportunities.models import Opportunity
 
 class EventPropagationSerializer(ModelSerializer):
     intended_for = SlugRelatedField(slug_field='slug', read_only=True)
-    diet = SlugRelatedField(slug_field='slug', read_only=True)
+    diets = SlugRelatedField(slug_field='slug', read_only=True, many=True)
     images = SlugRelatedField(slug_field='url', read_only=True, many=True)
     cost = SerializerMethodField()
 
@@ -21,7 +21,7 @@ class EventPropagationSerializer(ModelSerializer):
             'cost',
             'intended_for',
             'accommodation',
-            'diet',
+            'diets',
             'organizers',
             'web_url',
             'invitation_text_introduction',

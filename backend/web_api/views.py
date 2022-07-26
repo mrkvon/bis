@@ -22,11 +22,11 @@ class EventViewSet(ReadOnlyModelViewSet):
             'program',
             'propagation',
             'propagation__intended_for',
-            'propagation__diet',
             'registration',
         ).prefetch_related(
             'propagation__images',
             'administration_units',
+            'propagation__diets',
         )
 
         if self.action == 'list':

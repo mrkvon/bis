@@ -27,7 +27,6 @@ class Command(BaseCommand):
                 self.create_event_categories(value, translations, slug, name)
 
     def handle(self, *args, **options):
-        DietCategory.objects.update_or_create(slug='no_food', defaults=dict(name='bez jídla'))
         DietCategory.objects.update_or_create(slug='meat', defaults=dict(name='s masem'))
         DietCategory.objects.update_or_create(slug='vege', defaults=dict(name='vegetariánská'))
         DietCategory.objects.update_or_create(slug='vegan', defaults=dict(name='veganská'))

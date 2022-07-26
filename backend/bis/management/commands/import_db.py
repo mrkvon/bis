@@ -156,11 +156,11 @@ class Command(BaseCommand):
     }
 
     diet_category_map = {
-        "0": DietCategory.objects.get(slug='meat'),
-        "3": DietCategory.objects.get(slug='meat'),
-        "1": DietCategory.objects.get(slug='vege'),
-        "2": DietCategory.objects.get(slug='meat'),
-        None: DietCategory.objects.get(slug='no_food'),
+        "0": [DietCategory.objects.get(slug='meat')],
+        "3": [DietCategory.objects.get(slug='meat')],
+        "1": [DietCategory.objects.get(slug='meat'), DietCategory.objects.get(slug='vege')],
+        "2": [DietCategory.objects.get(slug='meat')],
+        None: [],
     }
 
     grant_category_map = {
@@ -500,7 +500,6 @@ class Command(BaseCommand):
                 **get_event_cost(item['poplatek']),
                 intended_for=self.propagation_indented_for_category_map[item['prokoho']],
                 accommodation=item.get('ubytovani') or '',
-                diet=self.diet_category_map[item.get('strava')],
                 organizers=item['org'] or '',
                 web_url=item['web'] or '',
                 _contact_url=item['kontakt_url'] or '',
@@ -513,6 +512,10 @@ class Command(BaseCommand):
                 contact_phone=item['kontakt_telefon'] or '',
                 contact_email=item['kontakt_email'] or '',
             ))[0]
+
+            for diet in self.diet_category_map[item.get('strava')]:
+                event.diets.add(diet)
+
             if item.get('vip') == '1':
                 VIPEventPropagation.objects.update_or_create(event_propagation=event_propagation, defaults=dict(
                     goals_of_event=item['popis_programu'] or '',

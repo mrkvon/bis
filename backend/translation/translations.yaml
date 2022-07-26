@@ -209,7 +209,7 @@ models:
       cost: 'Účastnický poplatek'
       discounted_cost: 'Zlevněný účastnický poplatek'
       intended_for: 'Pro koho?'
-      diet: 'Strava'
+      diets: 'Možnosti stravování'
       _contact_url: 'Kontaktní url'
       accommodation: 'Ubytování'
       organizers: 'Organizátoři (text do propagace)'

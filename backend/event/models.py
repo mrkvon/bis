@@ -108,14 +108,14 @@ class EventPropagation(Model):
     discounted_cost = PositiveIntegerField(blank=True, null=True)
     intended_for = ForeignKey(PropagationIntendedForCategory, on_delete=CASCADE, related_name='events')
     accommodation = CharField(max_length=255)
-    diet = ForeignKey(DietCategory, on_delete=CASCADE, related_name='events')
+    diets = ManyToManyField(DietCategory, related_name='events', blank=True)
     organizers = CharField(max_length=255)
     web_url = URLField(blank=True)
     _contact_url = URLField(blank=True)
 
     invitation_text_introduction = HTMLField()
     invitation_text_practical_information = HTMLField()
-    invitation_text_work_description = HTMLField()
+    invitation_text_work_description = HTMLField(blank=True)
     invitation_text_about_us = HTMLField(blank=True)
     # propagation_images as Model below
 
