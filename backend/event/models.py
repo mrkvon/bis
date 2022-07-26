@@ -24,6 +24,7 @@ class Event(Model):
     is_canceled = BooleanField(default=False)
     start = DateTimeField()
     end = DateField()
+    number_of_sub_events = PositiveIntegerField(default=1)
     location = ForeignKey(Location, on_delete=CASCADE, related_name='events', null=True)
 
     category = ForeignKey(EventCategory, on_delete=CASCADE, related_name='events')
@@ -35,7 +36,6 @@ class Event(Model):
 
     is_attendance_list_required = BooleanField(default=False)
     is_internal = BooleanField(default=False)
-    number_of_sub_events = PositiveIntegerField(default=1)
     internal_note = TextField(blank=True)
 
     _import_id = CharField(max_length=15, default='')
@@ -47,6 +47,9 @@ class Event(Model):
 
     def __str__(self):
         return self.name
+
+    def is_volunteering(self):
+        return self.category.slug.startswith('public__volunteering')
 
     @admin.display(description='Termín akce')
     def get_date(self):
@@ -125,7 +128,7 @@ class EventPropagation(Model):
     contact_email = EmailField(blank=True)
 
     def clean(self):
-        if self.event.category.slug.startswith('public__volunteering') and not self.invitation_text_work_description:
+        if self.event.is_volunteering() and not self.invitation_text_work_description:
             raise ValidationError('Popis dobrovolnické pomoci je povinný pro dobrovolnické akce')
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
@@ -149,9 +152,6 @@ class VIPEventPropagation(Model):
 
     rover_propagation = BooleanField(default=False)
 
-    working_hours = PositiveSmallIntegerField()
-    working_days = PositiveSmallIntegerField()
-
 
 @translate_model
 class EventRegistration(Model):
@@ -174,6 +174,8 @@ class EventRecord(Model):
     event = OneToOneField(Event, related_name='record', on_delete=CASCADE)
 
     total_hours_worked = PositiveIntegerField(null=True, blank=True)
+    working_hours = PositiveSmallIntegerField(null=True, blank=True)
+    working_days = PositiveSmallIntegerField(null=True, blank=True)
     comment_on_work_done = TextField(blank=True)
     attendance_list = ImageField(upload_to='attendance_lists', null=True, blank=True)
     participants = ManyToManyField(User, 'participated_in_events', blank=True)
@@ -183,6 +185,15 @@ class EventRecord(Model):
     def clean(self):
         if self.event.is_attendance_list_required and not self.attendance_list:
             raise ValidationError('Prezenční listina není vyplněna')
+
+        if self.event.is_volunteering() and not self.total_hours_worked:
+            raise ValidationError('Odpracováno člověkohodin nevyplněno')
+
+        if self.event.duration > 1 and self.event.is_volunteering():
+            if not self.working_hours:
+                raise ValidationError('Odpracovaných hodin denně nevyplněno')
+            if not self.working_days:
+                raise ValidationError('Počet pracovních dní nevyplněno')
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.clean()

@@ -122,13 +122,16 @@ class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
     @admin.display(description='Počet účastníků')
     def get_participants_count(self, obj):
         if not hasattr(obj, 'record'): return None
-        return len(obj.record.participants.all())
+        return obj.record.number_of_participants or len(obj.record.participants.all())
 
     @admin.display(description='% do 26 let')
     def get_young_percentage(self, obj):
         if not hasattr(obj, 'record'): return None
-        if not len(obj.record.participants.all()): return '0%'
-        return f"{int(len([p for p in obj.record.participants.all() if p.birthday and relativedelta(obj.start.date(), p.birthday).years <= 26]) / len(obj.record.participants.all()) * 100)}%"
+        participants_count = self.get_participants_count(obj)
+        if not participants_count: return '0%'
+        under_26 = len([p for p in obj.record.participants.all() if p.birthday and relativedelta(obj.start.date(), p.birthday).years <= 26])
+        under_26 = obj.record.number_of_participants_under_26 or under_26
+        return f"{int(under_26 / len(obj.record.participants.all()) * 100)}%"
 
     @admin.display(description='Odpracováno hodin')
     def get_total_hours_worked(self, obj):

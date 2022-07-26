@@ -522,9 +522,6 @@ class Command(BaseCommand):
                     program=item['tema'] or '',
                     short_invitation_text=item['text_kratsi'] or '',
                     rover_propagation=item.get('rover') == '1',
-                    working_hours=item['pracovni_doba'],
-                    working_days=item['pracovni_dny'],
-
                 ))
             EventRegistration.objects.update_or_create(event=event, defaults=dict(
                 is_registration_required=item['prihlaska'] == '4',
@@ -539,6 +536,8 @@ class Command(BaseCommand):
                 # has_attendance_list=item['adresar'] == '1',
                 number_of_participants=item['lidi'],
                 number_of_participants_under_26=item['lidi_do26'],
+                working_hours=item['pracovni_doba'],
+                working_days=item['pracovni_dny'],
             ))
 
             for attachment in attachments:

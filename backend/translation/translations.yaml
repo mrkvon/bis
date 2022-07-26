@@ -246,8 +246,6 @@ models:
       short_invitation_text:
         - 'Krátký zvací text do propagace'
         - 'Ve 2-4 větách nalákejte na vaši akci a zdůrazněte osobní přínos pro účastníky (max. 200 znaků).'
-      working_days: 'Počet pracovních dní'
-      working_hours: 'Odpracovaných hodin denně'
 
   EventRegistration:
     name: 'Registrace'
@@ -267,8 +265,18 @@ models:
       comment_on_work_done: 'Okomentování vykonané práce'
       attendance_list: 'Prezenční listina'
       participants: 'Účastníci'
-      number_of_participants: 'Počet účastníků'
-      number_of_participants_under_26: 'Počet účastníků pod 26 let'
+      number_of_participants:
+        - 'Počet účastníků'
+        - 'Vyplň pouze pokud nejsou vyplnění konkrétní účastníci'
+      number_of_participants_under_26:
+        - 'Počet účastníků pod 26 let'
+        - 'Vyplň pouze pokud nejsou vyplnění konkrétní účastníci'
+      working_days:
+        - 'Počet pracovních dní'
+        - 'Pouze pro vícedenní pracovní akce'
+      working_hours:
+        - 'Odpracovaných hodin denně'
+        - 'Pouze pro vícedenní pracovní akce'
 
 
   EventPropagationImage:
