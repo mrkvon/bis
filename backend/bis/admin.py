@@ -104,7 +104,7 @@ class UserAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdminMixin
 
     autocomplete_fields = 'close_person',
 
-    list_display = 'get_name', 'birthday', 'address', 'contact_address', 'get_emails', 'phone', 'get_qualifications', 'get_memberships'
+    list_display = 'get_name', 'birthday', 'address', 'get_emails', 'phone', 'get_qualifications', 'get_memberships'
     list_filter = ActiveMembershipFilter, \
                   AutocompleteFilterFactory('Člen článku', 'memberships__administration_unit'), \
                   ('memberships__year', MembershipsYearFilter), \

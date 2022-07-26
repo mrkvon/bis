@@ -200,7 +200,7 @@ class EventRecord(Model):
         super().save(force_insert, force_update, using, update_fields)
 
     class Meta:
-        ordering = 'id',
+        ordering = '-event__start',
 
     def __str__(self):
         return f'Záznam k události {self.event}'
