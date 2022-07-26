@@ -10,6 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         post_save.disconnect(sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
 
+        print('setting date joined')
         for user in User.objects.all().prefetch_related('memberships', 'qualifications', 'events_where_was_organizer',
                                                         'participated_in_events__event'):
             dates = [user.date_joined]
@@ -28,6 +29,5 @@ class Command(BaseCommand):
 
             dates.sort()
             if user.date_joined != dates[0]:
-                print(user.date_joined, dates[0])
                 user.date_joined = dates[0]
                 user.save()

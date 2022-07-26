@@ -2,9 +2,11 @@ from functools import cached_property
 from os.path import basename
 
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import UserManager
 from django.contrib.gis.db.models import *
+from django.db import transaction
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
@@ -169,61 +171,66 @@ class User(Model):
     def __str__(self):
         return self._str
 
+    @transaction.atomic
     def merge_with(self, other):
         assert other != self
-        for field in self._meta.fields:
-            if field.name in ['id', 'password', '_import_id', 'is_active', 'last_login']:
-                continue
+        try:
+            settings.SKIP_VALIDATION = True
+            for field in self._meta.fields:
+                if field.name in ['id', 'password', '_import_id', 'is_active', 'last_login', '_str']:
+                    continue
 
-            elif field.name in ['date_joined', ]:
-                if getattr(other, field.name) < getattr(self, field.name):
-                    setattr(self, field.name, getattr(other, field.name))
+                elif field.name in ['date_joined', ]:
+                    if getattr(other, field.name) < getattr(self, field.name):
+                        setattr(self, field.name, getattr(other, field.name))
 
-            elif field.name in ['first_name', 'last_name', 'nickname', 'phone',
-                                'birthday']:
-                if not getattr(self, field.name) and getattr(other, field.name):
-                    setattr(self, field.name, getattr(other, field.name))
+                elif field.name in ['first_name', 'last_name', 'nickname', 'phone',
+                                    'birthday', 'close_person']:
+                    if not getattr(self, field.name) and getattr(other, field.name):
+                        setattr(self, field.name, getattr(other, field.name))
 
-            else:
-                raise RuntimeError(f'field {field.name} not checked, database was updated, merge is outdated')
+                else:
+                    raise RuntimeError(f'field {field.name} not checked, database was updated, merge is outdated')
 
-        for relation in self._meta.related_objects:
-            if relation.name in ['auth_token']:
-                continue
+            for relation in self._meta.related_objects:
+                if relation.name in ['auth_token']:
+                    continue
 
-            elif relation.name in ['address', 'contact_address']:
-                if not hasattr(self, relation.name) and hasattr(other, relation.name):
-                    setattr(self, relation.name, getattr(other, relation.name))
-
-            elif relation.name == 'donor':
-                if hasattr(other, relation.name):
-                    if not hasattr(self, relation.name):
+                elif relation.name in ['address', 'contact_address']:
+                    if not hasattr(self, relation.name) and hasattr(other, relation.name):
                         setattr(self, relation.name, getattr(other, relation.name))
-                    else:
-                        self.donor.merge_with(other.donor)
 
-            elif relation.name == 'emails':
-                max_order = max([email.order for email in self.emails.all()] + [0])
-                for i, obj in enumerate(UserEmail.objects.filter(user=other)):
-                    obj.user = self
-                    obj.order = max_order + i + 1
-                    obj.save()
+                elif relation.name == 'donor':
+                    if hasattr(other, relation.name):
+                        if not hasattr(self, relation.name):
+                            setattr(self, relation.name, getattr(other, relation.name))
+                        else:
+                            self.donor.merge_with(other.donor)
 
-            elif isinstance(relation, ManyToOneRel) or isinstance(relation, OneToOneRel):
-                for obj in relation.field.model.objects.filter(**{relation.field.name: other}):
-                    setattr(obj, relation.field.name, self)
-                    obj.save()
+                elif relation.name == 'emails':
+                    max_order = max([email.order for email in self.emails.all()] + [0])
+                    for i, obj in enumerate(UserEmail.objects.filter(user=other)):
+                        obj.user = self
+                        obj.order = max_order + i + 1
+                        obj.save()
 
-            elif isinstance(relation, ManyToManyRel):
-                for obj in relation.field.model.objects.filter(**{relation.field.name: other}):
-                    getattr(obj, relation.field.name).add(self)
-                    getattr(obj, relation.field.name).remove(other)
+                elif isinstance(relation, ManyToOneRel) or isinstance(relation, OneToOneRel):
+                    for obj in relation.field.model.objects.filter(**{relation.field.name: other}):
+                        setattr(obj, relation.field.name, self)
+                        obj.save()
 
-            else:
-                raise RuntimeError('should not happen :)')
+                elif isinstance(relation, ManyToManyRel):
+                    for obj in relation.field.model.objects.filter(**{relation.field.name: other}):
+                        getattr(obj, relation.field.name).add(self)
+                        getattr(obj, relation.field.name).remove(other)
 
-        self.save()
-        other.delete()
+                else:
+                    raise RuntimeError('should not happen :)')
+
+            self.save()
+            other.delete()
+        finally:
+            settings.SKIP_VALIDATION = False
 
     @admin.display(description='Uživatel')
     def get_name(self):

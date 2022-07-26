@@ -1,5 +1,6 @@
 from os.path import basename
 
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.gis.db.models import *
 from django.core.exceptions import ValidationError
@@ -13,7 +14,6 @@ from administration_units.models import AdministrationUnit
 from bis.models import Location, User
 from categories.models import GrantCategory, PropagationIntendedForCategory, DietCategory, \
     EventCategory, EventProgramCategory
-from project import settings
 from translation.translate import translate_model
 
 
@@ -132,7 +132,7 @@ class EventPropagation(Model):
             raise ValidationError('Popis dobrovolnické pomoci je povinný pro dobrovolnické akce')
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        self.clean()
+        if not settings.SKIP_VALIDATION: self.clean()
         super().save(force_insert, force_update, using, update_fields)
 
     class Meta:
@@ -196,7 +196,7 @@ class EventRecord(Model):
                 raise ValidationError('Počet pracovních dní nevyplněno')
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        self.clean()
+        if not settings.SKIP_VALIDATION: self.clean()
         super().save(force_insert, force_update, using, update_fields)
 
     class Meta:

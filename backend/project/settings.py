@@ -221,6 +221,8 @@ EMAIL = environ['EMAIL']
 
 AUTH_USER_MODEL = 'bis.User'
 
+SKIP_VALIDATION = False
+
 # mailjet
 MAILJET_API_KEY = environ['MAILJET_API_KEY']
 MAILJET_SECRET = environ['MAILJET_SECRET']

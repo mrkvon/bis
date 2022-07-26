@@ -170,6 +170,12 @@ class Command(BaseCommand):
         "3": GrantCategory.objects.get(slug='other'),
     }
 
+    def reset_cache(self):
+        self.user_map = {u._import_id: u for u in User.objects.all()}
+        self.administration_unit_map = {au._import_id: au for au in AdministrationUnit.objects.all()}
+        self.location_map = {l._import_id: l for l in Location.objects.all()}
+        self.event_map = {e._import_id: e for e in Event.objects.all()}
+
     progresses = {}
 
     def print_progress(self, slug, i, total):
@@ -204,8 +210,6 @@ class Command(BaseCommand):
                 data[name][obj['id']] = obj
 
         return data
-
-    user_map = {u._import_id: u for u in User.objects.all()}
 
     def import_users(self, data):
         post_save.disconnect(sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
@@ -246,10 +250,9 @@ class Command(BaseCommand):
                     zip_code=zip_code
                 ))
 
-            self.user_map[id] = user
-
         post_save.connect(set_unique_str, sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
         User.objects.first().save()
+        self.reset_cache()
 
     def import_qualifications(self, data):
         print('importing qualifications')
@@ -300,8 +303,6 @@ class Command(BaseCommand):
                     approved_by=self.user_map[self.director_id],
                 )
             )
-
-    administration_unit_map = {au._import_id: au for au in AdministrationUnit.objects.all()}
 
     def import_administration_units(self, data):
         print('importing administration units')
@@ -366,7 +367,7 @@ class Command(BaseCommand):
                 )
             )
 
-            self.administration_unit_map[id] = administration_unit
+        self.reset_cache()
 
     def import_donors(self, data):
         for i, (id, item) in enumerate(data['darce'].items()):
@@ -386,8 +387,6 @@ class Command(BaseCommand):
                     donor=donor
                 ))
 
-    location_map = {l._import_id: l for l in Location.objects.all()}
-
     def import_locations(self, data):
         print('importing locations')
         for id, item in data['lokalita'].items():
@@ -396,11 +395,12 @@ class Command(BaseCommand):
                 defaults=dict(
                     name=item['nazev'],
                     patron=self.user_map.get(item['patron'], None),
-                    address=item['misto'],
+                    address=item['misto'] or '',
                     gps_location=None,
                 )
             )[0]
-            self.location_map[id] = location
+
+        self.reset_cache()
 
     def import_memberships(self, data):
         for i, (id, item) in enumerate(data['clen'].items()):
@@ -427,8 +427,6 @@ class Command(BaseCommand):
                 attachments.add(attachment)
 
         return attachments
-
-    event_map = {e._import_id: e for e in Event.objects.all()}
 
     def import_events(self, data):
         event_organizer_map = {}
@@ -485,8 +483,6 @@ class Command(BaseCommand):
             for au in event_organizer_map.get(id, [self.administration_unit_map[self.headquarters_id]]):
                 event.administration_units.add(au)
 
-            self.event_map[id] = event
-
             EventFinance.objects.update_or_create(event=event, defaults=dict(
                 grant_category=self.grant_category_map[item['dotace']],
                 # grant_amount
@@ -514,7 +510,7 @@ class Command(BaseCommand):
             ))[0]
 
             for diet in self.diet_category_map[item.get('strava')]:
-                event.diets.add(diet)
+                event_propagation.diets.add(diet)
 
             if item.get('vip') == '1':
                 VIPEventPropagation.objects.update_or_create(event_propagation=event_propagation, defaults=dict(
@@ -536,8 +532,8 @@ class Command(BaseCommand):
                 # has_attendance_list=item['adresar'] == '1',
                 number_of_participants=item['lidi'],
                 number_of_participants_under_26=item['lidi_do26'],
-                working_hours=item['pracovni_doba'],
-                working_days=item['pracovni_dny'],
+                working_hours=item.get('pracovni_doba'),
+                working_days=item.get('pracovni_dny'),
             ))
 
             for attachment in attachments:
@@ -554,6 +550,8 @@ class Command(BaseCommand):
                         defaults=dict(order=0)
                     )
 
+        self.reset_cache()
+
     def import_participants(self, data):
         for i, item in enumerate(data['ucastnik']):
             self.print_progress('participants', i, len(data['ucastnik']))
@@ -566,6 +564,8 @@ class Command(BaseCommand):
                 event.record.participants.add(person)
 
     def handle(self, *args, **options):
+        self.reset_cache()
+        settings.SKIP_VALIDATION = True
         images_dir = join(BASE_DIR, 'media', 'event_propagation_images')
         if not exists(images_dir):
             mkdir(images_dir)

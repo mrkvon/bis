@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.gis.db.models import *
 from django.core.exceptions import ValidationError
 from tinymce.models import HTMLField
@@ -31,7 +32,7 @@ class Opportunity(Model):
             raise ValidationError('Pokud kategorie spolupráce není Spolupráce, přínos pro lokalitu musí být vyplněn')
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        self.clean()
+        if not settings.SKIP_VALIDATION: self.clean()
         super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self):

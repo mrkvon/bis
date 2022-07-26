@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.management import BaseCommand
 from django.utils.timezone import now
 
@@ -13,11 +15,12 @@ class Command(BaseCommand):
             self.progresses[slug] = now()
 
         if (now() - self.progresses[slug]).seconds > 1:
-            print(f"importing {slug}, progress {100 * i / total:.2f}%")
+            print(f"merging {slug}, progress {100 * i / total:.2f}%")
             self.progresses[slug] = now()
 
     def handle(self, *args, **options):
         c = 0
+        settings.SKIP_VALIDATION = True
         for i, user in enumerate(User.objects.all()):
             self.print_progress('users', i, User.objects.count())
             for other in User.objects.filter(id__gt=user.id, first_name=user.first_name, last_name=user.last_name):
@@ -26,6 +29,9 @@ class Command(BaseCommand):
                     continue
 
                 print('merging ', user, ' with ', other)
-                user.merge_with(other)
+                try:
+                    user.merge_with(other)
+                except ValidationError:
+                    pass
 
         print('same name, different birthday', c)
