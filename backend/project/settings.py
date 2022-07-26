@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'tinymce',
     'opportunities',
     'more_admin_filters',
+    'regions',
 ]
 
 MIDDLEWARE = [

@@ -3,8 +3,8 @@ from django.apps import AppConfig
 
 class BISConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'other'
-    verbose_name = 'Ostatní'
+    name = 'regions'
+    verbose_name = 'Kraje a PSČ'
 
     # def ready(self):
     #     import other.signals

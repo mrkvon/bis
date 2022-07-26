@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
 from bis.models import *
-from other.models import Region
+from regions.models import Region
 from project import settings
 
 

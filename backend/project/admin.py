@@ -20,6 +20,7 @@ class MyAdminSite(admin.AdminSite):
             'donations',
             'other',
             'categories',
+            'regions',
         ]
         list.sort(key=lambda value: order.index(value['app_label']))
         return list

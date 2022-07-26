@@ -16,7 +16,7 @@ class BaseAddress(Model):
     street = CharField(max_length=127)
     city = CharField(max_length=63)
     zip_code = CharField(max_length=5)
-    region = ForeignKey('other.Region', related_name='+', on_delete=CASCADE, null=True, blank=True)
+    region = ForeignKey('regions.Region', related_name='+', on_delete=CASCADE, null=True, blank=True)
 
     class Meta:
         ordering = 'id',

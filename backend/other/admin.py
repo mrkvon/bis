@@ -1,24 +1,10 @@
-from django.contrib.gis.admin import OSMGeoAdmin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from nested_admin.nested import NestedModelAdmin
 
-from bis.admin_helpers import FilterQuerysetMixin, EditableByAdminOnlyMixin, ReadOnlyMixin
+from bis.admin_helpers import FilterQuerysetMixin, ReadOnlyMixin
 from event.models import *
-from other.models import DuplicateUser, Region, Feedback, ZipCode
-
-
-@admin.register(Region)
-class RegionAdmin(EditableByAdminOnlyMixin, OSMGeoAdmin):
-    pass
-
-
-@admin.register(ZipCode)
-class ZipCodeAdmin(ReadOnlyMixin, NestedModelAdmin):
-    list_filter = 'region',
-    list_display = 'zip_code', 'region'
-    list_select_related = 'region',
-    search_fields = 'zip_code',
+from other.models import DuplicateUser, Feedback
 
 
 @admin.register(DuplicateUser)

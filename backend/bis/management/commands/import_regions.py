@@ -10,7 +10,7 @@ from other.models import Region
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        path = join(settings.BASE_DIR, 'other', 'region_borders', 'SPH_KRAJ.shp')
+        path = join(settings.BASE_DIR, 'regions', 'region_borders', 'SPH_KRAJ.shp')
         data = DataSource(path)
 
         for item in data[0]:

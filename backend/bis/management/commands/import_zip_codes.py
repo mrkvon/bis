@@ -6,12 +6,12 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from bis.models import UserAddress
-from other.models import Region, ZipCode
+from regions.models import Region, ZipCode
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        path = join(settings.BASE_DIR, 'other', 'zip_codes', 'zv_cobce_psc.csv')
+        path = join(settings.BASE_DIR, 'regions', 'zip_codes', 'zv_cobce_psc.csv')
         with open(path, 'r', encoding='windows-1250') as file:
             data = StringIO(file.read().strip())
 
