@@ -1,7 +1,8 @@
-from admin_numeric_filter.admin import SliderNumericFilter
+from admin_numeric_filter.admin import RangeNumericFilter
 from admin_numeric_filter.forms import SliderNumericForm
 from django.contrib.admin import ListFilter
 from django.urls import reverse
+from more_admin_filters import MultiSelectDropdownFilter
 
 from bis.models import *
 
@@ -46,6 +47,10 @@ class ActiveMembershipFilter(YesNoFilter):
     query = {'memberships__year': timezone.now().year}
 
 
+class BoardStatusFilter(MultiSelectDropdownFilter):
+    template = 'more_admin_filters/multiselectdropdownfilter.html'
+
+
 class IsChairmanFilter(YesNoFilter):
     title = 'Je předseda'
     parameter_name = 'is_chairman'
@@ -76,11 +81,11 @@ class IsAdministrationUnitActiveFilter(YesNoFilter):
     query = {'existed_till__isnull': True}
 
 
-class RawSliderNumericFilter(ListFilter):
+class RawRangeNumericFilter(ListFilter):
     parameter_name = None
     min_value = 0
     max_value = 100
-    template = 'admin/filter_numeric_slider.html'
+    template = 'admin/filter_numeric_range.html'
 
     def __init__(self, request, params, model, model_admin):
         super().__init__(request, params, model, model_admin)
@@ -135,11 +140,11 @@ class RawSliderNumericFilter(ListFilter):
                 },)
 
 
-class MembershipsYearFilter(SliderNumericFilter):
+class MembershipsYearFilter(RangeNumericFilter):
     parameter_name = 'memberships__year'
 
 
-class AgeFilter(RawSliderNumericFilter):
+class AgeFilter(RawRangeNumericFilter):
     title = 'Věk'
     parameter_name = 'age'
 
