@@ -2,13 +2,13 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from nested_admin.nested import NestedModelAdmin
 
-from bis.admin_helpers import FilterQuerysetMixin, ReadOnlyMixin
+from bis.admin_helpers import FilterQuerysetMixin, ReadOnlyMixin, EditableByOfficeMixin
 from event.models import *
 from other.models import DuplicateUser, Feedback
 
 
 @admin.register(DuplicateUser)
-class DuplicateUserAdmin(FilterQuerysetMixin, NestedModelAdmin):
+class DuplicateUserAdmin(EditableByOfficeMixin, FilterQuerysetMixin, NestedModelAdmin):
     change_form_template = 'bis/duplicate_user_change_form.html'
 
     list_display = 'user', 'other', 'get_user_info', 'get_other_info'

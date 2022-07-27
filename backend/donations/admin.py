@@ -6,24 +6,20 @@ from nested_admin.nested import NestedModelAdmin, NestedTabularInline
 from rangefilter.filters import DateRangeFilter
 from solo.admin import SingletonModelAdmin
 
-from bis.admin_helpers import EditableByAdminOnlyMixin, HasDonorFilter
+from bis.admin_helpers import EditableByAdminOnlyMixin, HasDonorFilter, ReadOnlyMixin, EditableByOfficeMixin
 from donations.helpers import upload_bank_records
 from donations.models import UploadBankRecords, Donor, Donation, VariableSymbol
 from event.models import *
 
 
 @admin.register(Donation)
-class DonationAdmin(NestedModelAdmin):
+class DonationAdmin(ReadOnlyMixin, NestedModelAdmin):
     autocomplete_fields = 'donor',
     list_display = '__str__', 'donor', 'donated_at', 'donation_source', 'info'
     list_filter = HasDonorFilter, 'donation_source',
     exclude = '_import_id', '_variable_symbol'
 
     list_select_related = 'donor__user', 'donation_source'
-
-    def has_add_permission(self, request): return False
-
-    def has_change_permission(self, request, obj=None): return False
 
     def has_delete_permission(self, request, obj=None):
         return obj and not obj.donor
@@ -47,7 +43,7 @@ class VariableSymbolInline(NestedTabularInline):
 
 
 @admin.register(Donor)
-class DonorAdmin(NestedModelAdmin):
+class DonorAdmin(EditableByOfficeMixin, NestedModelAdmin):
     list_display = 'user', 'subscribed_to_newsletter', 'is_public', 'regional_center_support', 'basic_section_support', 'date_joined'
     list_select_related = 'user', 'regional_center_support', 'basic_section_support'
     inlines = VariableSymbolInline, DonationAdminInline,
