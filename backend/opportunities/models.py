@@ -55,7 +55,7 @@ class OfferedHelp(Model):
     info = TextField(blank=True)
 
     def __str__(self):
-        return self.info
+        return f"Nabízená pomoc od {self.user}"
 
     class Meta:
         ordering = 'id',
