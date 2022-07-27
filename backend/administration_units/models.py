@@ -42,8 +42,8 @@ class AdministrationUnit(Model):
 
     phone = PhoneNumberField(null=True)
     email = EmailField(null=True)
-    www = URLField(null=True)
-    ic = CharField(max_length=15, null=True)
+    www = URLField(null=True, blank=True)
+    ic = CharField(max_length=15, null=True, blank=True)
     bank_account_number = CharField(max_length=63, null=True, blank=True)
 
     existed_since = DateField(null=True)
@@ -51,7 +51,7 @@ class AdministrationUnit(Model):
 
     category = ForeignKey(AdministrationUnitCategory, related_name='administration_units', on_delete=CASCADE)
     chairman = ForeignKey('bis.User', related_name='chairman_of', on_delete=CASCADE, null=True)
-    vice_chairman = ForeignKey('bis.User', related_name='vice_chairman_of', on_delete=CASCADE, null=True)
+    vice_chairman = ForeignKey('bis.User', related_name='vice_chairman_of', on_delete=CASCADE, null=True, blank=True)
     manager = ForeignKey('bis.User', related_name='manager_of', on_delete=CASCADE, null=True)
     board_members = ManyToManyField('bis.User', related_name='administration_units')
 
