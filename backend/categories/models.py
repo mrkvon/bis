@@ -147,7 +147,7 @@ class OpportunityCategory(Model):
         ordering = 'id',
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.description}"
 
 
 @translate_model
