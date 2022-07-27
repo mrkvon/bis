@@ -131,7 +131,7 @@ class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
         if not participants_count: return '0%'
         under_26 = len([p for p in obj.record.participants.all() if p.birthday and relativedelta(obj.start.date(), p.birthday).years <= 26])
         under_26 = obj.record.number_of_participants_under_26 or under_26
-        return f"{int(under_26 / len(obj.record.participants.all()) * 100)}%"
+        return f"{int(under_26 / participants_count * 100)}%"
 
     @admin.display(description='Odpracováno hodin')
     def get_total_hours_worked(self, obj):
