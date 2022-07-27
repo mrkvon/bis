@@ -31,13 +31,13 @@ class Command(BaseCommand):
             if not transactions:
                 continue
 
-            user = User.objects.get_or_create(emails__email=donor['email'], defaults=dict(
+            user = User.objects.get_or_create(emails__email=donor['email'].lower(), defaults=dict(
                 first_name=donor['firstName'],
                 last_name=donor['lastName'],
                 phone=donor['phone'],
             ))[0]
 
-            UserEmail.objects.get_or_create(email=donor['email'], defaults=dict(user=user))
+            UserEmail.objects.get_or_create(email=donor['email'].lower(), defaults=dict(user=user))
             UserAddress.objects.get_or_create(user=user, defaults=dict(
                 street=donor['address']['street'],
                 city=donor['address']['city'],

@@ -37,6 +37,7 @@ class Opportunity(Model):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if not settings.SKIP_VALIDATION: self.clean()
+        self.contact_email = self.contact_email.lower()
         super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self):

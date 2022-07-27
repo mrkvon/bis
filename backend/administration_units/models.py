@@ -58,6 +58,10 @@ class AdministrationUnit(Model):
     _import_id = CharField(max_length=15, default='')
     _history = JSONField(default=dict)
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.email = self.email.lower()
+        super().save(force_insert, force_update, using, update_fields)
+
     class Meta:
         ordering = 'abbreviation',
 
@@ -95,6 +99,10 @@ class BrontosaurusMovement(SingletonModel):
     executive_committee = ManyToManyField('bis.User', related_name='+', blank=True)
     education_members = ManyToManyField('bis.User', related_name='+', blank=True)
     _history = JSONField(default=dict)
+
+    def save(self, *args, **kwargs):
+        cache.set('brontosaurus_movement', None)
+        super().save(*args, **kwargs)
 
     @classmethod
     def get(cls):

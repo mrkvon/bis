@@ -18,7 +18,7 @@ class LoginForm(Form):
     email = EmailField(label="E-mail", widget=TextInput(attrs={'autofocus': 'autofocus'}))
 
     def clean_email(self):
-        email = self.cleaned_data['email']
+        email = self.cleaned_data['email'].lower()
         if not User.objects.filter(emails__email=email).exists():
             raise ValidationError('Uživatel s tímto emailem neexistuje')
 

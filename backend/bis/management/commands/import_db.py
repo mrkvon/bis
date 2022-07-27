@@ -227,7 +227,7 @@ class Command(BaseCommand):
                 is_active=True,
             ))[0]
             if item['email']:
-                UserEmail.objects.update_or_create(email=item['email'], defaults=dict(user=user))
+                UserEmail.objects.update_or_create(email=item['email'].lower(), defaults=dict(user=user))
 
             street = item["ulice"]
             city = item["mesto"]
@@ -338,7 +338,7 @@ class Command(BaseCommand):
                     abbreviation=item['zkratka'],
                     is_for_kids=item['brdo'] == '1',
                     phone=item['telefon'],
-                    email=item['email'],
+                    email=(item['email'] or '').lower(),
                     www=item['www'],
                     existed_since=parse_date(since),
                     existed_till=parse_date(till),
@@ -433,7 +433,7 @@ class Command(BaseCommand):
         for item in data['porada']:
             if item['klub'] not in self.administration_unit_map: continue
 
-            event_organizer_map.setdefault(item['akce'], [])\
+            event_organizer_map.setdefault(item['akce'], []) \
                 .append(self.administration_unit_map[item['klub']])
 
         for i, (id, item) in enumerate(data['akce'].items()):
@@ -453,7 +453,7 @@ class Command(BaseCommand):
 
             contact = None
             if item['kontakt_email']:
-                contact = User.objects.filter(emails__email=item['kontakt_email']).first()
+                contact = User.objects.filter(emails__email=item['kontakt_email'].lower()).first()
 
             location = None
             if item['lokalita']:
@@ -506,7 +506,7 @@ class Command(BaseCommand):
                 contact_person=contact,
                 contact_name=item['kontakt'] or '',
                 contact_phone=item['kontakt_telefon'] or '',
-                contact_email=item['kontakt_email'] or '',
+                contact_email=(item['kontakt_email'] or '').lower(),
             ))[0]
 
             for diet in self.diet_category_map[item.get('strava')]:
