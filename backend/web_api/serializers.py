@@ -2,7 +2,6 @@ from rest_framework.fields import SerializerMethodField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer
 
-from bis.models import User
 from event.models import Event, EventPropagation, EventRegistration
 from opportunities.models import Opportunity
 
@@ -11,6 +10,9 @@ class EventPropagationSerializer(ModelSerializer):
     intended_for = SlugRelatedField(slug_field='slug', read_only=True)
     diets = SlugRelatedField(slug_field='slug', read_only=True, many=True)
     images = SlugRelatedField(slug_field='url', read_only=True, many=True)
+    contact_name = SerializerMethodField()
+    contact_phone = SerializerMethodField()
+    contact_email = SerializerMethodField()
     cost = SerializerMethodField()
 
     class Meta:
@@ -87,26 +89,12 @@ class EventSerializer(ModelSerializer):
         )
 
 
-class UserContactSerializer(ModelSerializer):
-    name = SerializerMethodField()
-
-    class Meta:
-        model = User
-
-        fields = (
-            'name',
-            'email',
-            'phone',
-        )
-
-    def get_name(self, instance):
-        return instance.get_name()
-
-
 class OpportunitySerializer(ModelSerializer):
     category = SlugRelatedField(slug_field='slug', read_only=True)
     location = SlugRelatedField(slug_field='name', read_only=True)
-    contact_person = UserContactSerializer(read_only=True)
+    contact_name = SerializerMethodField()
+    contact_phone = SerializerMethodField()
+    contact_email = SerializerMethodField()
 
     class Meta:
         model = Opportunity
@@ -124,6 +112,17 @@ class OpportunitySerializer(ModelSerializer):
             'location_benefits',
             'personal_benefits',
             'requirements',
-            'contact_person',
+            'contact_name',
+            'contact_phone',
+            'contact_email',
             'image',
         )
+
+    def get_contact_name(self, instance):
+        return instance.contact_name or (instance.contact_person and instance.contact_person.get_name())
+
+    def get_contact_phone(self, instance):
+        return instance.contact_phone or (instance.contact_person and instance.contact_person.phone)
+
+    def get_contact_email(self, instance):
+        return instance.contact_email or (instance.contact_person and instance.contact_person.emails.first().email)

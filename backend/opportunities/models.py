@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.gis.db.models import *
 from django.core.exceptions import ValidationError
+from phonenumber_field.modelfields import PhoneNumberField
 from tinymce.models import HTMLField
 
 from bis.models import User, Location
@@ -25,6 +26,9 @@ class Opportunity(Model):
     requirements = HTMLField()
 
     contact_person = ForeignKey(User, on_delete=CASCADE, related_name='opportunities')
+    contact_name = CharField(max_length=63, blank=True)
+    contact_phone = PhoneNumberField(blank=True)
+    contact_email = EmailField(blank=True)
     image = ImageField(upload_to='opportunity_images')
 
     def clean(self):

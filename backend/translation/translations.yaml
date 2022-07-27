@@ -496,6 +496,16 @@ models:
         - 'Napiš dovednosti, zkušenosti či vybavení potřebné k zapojení do příležitosti'
       contact_person: 'Kontaktní osoba'
       image: 'Obrázek'
+      contact_name:
+        - 'Jméno kontaktní osoby'
+        - 'Nechte prázdné pokud chcete použít jméno kontaktní osoby'
+      contact_phone:
+        - 'Kontaktní telefon'
+        - 'Nechte prázdné pokud chcete použít telefon kontaktní osoby'
+      contact_email:
+        - 'Kontaktní e-mail'
+        - 'Nechte prázdné pokud chcete použít e-mail kontaktní osoby'
+
   OfferedHelp:
     name: 'Nabízená pomoc'
     name_plural: 'Nabízená pomoc'
