@@ -600,3 +600,7 @@ class Command(BaseCommand):
             finance_director=finance_director
         ))[0]
         b.bis_administrators.set([self.user_map[id] for id in self.admin_ids])
+        b.bis_administrators.add(User.objects.get(emails__email='michal.salajka@protonmail.com'))
+        b.bis_administrators.add(User.objects.get(emails__email='dzikilubiabloto@protonmail.com'))
+        b.bis_administrators.add(User.objects.get(emails__email='radka@slunovrat.info'))
+        b.bis_administrators.add(User.objects.get(emails__email='terca.op@seznam.cz'))

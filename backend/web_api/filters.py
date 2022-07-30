@@ -1,6 +1,7 @@
 from django.db.utils import ProgrammingError
 from django_filters import *
 
+from administration_units.models import AdministrationUnit
 from categories.models import EventCategory, EventProgramCategory, PropagationIntendedForCategory, OpportunityCategory
 from event.models import Event
 from opportunities.models import Opportunity
@@ -10,9 +11,9 @@ class ChoiceInFilter(BaseInFilter, ChoiceFilter):
     pass
 
 
-def get_choices(model):
+def get_choices(model, fn):
     try:
-        return [(c.slug, c.name) for c in model.objects.all()]
+        return [fn(c) for c in model.objects.all()]
     except ProgrammingError:
         return []
 
@@ -20,15 +21,19 @@ def get_choices(model):
 class EventFilter(FilterSet):
     category = ChoiceInFilter(
         field_name='category__slug',
-        choices=get_choices(EventCategory)
+        choices=get_choices(EventCategory, lambda x: (x.slug, x.name))
     )
     program = ChoiceInFilter(
         field_name='program__slug',
-        choices=get_choices(EventProgramCategory)
+        choices=get_choices(EventProgramCategory, lambda x: (x.slug, x.name))
     )
     intended_for = ChoiceInFilter(
         field_name='propagation__intended_for__slug',
-        choices=get_choices(PropagationIntendedForCategory)
+        choices=get_choices(PropagationIntendedForCategory, lambda x: (x.slug, x.name))
+    )
+    administration_unit = ChoiceInFilter(
+        field_name='administration_units__id',
+        choices=get_choices(AdministrationUnit, lambda x: (x.id, x.abbreviation))
     )
     duration = NumberFilter(field_name='duration')
     duration__lte = NumberFilter(field_name='duration', lookup_expr='gte')
@@ -42,7 +47,7 @@ class EventFilter(FilterSet):
 class OpportunityFilter(FilterSet):
     category = ChoiceInFilter(
         field_name='category__slug',
-        choices=get_choices(OpportunityCategory)
+        choices=get_choices(OpportunityCategory, lambda x: (x.slug, x.name))
     )
 
     class Meta:
