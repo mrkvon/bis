@@ -62,11 +62,17 @@ class EventPhotoAdmin(NestedTabularInline):
     classes = 'collapse',
 
 
+class EventFinanceReceiptAdmin(NestedStackedInline):
+    model = EventFinanceReceipt
+    classes = 'collapse',
+
 class EventFinanceAdmin(NestedStackedInline):
     model = EventFinance
     classes = 'collapse',
 
     exclude = 'grant_category', 'grant_amount', 'total_event_cost'
+
+    inlines = EventFinanceReceiptAdmin,
 
 
 class EventVIPPropagationAdmin(NestedStackedInline):

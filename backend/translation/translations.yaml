@@ -196,6 +196,15 @@ models:
       grant_amount: 'Přidělené dotace'
       total_event_cost: 'Celkové náklady akce'
       budget: 'Rozpočet'
+      bank_account_number:
+        - 'Číslo bankvního účtu'
+        - 'Pro zaslání dotací'
+  EventFinanceReceipt:
+    name: 'Účtenka'
+    name_plural: 'Účtenky'
+    fields:
+      finance: 'Finance události'
+      receipt: 'Účtenky'
 
   EventPropagation:
     name: 'Propagace události'

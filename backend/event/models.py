@@ -87,6 +87,8 @@ class Event(Model):
 class EventFinance(Model):
     event = OneToOneField(Event, related_name='finance', on_delete=CASCADE)
 
+    bank_account_number = CharField(max_length=63, blank=True)
+
     grant_category = ForeignKey(GrantCategory, on_delete=CASCADE, related_name='events', null=True, blank=True)
     grant_amount = PositiveIntegerField(null=True, blank=True)
     total_event_cost = PositiveIntegerField(null=True, blank=True)
@@ -97,6 +99,18 @@ class EventFinance(Model):
 
     def __str__(self):
         return f'Finance k události {self.event}'
+
+
+@translate_model
+class EventFinanceReceipt(Model):
+    finance = ForeignKey(EventFinance, on_delete=CASCADE, related_name='receipts')
+    receipt = FileField(upload_to='receipts')
+
+    class Meta:
+        ordering = 'id',
+
+    def __str__(self):
+        return basename(self.receipt.name)
 
 
 @translate_model
