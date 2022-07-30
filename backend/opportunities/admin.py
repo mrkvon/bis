@@ -2,7 +2,7 @@ from more_admin_filters import MultiSelectRelatedDropdownFilter
 from nested_admin.nested import NestedModelAdmin
 from rangefilter.filters import DateRangeFilter
 
-from bis.admin_helpers import EditableByOfficeMixin
+from bis.admin_permissions import EditableByOfficeMixin
 from event.models import *
 from opportunities.models import Opportunity, OfferedHelp
 

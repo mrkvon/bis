@@ -149,7 +149,6 @@ class Command(BaseCommand):
         GrantCategory.objects.update_or_create(slug='other', defaults=dict(name='z jiných projektů'))
 
         DonationSourceCategory.objects.update_or_create(slug='bank_transfer', defaults=dict(name='bankovním převodem'))
-        DonationSourceCategory.objects.update_or_create(slug='darujme', defaults=dict(name='darujme.cz'))
 
         OrganizerRoleCategory.objects.update_or_create(slug='program', defaults=dict(name='Tvorba a vedení her'))
         OrganizerRoleCategory.objects.update_or_create(slug='material',

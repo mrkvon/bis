@@ -1,3 +1,4 @@
+from dateutil.utils import today
 from django.contrib.gis.db.models import *
 from django.core.exceptions import ValidationError
 from solo.models import SingletonModel
@@ -20,12 +21,18 @@ def is_basic_section(value: AdministrationUnit):
         raise ValidationError('not basic_section')
 
 
+def get_today():
+    return today().date()
+
+
 @translate_model
 class Donor(Model):
     user = OneToOneField(User, related_name='donor', on_delete=CASCADE)
     subscribed_to_newsletter = BooleanField(default=True)
     is_public = BooleanField(default=True)
-    date_joined = DateField()
+    has_recurrent_donation = BooleanField(default=False)
+
+    date_joined = DateField(default=get_today)
     regional_center_support = ForeignKey(AdministrationUnit, related_name='supported_as_regional_center',
                                          on_delete=CASCADE, null=True, blank=True, validators=[is_regional_center])
     basic_section_support = ForeignKey(AdministrationUnit, related_name='supported_as_basic_section',
@@ -82,15 +89,14 @@ class VariableSymbol(Model):
 
 @translate_model
 class Donation(Model):
-    donor = ForeignKey(Donor, on_delete=CASCADE, related_name='donations', null=True, blank=True)
+    donor = ForeignKey(Donor, on_delete=CASCADE, related_name='donations', null=True)
     donated_at = DateField()
     amount = IntegerField()
     donation_source = ForeignKey(DonationSourceCategory, related_name='donations', on_delete=CASCADE)
 
-    _variable_symbol = PositiveBigIntegerField(null=True, blank=True)
+    _variable_symbol = PositiveBigIntegerField(null=True)
     _import_id = PositiveIntegerField(null=True)
     info = TextField()
-
 
     def __str__(self):
         return f'{self.amount} Kč'

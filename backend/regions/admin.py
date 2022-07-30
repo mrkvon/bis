@@ -1,7 +1,7 @@
 from django.contrib.gis.admin import OSMGeoAdmin
 from nested_admin.nested import NestedModelAdmin
 
-from bis.admin_helpers import EditableByAdminOnlyMixin, ReadOnlyMixin
+from bis.admin_permissions import ReadOnlyMixin, EditableByAdminOnlyMixin
 from event.models import *
 from regions.models import Region, ZipCode
 

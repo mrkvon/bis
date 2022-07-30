@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from bis.admin_helpers import ReadOnlyMixin
+from bis.admin_permissions import ReadOnlyMixin
 from categories.models import *
 
 

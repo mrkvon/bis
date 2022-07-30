@@ -103,6 +103,7 @@ class EventProgramCategory(Model):
 
 @translate_model
 class DonationSourceCategory(Model):
+    _import_id = CharField(max_length=7)
     name = CharField(max_length=63)
     slug = SlugField(unique=True)
 

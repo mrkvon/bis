@@ -1,7 +1,10 @@
 from datetime import timedelta
+from time import time
 
 from django.apps import apps
+from django.core.cache import cache
 from django.utils.safestring import mark_safe
+from django.utils.text import slugify
 
 
 def record_history(history: dict, date, user, position):
@@ -34,3 +37,20 @@ def show_history(history: dict):
     rows = ''.join([f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2][0]} - {row[2][1]}</td></tr>' for row in result])
 
     return mark_safe(f'<table>{rows}</table>')
+
+
+def print_progress(name, i, total):
+    key = f'progress_of_{slugify(name)}'
+
+    if i >= total - 1:
+        cache.set(key, None)
+        return
+
+    obj = cache.get(key)
+    if not obj:
+        print(name)
+        cache.set(key, time())
+
+    elif time() - obj >= 1:
+        print(f"{name}, progress {100 * i / total:.2f}%")
+        cache.set(key, time())

@@ -6,7 +6,7 @@ from nested_admin.forms import SortableHiddenMixin
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin, NestedStackedInline
 from rangefilter.filters import DateRangeFilter
 
-from bis.admin_helpers import FilterQuerysetMixin, EditableByBoardMixin
+from bis.admin_permissions import EditableByBoardMixin, FilterQuerysetMixin
 from event.models import *
 from questionnaire.admin import QuestionnaireAdmin
 

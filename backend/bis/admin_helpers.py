@@ -3,6 +3,7 @@ from admin_numeric_filter.forms import SliderNumericForm
 from django.contrib.admin import ListFilter
 from django.urls import reverse
 from more_admin_filters import MultiSelectDropdownFilter
+from rangefilter.filters import DateRangeFilter
 
 from bis.models import *
 
@@ -162,60 +163,25 @@ class AgeFilter(RawRangeNumericFilter):
         return queryset.filter(**filters)
 
 
-class ReadOnlyMixin:
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
+class AggDonorsDonation(DateRangeFilter):
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        field_path = self.custom_field_path
+        super().__init__(field, request, params, model, model_admin, field_path)
+        self.title = self.custom_title
 
 
-class EditableByAdminOnlyMixin:
-    def has_add_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser
+class FirstDonorsDonation(AggDonorsDonation):
+    custom_title = 'Dle prvního daru'
+    custom_field_path = 'first_donation'
+    annotate_with = {'first_donation': Min('donations__donated_at')}
 
 
-class EditableByOfficeMixin:
-    def has_add_permission(self, request, obj=None):
-        return request.user.is_superuser or request.user.is_office_worker
+class LastDonorsDonation(AggDonorsDonation):
+    custom_title = 'Dle posledního daru'
+    custom_field_path = 'last_donation'
+    annotate_with = {'last_donation': Max('donations__donated_at')}
 
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_superuser or request.user.is_office_worker
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser or request.user.is_office_worker
-
-
-class EditableByBoardMixin:
-    def has_add_permission(self, request, obj=None):
-        return request.user.is_superuser or request.user.is_office_worker or request.user.is_board_member
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_superuser or request.user.is_office_worker or request.user.is_board_member
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser or request.user.is_office_worker or request.user.is_board_member
-
-
-class FilterQuerysetMixin:
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        if request.user.can_see_all:
-            return queryset
-
-        queryset = self.model.filter_queryset(queryset, request.user)
-
-        ordering = self.get_ordering(request)
-        if ordering:
-            queryset = queryset.order_by(*ordering)
-
-        return queryset
+class AnnotateDonationsCount(DateRangeFilter):
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        field_path = ''
+        super().__init__(field, request, params, model, model_admin, field_path)

@@ -8,9 +8,9 @@ from nested_admin.nested import NestedTabularInline, NestedStackedInline, Nested
 from rangefilter.filters import DateRangeFilter
 from rest_framework.authtoken.models import TokenProxy
 
-from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter, FilterQuerysetMixin, \
-    EditableByBoardMixin, MembershipsYearFilter, AgeFilter, IsChairmanFilter, IsViceChairmanFilter, IsManagerFilter, \
+from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter, MembershipsYearFilter, AgeFilter, IsChairmanFilter, IsViceChairmanFilter, IsManagerFilter, \
     IsBoardMemberFilter
+from bis.admin_permissions import EditableByBoardMixin, FilterQuerysetMixin
 from bis.models import *
 from opportunities.models import OfferedHelp
 from other.models import DuplicateUser

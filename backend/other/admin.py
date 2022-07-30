@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from nested_admin.nested import NestedModelAdmin
 
-from bis.admin_helpers import FilterQuerysetMixin, ReadOnlyMixin, EditableByOfficeMixin
+from bis.admin_permissions import ReadOnlyMixin, EditableByOfficeMixin, FilterQuerysetMixin
 from event.models import *
 from other.models import DuplicateUser, Feedback
 

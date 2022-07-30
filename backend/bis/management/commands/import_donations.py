@@ -2,8 +2,10 @@ import requests
 from dateutil.parser import isoparse
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.utils.text import slugify
 
 from administration_units.models import AdministrationUnit
+from bis.helpers import print_progress
 from bis.models import User, UserEmail, UserAddress
 from categories.models import DonationSourceCategory
 from donations.models import Donor, Donation
@@ -12,16 +14,32 @@ from donations.models import Donor, Donation
 class Command(BaseCommand):
     help = "Import new donations from darujme"
 
+    base_url = 'https://www.darujme.cz/api/v1'
+    api_secrets = f"apiId={settings.DARUJME_API_KEY}&apiSecret={settings.DARUJME_SECRET}"
+
+    def project_data(self, project_id):
+        url = f"{self.base_url}/project/{project_id}?{self.api_secrets}"
+
+        return requests.get(url).json()
+
     def handle(self, *args, **options):
-        url = f"https://www.darujme.cz/api/v1/organization/206/pledges-by-filter" \
-              f"?apiId={settings.DARUJME_API_KEY}" \
-              f"&apiSecret={settings.DARUJME_SECRET}" \
-              f"&projectId=525"  # adoptuj brontosaura
+        url = f"{self.base_url}/organization/206/pledges-by-filter?{self.api_secrets}"
 
         data = requests.get(url).json()
-        donation_source = DonationSourceCategory.objects.get(slug='darujme')
 
-        for pledge in data['pledges']:
+        projects = {}
+
+        for i, pledge in enumerate(data['pledges']):
+            print_progress('importing donations', i, len(data['pledges']))
+
+            project_id = pledge['projectId']
+            if project_id not in projects:
+                name = self.project_data(project_id)['project']['title']['cs']
+                projects[project_id] = DonationSourceCategory.objects.update_or_create(
+                    _import_id=project_id,
+                    defaults=dict(name=name, slug=slugify(name)[:50]))[0]
+
+            donation_source = projects[project_id]
             donor = pledge['donor']
             custom = pledge['customFields']
 
@@ -44,13 +62,20 @@ class Command(BaseCommand):
                 zip_code=donor['address']['postCode'],
             ))
 
-            donor = Donor.objects.get_or_create(user=user, defaults=dict(
-                date_joined=isoparse(pledge['pledgedAt']),
-                basic_section_support=custom.get('Brontosaurus_adopce_ZC') and AdministrationUnit.objects.get(
-                    abbreviation=custom['Brontosaurus_adopce_ZC']),
-                regional_center_support=custom.get('Brontosaurus_adopce_RC') and AdministrationUnit.objects.get(
-                    abbreviation=custom['Brontosaurus_adopce_RC']),
-            ))[0]
+            donor = Donor.objects.get_or_create(user=user)[0]
+
+            basic_section_support = custom.get('Brontosaurus_adopce_ZC') and \
+                                    AdministrationUnit.objects.get(abbreviation=custom['Brontosaurus_adopce_ZC'])
+            regional_center_support = custom.get('Brontosaurus_adopce_RC') and \
+                                      AdministrationUnit.objects.get(abbreviation=custom['Brontosaurus_adopce_RC'])
+            date_joined = isoparse(pledge['pledgedAt'])
+            has_recurrent_donation = pledge['isRecurrent']
+
+            donor.date_joined = min(donor.date_joined, date_joined.date())
+            donor.basic_section_support = basic_section_support or donor.basic_section_support
+            donor.regional_center_support = regional_center_support or donor.regional_center_support
+            donor.has_recurrent_donation = has_recurrent_donation or donor.has_recurrent_donation
+            donor.save()
 
             for transaction in transactions:
                 Donation.objects.get_or_create(_import_id=transaction['transactionId'], defaults=dict(

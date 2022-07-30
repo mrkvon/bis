@@ -6,7 +6,8 @@ from solo.admin import SingletonModelAdmin
 
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, AdministrationUnitAddress, \
     AdministrationUnitContactAddress
-from bis.admin_helpers import EditableByAdminOnlyMixin, IsAdministrationUnitActiveFilter
+from bis.admin_helpers import IsAdministrationUnitActiveFilter
+from bis.admin_permissions import EditableByAdminOnlyMixin
 from bis.helpers import show_history
 
 

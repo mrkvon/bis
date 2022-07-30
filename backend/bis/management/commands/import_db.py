@@ -12,9 +12,9 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models.signals import post_save
 from django.utils.datetime_safe import date, datetime
-from django.utils.timezone import now
 
 from administration_units.models import AdministrationUnit, AdministrationUnitAddress, BrontosaurusMovement
+from bis.helpers import print_progress
 from bis.models import User, UserAddress, Qualification, Location, Membership, UserEmail, UserContactAddress
 from bis.signals import set_unique_str
 from categories.models import MembershipCategory, EventCategory, EventProgramCategory, QualificationCategory, \
@@ -176,16 +176,6 @@ class Command(BaseCommand):
         self.location_map = {l._import_id: l for l in Location.objects.all()}
         self.event_map = {e._import_id: e for e in Event.objects.all()}
 
-    progresses = {}
-
-    def print_progress(self, slug, i, total):
-        if slug not in self.progresses:
-            self.progresses[slug] = now()
-
-        if (now() - self.progresses[slug]).seconds > 1:
-            print(f"importing {slug}, progress {100 * i / total:.2f}%")
-            self.progresses[slug] = now()
-
     def load_data(self):
         if not exists(self.file_path):
             print(self.file_path, 'does not exists')
@@ -214,7 +204,7 @@ class Command(BaseCommand):
     def import_users(self, data):
         post_save.disconnect(sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
         for i, (id, item) in enumerate(data['adresa'].items()):
-            self.print_progress('users', i, len(data['adresa']))
+            print_progress('importing users', i, len(data['adresa']))
 
             birthday = parse_date(item['datum_narozeni'])
 
@@ -374,7 +364,7 @@ class Command(BaseCommand):
 
     def import_donors(self, data):
         for i, (id, item) in enumerate(data['darce'].items()):
-            self.print_progress('donors', i, len(data['darce']))
+            print_progress('importing donors', i, len(data['darce']))
             if id not in self.user_map: continue
 
             user = self.user_map[id]
@@ -407,7 +397,7 @@ class Command(BaseCommand):
 
     def import_memberships(self, data):
         for i, (id, item) in enumerate(data['clen'].items()):
-            self.print_progress('memberships', i, len(data['clen']))
+            print_progress('importing memberships', i, len(data['clen']))
 
             if item['klub'] not in self.administration_unit_map or item['adresa'] not in self.user_map:
                 continue
@@ -440,7 +430,7 @@ class Command(BaseCommand):
                 .append(self.administration_unit_map[item['klub']])
 
         for i, (id, item) in enumerate(data['akce'].items()):
-            self.print_progress('events', i, len(data['akce']))
+            print_progress('importing events', i, len(data['akce']))
             attachments = self.get_attachments(item)
             if id in data['tabor']:
                 attachments = attachments.union(self.get_attachments(data['tabor'][id]))
@@ -557,7 +547,7 @@ class Command(BaseCommand):
 
     def import_participants(self, data):
         for i, item in enumerate(data['ucastnik']):
-            self.print_progress('participants', i, len(data['ucastnik']))
+            print_progress('importing participants', i, len(data['ucastnik']))
             event = self.event_map[item['akce']]
             person = self.user_map.get(item['adresa'])
             if not person: continue

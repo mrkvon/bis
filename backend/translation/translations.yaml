@@ -432,6 +432,8 @@ models:
       date_joined: 'Dárcem od'
       regional_center_support: 'podpora RC'
       basic_section_support: 'podpora ZČ'
+      has_recurrent_donation: 'Pravidelný dárce'
+
   Donation:
     name: 'Dar'
     name_plural: 'Dary'
