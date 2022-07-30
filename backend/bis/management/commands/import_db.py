@@ -331,6 +331,9 @@ class Command(BaseCommand):
                 ic = data['zc'][id]['ic']
                 bank_account_number = data['zc'][id]['ucet']
 
+            if AdministrationUnit.objects.filter(abbreviation=item['zkratka']).count():
+                AdministrationUnit.objects.filter(abbreviation=item['zkratka']).update(abbrevation=item['name'])
+
             administration_unit = AdministrationUnit.objects.update_or_create(
                 _import_id=id,
                 defaults=dict(

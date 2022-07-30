@@ -35,8 +35,8 @@ class BaseAddress(Model):
 
 @translate_model
 class AdministrationUnit(Model):
-    name = CharField(max_length=255)
-    abbreviation = CharField(max_length=63)
+    name = CharField(max_length=255, unique=True)
+    abbreviation = CharField(max_length=63, unique=True)
 
     is_for_kids = BooleanField()
 
