@@ -190,7 +190,7 @@ class EventRecord(Model):
         if self.event.is_volunteering() and not self.total_hours_worked:
             raise ValidationError('Odpracováno člověkohodin nevyplněno')
 
-        if self.event.duration > 1 and self.event.is_volunteering():
+        if (self.event.duration or 0) > 1 and self.event.is_volunteering():
             if not self.working_hours:
                 raise ValidationError('Odpracovaných hodin denně nevyplněno')
             if not self.working_days:

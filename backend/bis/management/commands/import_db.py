@@ -337,17 +337,17 @@ class Command(BaseCommand):
                     name=item['nazev'],
                     abbreviation=item['zkratka'],
                     is_for_kids=item['brdo'] == '1',
-                    phone=item['telefon'],
+                    phone=item['telefon'] or '',
                     email=(item['email'] or '').lower(),
-                    www=item['www'],
+                    www=item['www'] or '',
                     existed_since=parse_date(since),
                     existed_till=parse_date(till),
                     chairman=chairman,
                     vice_chairman=vice_chairman,
                     manager=manager,
                     category=self.administration_unit_category_map[item['uroven']],
-                    ic=ic,
-                    bank_account_number=bank_account_number,
+                    ic=ic or '',
+                    bank_account_number=bank_account_number or '',
                 )
             )[0]
 

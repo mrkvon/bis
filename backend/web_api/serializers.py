@@ -40,7 +40,7 @@ class EventPropagationSerializer(ModelSerializer):
         return instance.contact_name or (instance.contact_person and instance.contact_person.get_name())
 
     def get_contact_phone(self, instance):
-        return instance.contact_phone or (instance.contact_person and instance.contact_person.phone)
+        return str(instance.contact_phone) or (instance.contact_person and str(instance.contact_person.phone))
 
     def get_contact_email(self, instance):
         return instance.contact_email or (instance.contact_person and instance.contact_person.emails.first())
@@ -122,7 +122,7 @@ class OpportunitySerializer(ModelSerializer):
         return instance.contact_name or (instance.contact_person and instance.contact_person.get_name())
 
     def get_contact_phone(self, instance):
-        return instance.contact_phone or (instance.contact_person and instance.contact_person.phone)
+        return str(instance.contact_phone) or (instance.contact_person and str(instance.contact_person.phone))
 
     def get_contact_email(self, instance):
         return instance.contact_email or (instance.contact_person and instance.contact_person.emails.first().email)

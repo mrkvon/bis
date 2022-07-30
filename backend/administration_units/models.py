@@ -40,11 +40,11 @@ class AdministrationUnit(Model):
 
     is_for_kids = BooleanField()
 
-    phone = PhoneNumberField(null=True)
-    email = EmailField(null=True)
-    www = URLField(null=True, blank=True)
-    ic = CharField(max_length=15, null=True, blank=True)
-    bank_account_number = CharField(max_length=63, null=True, blank=True)
+    phone = PhoneNumberField()
+    email = EmailField()
+    www = URLField(blank=True)
+    ic = CharField(max_length=15, blank=True)
+    bank_account_number = CharField(max_length=63, blank=True)
 
     existed_since = DateField(null=True)
     existed_till = DateField(null=True, blank=True)
