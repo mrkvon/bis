@@ -1,5 +1,6 @@
 from admin_numeric_filter.admin import RangeNumericFilter
 from admin_numeric_filter.forms import SliderNumericForm
+from django.apps import apps
 from django.contrib.admin import ListFilter
 from django.urls import reverse
 from more_admin_filters import MultiSelectDropdownFilter
@@ -163,25 +164,64 @@ class AgeFilter(RawRangeNumericFilter):
         return queryset.filter(**filters)
 
 
-class AggDonorsDonation(DateRangeFilter):
+class AggDonorsDonationFilter(DateRangeFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
         field_path = self.custom_field_path
         super().__init__(field, request, params, model, model_admin, field_path)
         self.title = self.custom_title
 
 
-class FirstDonorsDonation(AggDonorsDonation):
+class FirstDonorsDonationFilter(AggDonorsDonationFilter):
     custom_title = 'Dle prvního daru'
     custom_field_path = 'first_donation'
-    annotate_with = {'first_donation': Min('donations__donated_at')}
 
 
-class LastDonorsDonation(AggDonorsDonation):
+class LastDonorsDonationFilter(AggDonorsDonationFilter):
     custom_title = 'Dle posledního daru'
     custom_field_path = 'last_donation'
-    annotate_with = {'last_donation': Max('donations__donated_at')}
+
+
+class RecurringDonorWhoStoppedFilter(admin.SimpleListFilter):
+    title = 'Pravidelný dárce bez daru za poslední rok'
+    parameter_name = 'reccuring_donor_who_stopped'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'Jen'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            queryset = queryset.exclude(donations__donated_at__gte=now() - relativedelta(years=1)) \
+                .filter(has_recurrent_donation=True)
+        return queryset
+
 
 class AnnotateDonationsCount(DateRangeFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
-        field_path = ''
+        field_path = 'donated_at'
         super().__init__(field, request, params, model, model_admin, field_path)
+        self.title = 'Suma darů z rozmezí'
+
+    def queryset(self, request, queryset):
+        if self.form.is_valid():
+            validated_data = dict(self.form.cleaned_data.items())
+            if validated_data:
+                query = self._make_query_filter(request, validated_data)
+                query['donor'] = OuterRef('pk')
+                donations = apps.get_model('donations', 'Donation').objects.filter(**query).values('donor')
+                donations_sum = donations.annotate(total=Sum('amount')).values('total')
+                queryset = queryset.annotate(
+                    donations_sum=Subquery(donations_sum)
+                )
+                setattr(self.model_admin, 'donations_sum_cache', {d.id: d.donations_sum for d in queryset})
+                return queryset
+
+        return queryset
+
+
+class DonationSumAmountFilter(RangeNumericFilter):
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        field_path = 'donations_sum'
+        super().__init__(field, request, params, model, model_admin, field_path)
+        self.title = 'Dle sumy darů'

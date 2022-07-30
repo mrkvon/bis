@@ -8,7 +8,8 @@ from nested_admin.nested import NestedModelAdmin, NestedTabularInline
 from rangefilter.filters import DateRangeFilter
 from solo.admin import SingletonModelAdmin
 
-from bis.admin_helpers import HasDonorFilter, FirstDonorsDonation, LastDonorsDonation
+from bis.admin_helpers import HasDonorFilter, FirstDonorsDonationFilter, LastDonorsDonationFilter, \
+    RecurringDonorWhoStoppedFilter, AnnotateDonationsCount, DonationSumAmountFilter
 from bis.admin_permissions import ReadOnlyMixin, EditableByAdminOnlyMixin, EditableByOfficeMixin
 from donations.helpers import upload_bank_records
 from donations.models import UploadBankRecords, Donor, Donation, VariableSymbol
@@ -48,20 +49,28 @@ class VariableSymbolInline(NestedTabularInline):
 
 @admin.register(Donor)
 class DonorAdmin(EditableByOfficeMixin, NestedModelAdmin):
-    list_display = 'user', 'subscribed_to_newsletter', 'is_public', 'regional_center_support', 'basic_section_support', 'date_joined'
+    list_display = 'user', 'subscribed_to_newsletter', 'is_public', \
+                   'regional_center_support', 'basic_section_support', \
+                   'date_joined', 'get_donations_sum'
+
     list_select_related = 'user', 'regional_center_support', 'basic_section_support'
     inlines = VariableSymbolInline, DonationAdminInline,
     search_fields = 'user__emails__email', 'user__phone', 'user__first_name', 'user__last_name', 'user__nickname',
-    list_filter = 'subscribed_to_newsletter', 'is_public', ('date_joined', DateRangeFilter), \
+    list_filter = 'subscribed_to_newsletter', 'is_public', 'has_recurrent_donation', \
+                  ('date_joined', DateRangeFilter), \
                   AutocompleteFilterFactory('Podporující RC', 'regional_center_support'), \
                   AutocompleteFilterFactory('Podporující ZČ', 'basic_section_support'), \
-                  ('donations__donated_at', FirstDonorsDonation), ('donations__donated_at', LastDonorsDonation)
+                  ('donations__donated_at', FirstDonorsDonationFilter), \
+                  ('donations__donated_at', LastDonorsDonationFilter), \
+                  ('donations__donated_at', AnnotateDonationsCount), \
+                  ('donations__amount', DonationSumAmountFilter), \
+                  RecurringDonorWhoStoppedFilter
 
     autocomplete_fields = 'regional_center_support', 'basic_section_support', 'user'
 
     def get_readonly_fields(self, request, obj=None):
-        if obj: return 'user',
-        return []
+        if obj: return 'user', 'get_donations_sum'
+        return 'get_donations_sum',
 
     def save_formset(self, request, form, formset, change):
         if formset.model is Donation:
@@ -74,7 +83,14 @@ class DonorAdmin(EditableByOfficeMixin, NestedModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request) \
             .annotate(first_donation=Min('donations__donated_at')) \
-            .annotate(last_donation=Max('donations__donated_at'))
+            .annotate(last_donation=Max('donations__donated_at')) \
+            .annotate(donations_sum=Sum('donations__amount'))
+
+    @admin.display(description='Suma darů')
+    def get_donations_sum(self, obj):
+        if hasattr(self, 'donations_sum_cache'):
+            return getattr(self, 'donations_sum_cache')[obj.id]
+        return obj.donations_sum
 
 
 @admin.register(UploadBankRecords)
