@@ -75,8 +75,8 @@ class User(Model):
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'id'
 
-    first_name = CharField(max_length=63, blank=True)
-    last_name = CharField(max_length=63, blank=True)
+    first_name = CharField(max_length=63)
+    last_name = CharField(max_length=63)
     nickname = CharField(max_length=63, blank=True)
     phone = PhoneNumberField(blank=True)
     birthday = DateField(blank=True, null=True)
