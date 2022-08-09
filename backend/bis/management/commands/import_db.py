@@ -597,3 +597,4 @@ class Command(BaseCommand):
         b.bis_administrators.add(User.objects.get(emails__email='dzikilubiabloto@protonmail.com'))
         b.bis_administrators.add(User.objects.get(emails__email='radka@slunovrat.info'))
         b.bis_administrators.add(User.objects.get(emails__email='terca.op@seznam.cz'))
+        b.bis_administrators.add(User.objects.get(emails__email='daniel.kurowski@grifart.cz'))
