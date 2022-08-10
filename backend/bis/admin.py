@@ -84,12 +84,15 @@ class UserOfferedHelpAdmin(PermissionMixin, NestedStackedInline):
 
 @admin.register(User)
 class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin):
-    readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_emails', 'get_events_where_was_organizer', 'get_participated_in_events'
+    readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_emails', \
+                      'get_events_where_was_organizer', 'get_participated_in_events', \
+                      'roles'
     exclude = 'groups', 'user_permissions', 'password', 'is_superuser', '_str'
 
     fieldsets = (
         (None, {
-            'fields': ('first_name', 'last_name', 'nickname', 'get_emails', 'phone', 'birthday', 'close_person')
+            'fields': ('first_name', 'last_name', 'nickname', 'get_emails', 'phone', 'birthday', 'close_person',
+                       'roles')
         }),
         ('Události', {
             'fields': ('get_events_where_was_organizer', 'get_participated_in_events')
@@ -114,10 +117,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
                   ('participated_in_events__event__start', DateRangeFilter), \
                   ('events_where_was_organizer__start', DateRangeFilter), \
                   ('events_where_was_as_main_organizer__start', DateRangeFilter), \
-                  IsChairmanFilter, \
-                  IsViceChairmanFilter, \
-                  IsManagerFilter, \
-                  IsBoardMemberFilter, \
+                  ('roles', MultiSelectRelatedDropdownFilter), \
                   ('offers__programs', MultiSelectRelatedDropdownFilter), \
                   ('offers__organizer_roles', MultiSelectRelatedDropdownFilter), \
                   ('offers__team_roles', MultiSelectRelatedDropdownFilter), \

@@ -2,9 +2,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
-from bis.models import *
-from regions.models import Region
+from bis.models import User, Location
 from project import settings
+from regions.models import Region
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL, dispatch_uid='create_auth_token_for_all_users')
@@ -56,5 +56,17 @@ def set_region_for_location(instance: Location, created, **kwargs):
             instance.region = region
             instance.save()
 
+class paused_user_str_signal:
+    def __enter__(self):
+        post_save.disconnect(sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        post_save.connect(set_unique_str, sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
+        User.objects.first().save()
 
+def with_paused_user_str_signal(f):
+    def wrapper(*args, **kwargs):
+        with paused_user_str_signal():
+            return f(*args, **kwargs)
+
+    return wrapper

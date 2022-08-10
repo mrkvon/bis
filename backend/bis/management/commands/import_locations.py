@@ -10,7 +10,9 @@ from django.core.management.base import BaseCommand
 from pip._vendor.pep517.dirtools import mkdir_p
 from requests import HTTPError
 
+from bis.helpers import print_progress
 from bis.models import Location, User, UserEmail, LocationPhoto
+from bis.signals import with_paused_user_str_signal
 from categories.models import LocationProgram, LocationAccessibility
 
 
@@ -90,7 +92,7 @@ class Command(BaseCommand):
             attr_name = 'patron' if attr['attribute']['id'] == 2264 else 'contact_person'
             match = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', attr['value'])
             if not match: return {}
-            email = match.group(0)
+            email = match.group(0).lower()
 
             user = User.objects.filter(emails__email=email).first()
             if not user:
@@ -120,6 +122,7 @@ class Command(BaseCommand):
 
         return res
 
+    @with_paused_user_str_signal
     def handle(self, *args, **options):
         dir_path = join(settings.BASE_DIR, 'media', 'location_photos')
         mkdir_p(dir_path)
@@ -127,7 +130,9 @@ class Command(BaseCommand):
         opener = request.build_opener()
         opener.addheaders = [('User-agent', 'Mozilla/5.0')]
         request.install_opener(opener)
-        for feature in self.get_locations()['features']:
+        features = self.get_locations()['features']
+        for i, feature in enumerate(features):
+            print_progress('importing locations', i, len(features))
             assert feature['type'] == 'Feature'
             assert feature['geometry']['type'] == 'Point'
             _import_id = feature['properties']['id']

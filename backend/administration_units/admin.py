@@ -48,6 +48,10 @@ class AdministrationUnitAdmin(PermissionMixin, NestedModelAdmin):
         name, host = obj.email.split('@')
         return mark_safe(f'{name}<br>@{host}')
 
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        form.instance.save()
+
 
 @admin.register(BrontosaurusMovement)
 class BrontosaurusMovementAdmin(PermissionMixin, SingletonModelAdmin):

@@ -3,11 +3,10 @@ import re
 from django.apps import apps
 from django.contrib.gis.db.models import *
 from django.core.cache import cache
-from django.core.serializers.json import DjangoJSONEncoder
 from phonenumber_field.modelfields import PhoneNumberField
 from solo.models import SingletonModel
 
-from bis.helpers import record_history, permission_cache
+from bis.helpers import record_history, permission_cache, update_roles
 from categories.models import AdministrationUnitCategory
 from translation.translate import translate_model
 
@@ -53,11 +52,12 @@ class AdministrationUnit(Model):
     chairman = ForeignKey('bis.User', related_name='chairman_of', on_delete=CASCADE, null=True)
     vice_chairman = ForeignKey('bis.User', related_name='vice_chairman_of', on_delete=CASCADE, null=True, blank=True)
     manager = ForeignKey('bis.User', related_name='manager_of', on_delete=CASCADE, null=True)
-    board_members = ManyToManyField('bis.User', related_name='administration_units')
+    board_members = ManyToManyField('bis.User', related_name='administration_units', blank=True)
 
     _import_id = CharField(max_length=15, default='')
     _history = JSONField(default=dict)
 
+    @update_roles('chairman', 'vice_chairman', 'manager')
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.email = self.email.lower()
         super().save(force_insert, force_update, using, update_fields)
@@ -104,6 +104,7 @@ class BrontosaurusMovement(SingletonModel):
     education_members = ManyToManyField('bis.User', related_name='+', blank=True)
     _history = JSONField(default=dict)
 
+    @update_roles('director', 'finance_director')
     def save(self, *args, **kwargs):
         cache.set('brontosaurus_movement', None)
         super().save(*args, **kwargs)

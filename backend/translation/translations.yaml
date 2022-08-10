@@ -45,6 +45,7 @@ models:
       is_active: 'Může se uživatel přihlásit?'
       date_joined: 'Datum vzniku účtu'
       close_person: 'Rodič / blízká osoba'
+      roles: 'Role'
 
   UserAddress:
     name: 'Adresa uživatele'
@@ -428,6 +429,12 @@ models:
   LocationAccessibility:
     name: 'Dostupnost lokality'
     name_plural: 'Dostupnosti lokalit'
+    fields:
+      name: 'Jméno'
+      slug: 'Zkratka'
+  RoleCategory:
+    name: 'Typ role'
+    name_plural: 'Typy rolí'
     fields:
       name: 'Jméno'
       slug: 'Zkratka'

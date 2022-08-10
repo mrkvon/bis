@@ -7,6 +7,7 @@ from django.utils.text import slugify
 from administration_units.models import AdministrationUnit
 from bis.helpers import print_progress
 from bis.models import User, UserEmail, UserAddress
+from bis.signals import with_paused_user_str_signal
 from categories.models import DonationSourceCategory
 from donations.models import Donor, Donation
 
@@ -22,6 +23,7 @@ class Command(BaseCommand):
 
         return requests.get(url).json()
 
+    @with_paused_user_str_signal
     def handle(self, *args, **options):
         url = f"{self.base_url}/organization/206/pledges-by-filter?{self.api_secrets}"
 

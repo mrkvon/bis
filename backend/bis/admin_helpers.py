@@ -1,6 +1,5 @@
 from admin_numeric_filter.admin import RangeNumericFilter
 from admin_numeric_filter.forms import SliderNumericForm
-from django.apps import apps
 from django.contrib.admin import ListFilter
 from django.urls import reverse
 from more_admin_filters import MultiSelectDropdownFilter

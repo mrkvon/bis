@@ -11,7 +11,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from tinymce.models import HTMLField
 
 from administration_units.models import AdministrationUnit
-from bis.helpers import permission_cache
+from bis.helpers import permission_cache, update_roles
 from bis.models import Location, User
 from categories.models import GrantCategory, PropagationIntendedForCategory, DietCategory, \
     EventCategory, EventProgramCategory
@@ -54,6 +54,7 @@ class Event(Model):
         if not self.location and not self.online_link:
             raise ValidationError('Musí být vyplněná lokace nebo online link pro připojení')
 
+    @update_roles('main_organizer')
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if not settings.SKIP_VALIDATION: self.clean()
         super().save(force_insert, force_update, using, update_fields)

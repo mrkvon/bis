@@ -1,18 +1,19 @@
-from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db.models.signals import post_save
 from django.utils.datetime_safe import date
 
+from bis.helpers import print_progress
 from bis.models import User
+from bis.signals import with_paused_user_str_signal
 
 
 class Command(BaseCommand):
+    @with_paused_user_str_signal
     def handle(self, *args, **options):
-        post_save.disconnect(sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
-
-        print('setting date joined')
-        for user in User.objects.all().prefetch_related('memberships', 'qualifications', 'events_where_was_organizer',
-                                                        'participated_in_events__event'):
+        users = User.objects.all().prefetch_related('memberships', 'qualifications',
+                                                    'events_where_was_organizer',
+                                                    'participated_in_events__event')
+        for i, user in enumerate(users):
+            print_progress('setting date joined', i, len(users))
             dates = [user.date_joined]
 
             for membership in user.memberships.all():

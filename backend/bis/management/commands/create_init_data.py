@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from categories.models import DietCategory, PropagationIntendedForCategory, QualificationCategory, \
     AdministrationUnitCategory, MembershipCategory, EventProgramCategory, \
     EventCategory, GrantCategory, DonationSourceCategory, OrganizerRoleCategory, TeamRoleCategory, OpportunityCategory, \
-    LocationProgram, LocationAccessibility
+    LocationProgram, LocationAccessibility, RoleCategory
 
 
 class Command(BaseCommand):
@@ -188,3 +188,16 @@ class Command(BaseCommand):
         LocationAccessibility.objects.update_or_create(slug='good', defaults=dict(name='Snadná (0-1,5h)'))
         LocationAccessibility.objects.update_or_create(slug='ok', defaults=dict(name='Středně obtížná (1,5-3h)'))
         LocationAccessibility.objects.update_or_create(slug='bad', defaults=dict(name='Obtížná (více než 3h)'))
+
+        RoleCategory.objects.update_or_create(slug='director', defaults=dict(name='Ředitel'))
+        RoleCategory.objects.update_or_create(slug='admin', defaults=dict(name='Admin'))
+        RoleCategory.objects.update_or_create(slug='office_worker', defaults=dict(name='Kancl'))
+        RoleCategory.objects.update_or_create(slug='auditor', defaults=dict(name='KRK'))
+        RoleCategory.objects.update_or_create(slug='executive', defaults=dict(name='VV'))
+        RoleCategory.objects.update_or_create(slug='education_member', defaults=dict(name='EDU'))
+        RoleCategory.objects.update_or_create(slug='chairman', defaults=dict(name='Předseda'))
+        RoleCategory.objects.update_or_create(slug='vice_chairman', defaults=dict(name='Místopředseda'))
+        RoleCategory.objects.update_or_create(slug='manager', defaults=dict(name='Hospodář'))
+        RoleCategory.objects.update_or_create(slug='board_member', defaults=dict(name='Člen představenstva'))
+        RoleCategory.objects.update_or_create(slug='main_organizer', defaults=dict(name='Hlavní organizátor'))
+        RoleCategory.objects.update_or_create(slug='organizer', defaults=dict(name='Organizátor'))

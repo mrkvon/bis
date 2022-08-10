@@ -2,6 +2,7 @@ from datetime import timedelta
 from time import time
 
 from django.apps import apps
+from django.conf import settings
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
@@ -77,3 +78,44 @@ def cache_into_self(name):
 
 def permission_cache(f):
     return cache_into_self('permission_cache')(f)
+
+
+def update_roles(*roles):
+    def decorator(f):
+        def wrapper(self, *args, **kwargs):
+
+            to_update = set()
+            old = self._meta.model.objects.filter(id=self.id).first()
+            if old:
+                for role in roles:
+                    to_update.add(getattr(old, role))
+
+            f(self, *args, **kwargs)
+
+            for role in roles:
+                to_update.add(getattr(self, role))
+
+            for user in to_update:
+                if user:
+                    user.update_roles()
+
+        return wrapper
+
+    return decorator
+
+
+class paused_validation:
+    def __enter__(self):
+        assert not settings.SKIP_VALIDATION
+        settings.SKIP_VALIDATION = True
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        settings.SKIP_VALIDATION = False
+
+
+def with_paused_validation(f):
+    def wrapper(*args, **kwargs):
+        with paused_validation():
+            return f(*args, **kwargs)
+
+    return wrapper

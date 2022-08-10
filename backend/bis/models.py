@@ -2,7 +2,7 @@ from functools import cached_property
 from os.path import basename
 
 from dateutil.relativedelta import relativedelta
-from django.conf import settings
+from django.apps import apps
 from django.contrib import admin
 from django.contrib.auth.models import UserManager
 from django.contrib.gis.db.models import *
@@ -14,8 +14,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, BaseAddress
 from bis.admin_helpers import get_admin_edit_url
-from bis.helpers import permission_cache
-from categories.models import QualificationCategory, MembershipCategory, LocationProgram, LocationAccessibility
+from bis.helpers import permission_cache, paused_validation
+from categories.models import QualificationCategory, MembershipCategory, LocationProgram, LocationAccessibility, \
+    RoleCategory
 from translation.translate import translate_model
 
 
@@ -92,6 +93,7 @@ class User(Model):
 
     _import_id = CharField(max_length=15, default='')
     _str = CharField(max_length=255)
+    roles = ManyToManyField(RoleCategory, related_name='users')
 
     objects = UserManager()
 
@@ -102,31 +104,51 @@ class User(Model):
 
     @cached_property
     def is_director(self):
-        return BrontosaurusMovement.get().director == self or BrontosaurusMovement.get().finance_director == self
+        return self.roles.filter(slug='director').exists()
 
     @cached_property
     def is_admin(self):
-        return self in BrontosaurusMovement.get().bis_administrators.all()
+        return self.roles.filter(slug='admin').exists()
 
     @cached_property
     def is_office_worker(self):
-        return self in BrontosaurusMovement.get().office_workers.all()
+        return self.roles.filter(slug='office_worker').exists()
 
     @cached_property
     def is_auditor(self):
-        return self in BrontosaurusMovement.get().audit_committee.all()
+        return self.roles.filter(slug='auditor').exists()
 
     @cached_property
     def is_executive(self):
-        return self in BrontosaurusMovement.get().executive_committee.all()
+        return self.roles.filter(slug='executive').exists()
 
     @cached_property
     def is_education_member(self):
-        return self in BrontosaurusMovement.get().education_members.all()
+        return self.roles.filter(slug='education_member').exists()
 
     @cached_property
     def is_board_member(self):
-        return AdministrationUnit.objects.filter(board_members=self).exists()
+        return self.roles.filter(slug='board_member').exists()
+
+    @cached_property
+    def is_chairman(self):
+        return self.roles.filter(slug='chairman').exists()
+
+    @cached_property
+    def is_vice_chairman(self):
+        return self.roles.filter(slug='vice_chairman').exists()
+
+    @cached_property
+    def is_manager(self):
+        return self.roles.filter(slug='manager').exists()
+
+    @cached_property
+    def is_main_organizer(self):
+        return self.roles.filter(slug='main_organizer').exists()
+
+    @cached_property
+    def is_organizer(self):
+        return self.roles.filter(slug='organizer').exists()
 
     @cached_property
     def can_see_all(self):
@@ -182,10 +204,9 @@ class User(Model):
     @transaction.atomic
     def merge_with(self, other):
         assert other != self
-        try:
-            settings.SKIP_VALIDATION = True
+        with paused_validation():
             for field in self._meta.fields:
-                if field.name in ['id', 'password', '_import_id', 'is_active', 'last_login', '_str']:
+                if field.name in ['id', 'password', '_import_id', 'is_active', 'last_login', '_str', 'roles']:
                     continue
 
                 elif field.name in ['date_joined', ]:
@@ -237,8 +258,6 @@ class User(Model):
 
             self.save()
             other.delete()
-        finally:
-            settings.SKIP_VALIDATION = False
 
     @admin.display(description='Uživatel')
     def get_name(self):
@@ -327,6 +346,36 @@ class User(Model):
         for event in events:
             if event.has_edit_permission(user):
                 return True
+
+    def update_roles(self):
+        roles = []
+
+        if BrontosaurusMovement.get().director == self or BrontosaurusMovement.get().finance_director == self:
+            roles.append(RoleCategory.objects.get(slug='director'))
+        if self in BrontosaurusMovement.get().bis_administrators.all():
+            roles.append(RoleCategory.objects.get(slug='admin'))
+        if self in BrontosaurusMovement.get().office_workers.all():
+            roles.append(RoleCategory.objects.get(slug='office_worker'))
+        if self in BrontosaurusMovement.get().audit_committee.all():
+            roles.append(RoleCategory.objects.get(slug='auditor'))
+        if self in BrontosaurusMovement.get().executive_committee.all():
+            roles.append(RoleCategory.objects.get(slug='executive'))
+        if self in BrontosaurusMovement.get().education_members.all():
+            roles.append(RoleCategory.objects.get(slug='education_member'))
+        if AdministrationUnit.objects.filter(chairman=self).exists():
+            roles.append(RoleCategory.objects.get(slug='chairman'))
+        if AdministrationUnit.objects.filter(vice_chairman=self).exists():
+            roles.append(RoleCategory.objects.get(slug='vice_chairman'))
+        if AdministrationUnit.objects.filter(manager=self).exists():
+            roles.append(RoleCategory.objects.get(slug='manager'))
+        if AdministrationUnit.objects.filter(board_members=self).exists():
+            roles.append(RoleCategory.objects.get(slug='board_member'))
+        if apps.get_model('bis', 'Event').objects.filter(main_organizer=self).exists():
+            roles.append(RoleCategory.objects.get(slug='main_organizer'))
+        if apps.get_model('bis', 'Event').objects.filter(other_organizers=self).exists():
+            roles.append(RoleCategory.objects.get(slug='organizer'))
+
+        self.roles.set(roles)
 
 
 @translate_model

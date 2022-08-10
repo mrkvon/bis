@@ -8,15 +8,13 @@ from urllib.parse import quote
 from urllib.request import urlretrieve
 from zoneinfo import ZoneInfo
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db.models.signals import post_save
 from django.utils.datetime_safe import date, datetime
 
 from administration_units.models import AdministrationUnit, AdministrationUnitAddress, BrontosaurusMovement
-from bis.helpers import print_progress
+from bis.helpers import print_progress, with_paused_validation
 from bis.models import User, UserAddress, Qualification, Location, Membership, UserEmail, UserContactAddress
-from bis.signals import set_unique_str
+from bis.signals import with_paused_user_str_signal
 from categories.models import MembershipCategory, EventCategory, EventProgramCategory, QualificationCategory, \
     AdministrationUnitCategory, PropagationIntendedForCategory, DietCategory, GrantCategory
 from donations.models import Donor, VariableSymbol
@@ -201,8 +199,8 @@ class Command(BaseCommand):
 
         return data
 
+    @with_paused_user_str_signal
     def import_users(self, data):
-        post_save.disconnect(sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
         for i, (id, item) in enumerate(data['adresa'].items()):
             print_progress('importing users', i, len(data['adresa']))
 
@@ -240,8 +238,6 @@ class Command(BaseCommand):
                     zip_code=zip_code
                 ))
 
-        post_save.connect(set_unique_str, sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
-        User.objects.first().save()
         self.reset_cache()
 
     def import_qualifications(self, data):
@@ -322,7 +318,7 @@ class Command(BaseCommand):
                 bank_account_number = data['zc'][id]['ucet']
 
             if AdministrationUnit.objects.filter(abbreviation=item['zkratka']).count():
-                AdministrationUnit.objects.filter(abbreviation=item['zkratka']).update(abbrevation=item['name'])
+                AdministrationUnit.objects.filter(abbreviation=item['zkratka']).update(abbreviation=item['nazev'][:63])
 
             administration_unit = AdministrationUnit.objects.update_or_create(
                 _import_id=id,
@@ -556,9 +552,9 @@ class Command(BaseCommand):
             else:
                 event.record.participants.add(person)
 
+    @with_paused_validation
     def handle(self, *args, **options):
         self.reset_cache()
-        settings.SKIP_VALIDATION = True
         images_dir = join(BASE_DIR, 'media', 'event_propagation_images')
         if not exists(images_dir):
             mkdir(images_dir)
@@ -577,13 +573,6 @@ class Command(BaseCommand):
         # return
 
         self.import_users(data)
-        self.import_qualifications(data)
-        self.import_administration_units(data)
-        self.import_donors(data)
-        self.import_locations(data)
-        self.import_memberships(data)
-        self.import_events(data)
-        self.import_participants(data)
 
         director = self.user_map[self.director_id]
         finance_director = User.objects.filter(emails__email='josef.dvoracek@outlook.com')[0]
@@ -598,3 +587,11 @@ class Command(BaseCommand):
         b.bis_administrators.add(User.objects.get(emails__email='radka@slunovrat.info'))
         b.bis_administrators.add(User.objects.get(emails__email='terca.op@seznam.cz'))
         b.bis_administrators.add(User.objects.get(emails__email='daniel.kurowski@grifart.cz'))
+
+        self.import_qualifications(data)
+        self.import_administration_units(data)
+        self.import_donors(data)
+        self.import_locations(data)
+        self.import_memberships(data)
+        self.import_events(data)
+        self.import_participants(data)

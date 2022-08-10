@@ -193,3 +193,7 @@ class EventAdmin(PermissionMixin, NestedModelAdmin):
                 return _self.cleaned_data
 
         return F2
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        form.instance.save()
