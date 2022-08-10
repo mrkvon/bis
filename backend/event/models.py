@@ -72,15 +72,22 @@ class Event(Model):
         return result
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
+    def filter_queryset(cls, queryset, user, backend_only=False):
         ids = set()
-        for query in [
-            Q(administration_units__board_members=user),
-            Q(other_organizers=user),
-            Q(record__participants=user),
-        ]:
+        if backend_only:
+            return queryset.filter(administration_units__board_members=user)
+
+        for query in [Q(administration_units__board_members=user),
+                      Q(other_organizers=user),
+                      Q(record__participants=user)]:
             ids = ids.union(queryset.filter(query).order_by().values_list('id', flat=True))
         return Event.objects.filter(id__in=ids)
+
+    def has_edit_permission(self, user):
+        if hasattr(self, 'propagation') and self.propagation.contact_person is user:
+            return True
+        return user in self.other_organizers.all() or \
+               user in [bm for au in self.administration_units.all() for bm in au.board_members.all()]
 
 
 @translate_model
@@ -99,6 +106,9 @@ class EventFinance(Model):
 
     def __str__(self):
         return f'Finance k události {self.event}'
+
+    def has_edit_permission(self, user):
+        return self.event.has_edit_permission(user)
 
 
 @translate_model
@@ -156,6 +166,9 @@ class EventPropagation(Model):
     def __str__(self):
         return f'Propagace k události {self.event}'
 
+    def has_edit_permission(self, user):
+        return self.event.has_edit_permission(user)
+
 
 @translate_model
 class VIPEventPropagation(Model):
@@ -182,6 +195,9 @@ class EventRegistration(Model):
 
     def __str__(self):
         return f'Registrace k události {self.event}'
+
+    def has_edit_permission(self, user):
+        return self.event.has_edit_permission(user)
 
 
 @translate_model
@@ -219,6 +235,9 @@ class EventRecord(Model):
 
     def __str__(self):
         return f'Záznam k události {self.event}'
+
+    def has_edit_permission(self, user):
+        return self.event.has_edit_permission(user)
 
 
 @translate_model

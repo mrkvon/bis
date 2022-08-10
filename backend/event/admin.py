@@ -1,17 +1,16 @@
 from admin_auto_filters.filters import AutocompleteFilterFactory
 from dateutil.relativedelta import relativedelta
-from django.core.exceptions import ValidationError
 from more_admin_filters import MultiSelectRelatedDropdownFilter
 from nested_admin.forms import SortableHiddenMixin
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin, NestedStackedInline
 from rangefilter.filters import DateRangeFilter
 
-from bis.admin_permissions import EditableByBoardMixin, FilterQuerysetMixin
+from bis.admin_permissions import PermissionMixin
 from event.models import *
 from questionnaire.admin import QuestionnaireAdmin
 
 
-class EventPropagationImageAdmin(SortableHiddenMixin, NestedTabularInline):
+class EventPropagationImageAdmin(PermissionMixin, SortableHiddenMixin, NestedTabularInline):
     model = EventPropagationImage
     sortable_field_name = 'order'
     readonly_fields = 'image_tag',
@@ -55,18 +54,19 @@ class EventPropagationImageAdmin(SortableHiddenMixin, NestedTabularInline):
         return New
 
 
-class EventPhotoAdmin(NestedTabularInline):
+class EventPhotoAdmin(PermissionMixin, NestedTabularInline):
     model = EventPhoto
     readonly_fields = 'photo_tag',
     extra = 3
     classes = 'collapse',
 
 
-class EventFinanceReceiptAdmin(NestedStackedInline):
+class EventFinanceReceiptAdmin(PermissionMixin, NestedStackedInline):
     model = EventFinanceReceipt
     classes = 'collapse',
 
-class EventFinanceAdmin(NestedStackedInline):
+
+class EventFinanceAdmin(PermissionMixin, NestedStackedInline):
     model = EventFinance
     classes = 'collapse',
 
@@ -75,12 +75,12 @@ class EventFinanceAdmin(NestedStackedInline):
     inlines = EventFinanceReceiptAdmin,
 
 
-class EventVIPPropagationAdmin(NestedStackedInline):
+class EventVIPPropagationAdmin(PermissionMixin, NestedStackedInline):
     model = VIPEventPropagation
     classes = 'collapse',
 
 
-class EventPropagationAdmin(NestedStackedInline):
+class EventPropagationAdmin(PermissionMixin, NestedStackedInline):
     model = EventPropagation
     inlines = EventVIPPropagationAdmin, EventPropagationImageAdmin,
     classes = 'collapse',
@@ -88,13 +88,13 @@ class EventPropagationAdmin(NestedStackedInline):
     autocomplete_fields = 'contact_person',
 
 
-class EventRegistrationAdmin(NestedStackedInline):
+class EventRegistrationAdmin(PermissionMixin, NestedStackedInline):
     model = EventRegistration
     classes = 'collapse',
     inlines = QuestionnaireAdmin,
 
 
-class EventRecordAdmin(NestedStackedInline):
+class EventRecordAdmin(PermissionMixin, NestedStackedInline):
     model = EventRecord
     inlines = EventPhotoAdmin,
     classes = 'collapse',
@@ -103,7 +103,7 @@ class EventRecordAdmin(NestedStackedInline):
 
 
 @admin.register(Event)
-class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
+class EventAdmin(PermissionMixin, NestedModelAdmin):
     inlines = EventFinanceAdmin, EventPropagationAdmin, EventRegistrationAdmin, EventRecordAdmin
     save_as = True
     filter_horizontal = 'other_organizers',
@@ -135,7 +135,8 @@ class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
         if not hasattr(obj, 'record'): return None
         participants_count = self.get_participants_count(obj)
         if not participants_count: return '0%'
-        under_26 = len([p for p in obj.record.participants.all() if p.birthday and relativedelta(obj.start.date(), p.birthday).years <= 26])
+        under_26 = len([p for p in obj.record.participants.all() if
+                        p.birthday and relativedelta(obj.start.date(), p.birthday).years <= 26])
         under_26 = obj.record.number_of_participants_under_26 or under_26
         return f"{int(under_26 / participants_count * 100)}%"
 
@@ -164,12 +165,13 @@ class EventAdmin(EditableByBoardMixin, FilterQuerysetMixin, NestedModelAdmin):
                 super().clean()
                 if not user.is_superuser and not user.is_office_worker:
                     if not any([
-                        any([au in user.administration_units.all() for au in _self.cleaned_data.get('administration_units', [])]),
+                        any([au in user.administration_units.all() for au in
+                             _self.cleaned_data.get('administration_units', [])]),
                         _self.cleaned_data.get('main_organizer') == user,
                         user in _self.cleaned_data.get('other_organizers', []).all(),
                     ]):
                         raise ValidationError('Akci musíš vytvořit pod svým článkem nebo '
-                                                  'musíš být v organizátorském týmu')
+                                              'musíš být v organizátorském týmu')
 
                 return _self.cleaned_data
 

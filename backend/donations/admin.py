@@ -10,14 +10,14 @@ from solo.admin import SingletonModelAdmin
 
 from bis.admin_helpers import HasDonorFilter, FirstDonorsDonationFilter, LastDonorsDonationFilter, \
     RecurringDonorWhoStoppedFilter, AnnotateDonationsCount, DonationSumAmountFilter
-from bis.admin_permissions import ReadOnlyMixin, EditableByAdminOnlyMixin, EditableByOfficeMixin
+from bis.admin_permissions import PermissionMixin
 from donations.helpers import upload_bank_records
 from donations.models import UploadBankRecords, Donor, Donation, VariableSymbol
 from event.models import *
 
 
 @admin.register(Donation)
-class DonationAdmin(ReadOnlyMixin, NestedModelAdmin):
+class DonationAdmin(PermissionMixin, NestedModelAdmin):
     autocomplete_fields = 'donor',
     list_display = '__str__', 'donor', 'donated_at', 'donation_source', 'info'
     list_filter = ('amount', RangeNumericFilter), ('donated_at', DateRangeFilter), HasDonorFilter, \
@@ -26,29 +26,18 @@ class DonationAdmin(ReadOnlyMixin, NestedModelAdmin):
 
     list_select_related = 'donor__user', 'donation_source'
 
-    def has_delete_permission(self, request, obj=None):
-        return obj and not obj.donor
 
-
-class DonationAdminInline(NestedTabularInline):
+class DonationAdminInline(PermissionMixin, NestedTabularInline):
     model = Donation
 
-    def has_add_permission(self, request, obj): return False
 
-    def has_change_permission(self, request, obj=None): return False
-
-    def has_delete_permission(self, request, obj=None): return False
-
-
-class VariableSymbolInline(NestedTabularInline):
+class VariableSymbolInline(PermissionMixin, NestedTabularInline):
     model = VariableSymbol
     extra = 0
 
-    def has_change_permission(self, request, obj=None): return False
-
 
 @admin.register(Donor)
-class DonorAdmin(EditableByOfficeMixin, NestedModelAdmin):
+class DonorAdmin(PermissionMixin, NestedModelAdmin):
     list_display = 'user', 'subscribed_to_newsletter', 'is_public', \
                    'regional_center_support', 'basic_section_support', \
                    'date_joined', 'get_donations_sum'
@@ -94,7 +83,7 @@ class DonorAdmin(EditableByOfficeMixin, NestedModelAdmin):
 
 
 @admin.register(UploadBankRecords)
-class UploadBankRecordsAdmin(EditableByAdminOnlyMixin, SingletonModelAdmin):
+class UploadBankRecordsAdmin(PermissionMixin, SingletonModelAdmin):
 
     def save_model(self, request, obj, form, change):
         try:

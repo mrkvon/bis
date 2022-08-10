@@ -2,13 +2,13 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from nested_admin.nested import NestedModelAdmin
 
-from bis.admin_permissions import ReadOnlyMixin, EditableByOfficeMixin, FilterQuerysetMixin
+from bis.admin_permissions import PermissionMixin
 from event.models import *
 from other.models import DuplicateUser, Feedback
 
 
 @admin.register(DuplicateUser)
-class DuplicateUserAdmin(EditableByOfficeMixin, FilterQuerysetMixin, NestedModelAdmin):
+class DuplicateUserAdmin(PermissionMixin, NestedModelAdmin):
     change_form_template = 'bis/duplicate_user_change_form.html'
 
     list_display = 'user', 'other', 'get_user_info', 'get_other_info'
@@ -52,11 +52,8 @@ class DuplicateUserAdmin(EditableByOfficeMixin, FilterQuerysetMixin, NestedModel
 
 
 @admin.register(Feedback)
-class FeedbackAdmin(ReadOnlyMixin, NestedModelAdmin):
+class FeedbackAdmin(PermissionMixin, NestedModelAdmin):
     list_display = 'user', 'feedback', 'created_at'
-
-    def has_add_permission(self, request, obj=None):
-        return True
 
     def get_exclude(self, request, obj=None):
         if obj is None:

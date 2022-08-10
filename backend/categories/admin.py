@@ -1,64 +1,64 @@
 from django.contrib import admin
 
-from bis.admin_permissions import ReadOnlyMixin
+from bis.admin_permissions import PermissionMixin
 from categories.models import *
 
 
 @admin.register(GrantCategory)
-class GrantCategoryAdmin(ReadOnlyMixin, admin.ModelAdmin):
+class GrantCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 
 @admin.register(PropagationIntendedForCategory)
-class PropagationIntendedForCategoryAdmin(ReadOnlyMixin, admin.ModelAdmin):
+class PropagationIntendedForCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 
 @admin.register(DietCategory)
-class DietCategoryAdmin(ReadOnlyMixin, admin.ModelAdmin):
+class DietCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 
 @admin.register(QualificationCategory)
-class QualificationCategoryAdmin(ReadOnlyMixin, admin.ModelAdmin):
+class QualificationCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     list_display = 'slug', 'name', 'parent'
 
 
 @admin.register(AdministrationUnitCategory)
-class AdministrationUnitCategoryAdmin(ReadOnlyMixin, admin.ModelAdmin):
+class AdministrationUnitCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 
 @admin.register(MembershipCategory)
-class MembershipCategoryAdmin(ReadOnlyMixin, admin.ModelAdmin):
+class MembershipCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 
 @admin.register(EventCategory)
-class EventCategoryAdmin(ReadOnlyMixin, admin.ModelAdmin):
+class EventCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 
 @admin.register(EventProgramCategory)
-class EventProgramCategoryAdmin(ReadOnlyMixin, admin.ModelAdmin):
+class EventProgramCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 
 @admin.register(DonationSourceCategory)
-class DonationSourceCategoryAdmin(ReadOnlyMixin, admin.ModelAdmin):
+class DonationSourceCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 
 @admin.register(OrganizerRoleCategory)
-class OrganizerRoleCategoryAdmin(ReadOnlyMixin, admin.ModelAdmin):
+class OrganizerRoleCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 
 @admin.register(TeamRoleCategory)
-class TeamRoleCategoryAdmin(ReadOnlyMixin, admin.ModelAdmin):
+class TeamRoleCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 
 @admin.register(OpportunityCategory)
-class OpportunityCategoryAdmin(ReadOnlyMixin, admin.ModelAdmin):
+class OpportunityCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass

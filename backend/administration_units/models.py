@@ -78,6 +78,9 @@ class AdministrationUnit(Model):
 
         self.save()
 
+    def has_edit_permission(self, user):
+        return user in self.board_members.all()
+
 
 @translate_model
 class AdministrationUnitAddress(BaseAddress):

@@ -74,6 +74,12 @@ class Donor(Model):
         self.save()
         other.delete()
 
+    @classmethod
+    def filter_queryset(cls, queryset, user, backend_only=False):
+        return queryset.filter(
+            Q(regional_center_support__in=user.administration_units.all()) |
+            Q(basic_section_support__in=user.administration_units.all()))
+
 
 @translate_model
 class VariableSymbol(Model):
@@ -103,6 +109,12 @@ class Donation(Model):
 
     class Meta:
         ordering = '-donated_at',
+
+    @classmethod
+    def filter_queryset(cls, queryset, user, backend_only=False):
+        return queryset.filter(
+            Q(donor__regional_center_support__in=user.administration_units.all()) |
+            Q(donor__basic_section_support__in=user.administration_units.all()))
 
 
 @translate_model

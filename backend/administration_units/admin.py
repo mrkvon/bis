@@ -7,20 +7,20 @@ from solo.admin import SingletonModelAdmin
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, AdministrationUnitAddress, \
     AdministrationUnitContactAddress
 from bis.admin_helpers import IsAdministrationUnitActiveFilter
-from bis.admin_permissions import EditableByAdminOnlyMixin
+from bis.admin_permissions import PermissionMixin
 from bis.helpers import show_history
 
 
-class AdministrationUnitAddressAdmin(EditableByAdminOnlyMixin, NestedTabularInline):
+class AdministrationUnitAddressAdmin(PermissionMixin, NestedTabularInline):
     model = AdministrationUnitAddress
 
 
-class AdministrationUnitContactAddressAdmin(EditableByAdminOnlyMixin, NestedTabularInline):
+class AdministrationUnitContactAddressAdmin(PermissionMixin, NestedTabularInline):
     model = AdministrationUnitContactAddress
 
 
 @admin.register(AdministrationUnit)
-class AdministrationUnitAdmin(EditableByAdminOnlyMixin, NestedModelAdmin):
+class AdministrationUnitAdmin(PermissionMixin, NestedModelAdmin):
     list_display = 'abbreviation', 'is_active', 'address', 'phone', 'get_email', 'www', 'chairman', 'category'
     search_fields = 'abbreviation', 'name', 'address__city', 'address__street', 'address__zip_code', 'phone', 'email'
     list_filter = IsAdministrationUnitActiveFilter, 'category', 'is_for_kids', \
@@ -50,7 +50,7 @@ class AdministrationUnitAdmin(EditableByAdminOnlyMixin, NestedModelAdmin):
 
 
 @admin.register(BrontosaurusMovement)
-class BrontosaurusMovementAdmin(EditableByAdminOnlyMixin, SingletonModelAdmin):
+class BrontosaurusMovementAdmin(PermissionMixin, SingletonModelAdmin):
     filter_horizontal = 'bis_administrators', 'office_workers', 'audit_committee', \
                         'executive_committee', 'education_members',
 
@@ -59,13 +59,6 @@ class BrontosaurusMovementAdmin(EditableByAdminOnlyMixin, SingletonModelAdmin):
     readonly_fields = 'history',
     exclude = '_history',
 
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
     @admin.display(description='Historie')
     def history(self, obj):
         return show_history(obj._history)
-

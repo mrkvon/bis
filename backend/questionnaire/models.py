@@ -8,7 +8,7 @@ from translation.translate import translate_model
 class Questionnaire(Model):
     # one to one relationship to event
     # holds relations to its questions and answers
-    event_registration = OneToOneField(EventRegistration, on_delete=CASCADE, null=True, blank=True,
+    event_registration = OneToOneField(EventRegistration, on_delete=CASCADE,
                                        related_name='questionnaire')
 
     class Meta:
@@ -16,6 +16,9 @@ class Questionnaire(Model):
 
     def __str__(self):
         return 'Dotazník'
+
+    def has_edit_permission(self, user):
+        return not hasattr(self, 'event_registration') or self.event_registration.has_edit_permission(user)
 
 
 @translate_model

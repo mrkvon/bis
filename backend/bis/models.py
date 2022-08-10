@@ -24,7 +24,8 @@ class Location(Model):
     description = TextField()
 
     patron = ForeignKey('bis.User', on_delete=CASCADE, related_name='patron_of', null=True)
-    contact_person = ForeignKey('bis.User', on_delete=CASCADE, related_name='locations_where_is_contact_person', null=True)
+    contact_person = ForeignKey('bis.User', on_delete=CASCADE, related_name='locations_where_is_contact_person',
+                                null=True)
 
     for_beginners = BooleanField(default=False)
     is_full = BooleanField(default=False)
@@ -147,7 +148,13 @@ class User(Model):
         return True
 
     def has_module_perms(self, app_label):
-        return True
+        if self.can_see_all or self.is_board_member:
+            return True
+
+        if self.is_education_member:
+            return app_label in ['categories', 'bis', 'regions', 'other']
+
+        return False
 
     @property
     def is_anonymous(self):
@@ -246,7 +253,7 @@ class User(Model):
 
         return name
 
-    def get_short_name(self): # for admin
+    def get_short_name(self):  # for admin
         return self.get_name()
 
     @admin.display(description='E-mailové adresy')
@@ -274,35 +281,50 @@ class User(Model):
         return mark_safe(', '.join(get_admin_edit_url(e.event) for e in self.participated_in_events.all()))
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
+    def filter_queryset(cls, queryset, user, backend_only=False):
         if user.is_education_member:
             return queryset
 
         ids = set()
-        for query in [
+        queries = [
             # ja
             Q(id=user.id),
             # lidi kolem akci od clanku kde user je board member
             Q(participated_in_events__event__administration_units__board_members=user),
             Q(events_where_was_organizer__administration_units__board_members=user),
             Q(events_where_was_as_contact_person__event__administration_units__board_members=user),
-            # lidi kolem akci, kde user byl other organizer
-            Q(participated_in_events__event__other_organizers=user),
-            Q(events_where_was_organizer__other_organizers=user),
-            Q(events_where_was_as_contact_person__event__other_organizers=user),
-            # lidi kolem akci, kde user byl kontaktni osoba
-            Q(participated_in_events__event__propagation__contact_person=user),
-            Q(events_where_was_organizer__propagation__contact_person=user),
-            Q(events_where_was_as_contact_person__event__propagation__contact_person=user),
-            # orgove akci, kde user byl ucastnik
-            Q(events_where_was_organizer__record__participants=user),
-            Q(events_where_was_as_contact_person__event__record__participants=user)
-            # # # ostatni ucastnici akci, kde jsem byl
-            # participated_in_events__participants=user,
-        ]:
+        ]
+        if not backend_only:
+            queries += [
+                # lidi kolem akci, kde user byl other organizer
+                Q(participated_in_events__event__other_organizers=user),
+                Q(events_where_was_organizer__other_organizers=user),
+                Q(events_where_was_as_contact_person__event__other_organizers=user),
+                # lidi kolem akci, kde user byl kontaktni osoba
+                Q(participated_in_events__event__propagation__contact_person=user),
+                Q(events_where_was_organizer__propagation__contact_person=user),
+                Q(events_where_was_as_contact_person__event__propagation__contact_person=user),
+                # orgove akci, kde user byl ucastnik
+                Q(events_where_was_organizer__record__participants=user),
+                Q(events_where_was_as_contact_person__event__record__participants=user)
+                # # ostatni ucastnici akci, kde jsem byl
+                # Q(participated_in_events__participants=user),
+            ]
+
+        for query in queries:
             ids = ids.union(queryset.filter(query).order_by().values_list('id', flat=True))
 
         return User.objects.filter(id__in=ids)
+
+    def has_edit_permission(self, user):
+        if self == user: return True
+        events = []
+        events += self.participated_in_events.all()
+        events += self.events_where_was_organizer.all()
+        events += self.events_where_was_as_contact_person.all()
+        for event in events:
+            if event.has_edit_permission(user):
+                return True
 
 
 @translate_model

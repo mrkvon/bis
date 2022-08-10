@@ -46,6 +46,11 @@ class Opportunity(Model):
     class Meta:
         ordering = 'id',
 
+    @classmethod
+    def filter_queryset(cls, queryset, user, backend_only=False):
+        visible_users = User.filter_queryset(User.objects.all(), user, backend_only)
+        return queryset.filter(contact_person__in=visible_users)
+
 
 @translate_model
 class OfferedHelp(Model):
