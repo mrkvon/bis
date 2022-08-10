@@ -14,6 +14,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, BaseAddress
 from bis.admin_helpers import get_admin_edit_url
+from bis.helpers import permission_cache
 from categories.models import QualificationCategory, MembershipCategory, LocationProgram, LocationAccessibility
 from translation.translate import translate_model
 
@@ -316,6 +317,7 @@ class User(Model):
 
         return User.objects.filter(id__in=ids)
 
+    @permission_cache
     def has_edit_permission(self, user):
         if self == user: return True
         events = []

@@ -11,6 +11,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from tinymce.models import HTMLField
 
 from administration_units.models import AdministrationUnit
+from bis.helpers import permission_cache
 from bis.models import Location, User
 from categories.models import GrantCategory, PropagationIntendedForCategory, DietCategory, \
     EventCategory, EventProgramCategory
@@ -92,11 +93,11 @@ class Event(Model):
             ids = ids.union(queryset.filter(query).order_by().values_list('id', flat=True))
         return Event.objects.filter(id__in=ids)
 
+    @permission_cache
     def has_edit_permission(self, user):
-        if hasattr(self, 'propagation') and self.propagation.contact_person is user:
-            return True
-        return user in self.other_organizers.all() or \
-               user in [bm for au in self.administration_units.all() for bm in au.board_members.all()]
+        return hasattr(self, 'propagation') and self.propagation.contact_person == user or \
+                 user in self.other_organizers.all() or \
+                 self.administration_units.filter(board_members=user).exists()
 
 
 @translate_model

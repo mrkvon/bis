@@ -54,3 +54,26 @@ def print_progress(name, i, total):
     elif time() - obj >= 1:
         print(f"{name}, progress {100 * i / total:.2f}%")
         cache.set(key, time())
+
+
+def cache_into_self(name):
+    name = f"__cache__{name}"
+
+    def decorator(f):
+        def wrapper(self, *args, **kwargs):
+            if hasattr(self, name):
+                return getattr(self, name)
+
+            result = f(self, *args, **kwargs)
+
+            setattr(self, name, result)
+
+            return result
+
+        return wrapper
+
+    return decorator
+
+
+def permission_cache(f):
+    return cache_into_self('permission_cache')(f)

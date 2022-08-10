@@ -7,7 +7,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from phonenumber_field.modelfields import PhoneNumberField
 from solo.models import SingletonModel
 
-from bis.helpers import record_history
+from bis.helpers import record_history, permission_cache
 from categories.models import AdministrationUnitCategory
 from translation.translate import translate_model
 
@@ -78,6 +78,7 @@ class AdministrationUnit(Model):
 
         self.save()
 
+    @permission_cache
     def has_edit_permission(self, user):
         return user in self.board_members.all()
 
