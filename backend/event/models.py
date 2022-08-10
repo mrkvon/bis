@@ -25,7 +25,8 @@ class Event(Model):
     start = DateTimeField()
     end = DateField()
     number_of_sub_events = PositiveIntegerField(default=1)
-    location = ForeignKey(Location, on_delete=CASCADE, related_name='events', null=True)
+    location = ForeignKey(Location, on_delete=CASCADE, related_name='events', null=True, blank=True)
+    online_link = URLField(blank=True)
 
     category = ForeignKey(EventCategory, on_delete=CASCADE, related_name='events')
     program = ForeignKey(EventProgramCategory, on_delete=CASCADE, related_name='events', blank=True, null=True)
@@ -47,6 +48,14 @@ class Event(Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if not self.location and not self.online_link:
+            raise ValidationError('Musí být vyplněná lokace nebo online link pro připojení')
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if not settings.SKIP_VALIDATION: self.clean()
+        super().save(force_insert, force_update, using, update_fields)
 
     def is_volunteering(self):
         return self.category.slug.startswith('public__volunteering')

@@ -179,6 +179,9 @@ models:
       end: 'Konec akce'
       duration: 'Délka trvání akce'
       location: 'Lokalita'
+      online_link:
+        - 'Webová adresa pro připojení'
+        - 'Vyplňte, pokud se událost koná online'
       is_internal: 'Určeno pro členy?'
       number_of_sub_events: 'Počet akcí v uvedeném období'
       administration_units: 'Administrativní jednotky'
