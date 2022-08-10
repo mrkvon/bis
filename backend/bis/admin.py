@@ -91,14 +91,16 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
 
     fieldsets = (
         (None, {
-            'fields': ('first_name', 'last_name', 'nickname', 'get_emails', 'phone', 'birthday', 'close_person',
-                       'roles')
+            'fields': ('first_name', 'last_name', 'nickname', 'get_emails', 'phone', 'birthday')
+        }),
+        ('Osobní informace', {
+            'fields': ('close_person', 'health_insurance_company', 'health_issues')
         }),
         ('Události', {
             'fields': ('get_events_where_was_organizer', 'get_participated_in_events')
         }),
         ('Interní data', {
-            'fields': ('is_active', 'last_login', 'date_joined'),
+            'fields': ('roles', 'is_active', 'last_login', 'date_joined'),
             'classes': ('collapse',)
         })
     )
@@ -121,7 +123,8 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
                   ('offers__programs', MultiSelectRelatedDropdownFilter), \
                   ('offers__organizer_roles', MultiSelectRelatedDropdownFilter), \
                   ('offers__team_roles', MultiSelectRelatedDropdownFilter), \
-                  ('address__region', MultiSelectRelatedDropdownFilter)
+                  ('address__region', MultiSelectRelatedDropdownFilter), \
+                  ('health_insurance_company', MultiSelectRelatedDropdownFilter)
 
     search_fields = 'emails__email', 'phone', 'first_name', 'last_name', 'nickname'
     list_select_related = 'address', 'contact_address'

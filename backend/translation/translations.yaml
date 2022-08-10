@@ -45,6 +45,8 @@ models:
       is_active: 'Může se uživatel přihlásit?'
       date_joined: 'Datum vzniku účtu'
       close_person: 'Rodič / blízká osoba'
+      health_insurance_company: 'Pojišťovna'
+      health_issues: 'Alergie a zdravotní omezení'
       roles: 'Role'
 
   UserAddress:
@@ -435,6 +437,12 @@ models:
   RoleCategory:
     name: 'Typ role'
     name_plural: 'Typy rolí'
+    fields:
+      name: 'Jméno'
+      slug: 'Zkratka'
+  HealthInsuranceCompany:
+    name: 'Zdravotní pojišťovna'
+    name_plural: 'Zdravotní pojišťovny'
     fields:
       name: 'Jméno'
       slug: 'Zkratka'

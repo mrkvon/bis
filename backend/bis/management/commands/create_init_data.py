@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from categories.models import DietCategory, PropagationIntendedForCategory, QualificationCategory, \
     AdministrationUnitCategory, MembershipCategory, EventProgramCategory, \
     EventCategory, GrantCategory, DonationSourceCategory, OrganizerRoleCategory, TeamRoleCategory, OpportunityCategory, \
-    LocationProgram, LocationAccessibility, RoleCategory
+    LocationProgram, LocationAccessibility, RoleCategory, HealthInsuranceCompany
 
 
 class Command(BaseCommand):
@@ -201,3 +201,18 @@ class Command(BaseCommand):
         RoleCategory.objects.update_or_create(slug='board_member', defaults=dict(name='Člen představenstva'))
         RoleCategory.objects.update_or_create(slug='main_organizer', defaults=dict(name='Hlavní organizátor'))
         RoleCategory.objects.update_or_create(slug='organizer', defaults=dict(name='Organizátor'))
+
+        HealthInsuranceCompany.objects.update_or_create(slug='VZP', defaults=dict(
+            name='Všeobecná zdravotní pojišťovna České republiky'))
+        HealthInsuranceCompany.objects.update_or_create(slug='VOZP', defaults=dict(
+            name='Vojenská zdravotní pojišťovna České republiky'))
+        HealthInsuranceCompany.objects.update_or_create(slug='CZPZ', defaults=dict(
+            name='Česká průmyslová zdravotní pojišťovna'))
+        HealthInsuranceCompany.objects.update_or_create(slug='OZP', defaults=dict(
+            name='Oborová zdravotní pojišťovna zaměstnanců bank, pojišťoven a stavebnictví'))
+        HealthInsuranceCompany.objects.update_or_create(slug='ZPS', defaults=dict(
+            name='Zaměstnanecká pojišťovna Škoda'))
+        HealthInsuranceCompany.objects.update_or_create(slug='ZPMV', defaults=dict(
+            name='Zdravotní pojišťovna ministerstva vnitra České republiky'))
+        HealthInsuranceCompany.objects.update_or_create(slug='RBP', defaults=dict(
+            name='RBP, zdravotní pojišťovna'))

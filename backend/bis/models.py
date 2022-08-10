@@ -16,7 +16,7 @@ from administration_units.models import AdministrationUnit, BrontosaurusMovement
 from bis.admin_helpers import get_admin_edit_url
 from bis.helpers import permission_cache, paused_validation
 from categories.models import QualificationCategory, MembershipCategory, LocationProgram, LocationAccessibility, \
-    RoleCategory
+    RoleCategory, HealthInsuranceCompany
 from translation.translate import translate_model
 
 
@@ -84,7 +84,10 @@ class User(Model):
     phone = PhoneNumberField(blank=True)
     birthday = DateField(blank=True, null=True)
 
-    close_person = ForeignKey('bis.User', on_delete=SET_NULL, null=True, blank=True)
+    close_person = ForeignKey('bis.User', on_delete=SET_NULL, null=True, blank=True, related_name='looking_over')
+    health_insurance_company = ForeignKey(HealthInsuranceCompany, related_name='users', on_delete=CASCADE, null=True,
+                                          blank=True)
+    health_issues = TextField(blank=True)
 
     last_login = DateTimeField(blank=True, null=True)
 
@@ -214,7 +217,7 @@ class User(Model):
                         setattr(self, field.name, getattr(other, field.name))
 
                 elif field.name in ['first_name', 'last_name', 'nickname', 'phone',
-                                    'birthday', 'close_person']:
+                                    'birthday', 'close_person', 'health_insurance_company', 'health_issues']:
                     if not getattr(self, field.name) and getattr(other, field.name):
                         setattr(self, field.name, getattr(other, field.name))
 
