@@ -1,10 +1,11 @@
 from django.utils.timezone import now
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from administration_units.models import AdministrationUnit
 from event.models import Event
 from opportunities.models import Opportunity
-from web_api.filters import EventFilter, OpportunityFilter
-from web_api.serializers import EventSerializer, OpportunitySerializer
+from web_api.filters import EventFilter, OpportunityFilter, AdministrationUnitFilter
+from web_api.serializers import EventSerializer, OpportunitySerializer, AdministrationUnitSerializer
 
 
 class EventViewSet(ReadOnlyModelViewSet):
@@ -51,3 +52,17 @@ class OpportunityViewSet(ReadOnlyModelViewSet):
     )
     serializer_class = OpportunitySerializer
     filterset_class = OpportunityFilter
+
+class AdministrationUnitViewSet(ReadOnlyModelViewSet):
+    queryset = AdministrationUnit.objects.filter(
+        existed_till__isnull=True,
+    ).select_related(
+        'category',
+        'chairman',
+        'vice_chairman',
+        'manager',
+    ).prefetch_related(
+        'board_members'
+    )
+    serializer_class = AdministrationUnitSerializer
+    filterset_class = AdministrationUnitFilter

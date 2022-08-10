@@ -1,7 +1,10 @@
+from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework.fields import SerializerMethodField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer
 
+from administration_units.models import AdministrationUnit
+from bis.models import User
 from event.models import Event, EventPropagation, EventRegistration
 from opportunities.models import Opportunity
 
@@ -37,13 +40,14 @@ class EventPropagationSerializer(ModelSerializer):
         )
 
     def get_contact_name(self, instance):
-        return instance.contact_name or (instance.contact_person and instance.contact_person.get_name())
+        return instance.contact_name or instance.contact_person and instance.contact_person.get_name()
 
     def get_contact_phone(self, instance):
-        return str(instance.contact_phone) or (instance.contact_person and str(instance.contact_person.phone))
+        return str(instance.contact_phone) or instance.contact_person and str(instance.contact_person.phone)
 
     def get_contact_email(self, instance):
-        return instance.contact_email or (instance.contact_person and instance.contact_person.emails.first())
+        return instance.contact_email or \
+               instance.contact_person and getattr(instance.contact_person.emails.first(), 'email', None)
 
     def get_cost(self, instance):
         cost = f"{instance.cost} Kč"
@@ -76,6 +80,7 @@ class EventSerializer(ModelSerializer):
         model = Event
 
         fields = (
+            'id',
             'name',
             'start',
             'end',
@@ -100,6 +105,7 @@ class OpportunitySerializer(ModelSerializer):
         model = Opportunity
 
         fields = (
+            'id',
             'category',
             'name',
             'start',
@@ -119,10 +125,63 @@ class OpportunitySerializer(ModelSerializer):
         )
 
     def get_contact_name(self, instance):
-        return instance.contact_name or (instance.contact_person and instance.contact_person.get_name())
+        return instance.contact_name or instance.contact_person and instance.contact_person.get_name()
 
     def get_contact_phone(self, instance):
-        return str(instance.contact_phone) or (instance.contact_person and str(instance.contact_person.phone))
+        return str(instance.contact_phone) or instance.contact_person and str(instance.contact_person.phone)
 
     def get_contact_email(self, instance):
-        return instance.contact_email or (instance.contact_person and instance.contact_person.emails.first().email)
+        return instance.contact_email or \
+               instance.contact_person and getattr(instance.contact_person.emails.first(), 'email', None)
+
+
+class BoardMemberSerializer(ModelSerializer):
+    name = SerializerMethodField()
+    phone = PhoneNumberField()
+    email = SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'name',
+            'email',
+            'phone',
+        )
+
+    def get_name(self, instance):
+        return instance.get_name()
+
+    def get_email(self, instance):
+        return getattr(instance.emails.first(), 'email', None)
+
+
+class AdministrationUnitSerializer(ModelSerializer):
+    phone = PhoneNumberField()
+    category = SlugRelatedField(slug_field='slug', read_only=True)
+    chairman = BoardMemberSerializer()
+    vice_chairman = BoardMemberSerializer()
+    manager = BoardMemberSerializer()
+    board_members = BoardMemberSerializer(many=True)
+
+    class Meta:
+        model = AdministrationUnit
+
+        fields = (
+            'id',
+            'name',
+            'abbreviation',
+            'is_for_kids',
+            'phone',
+            'email',
+            'www',
+            'ic',
+            'bank_account_number',
+            'existed_since',
+            'existed_till',
+            'category',
+            'chairman',
+            'vice_chairman',
+            'manager',
+            'board_members',
+        )

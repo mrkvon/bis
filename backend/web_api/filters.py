@@ -2,7 +2,8 @@ from django.db.utils import ProgrammingError
 from django_filters import *
 
 from administration_units.models import AdministrationUnit
-from categories.models import EventCategory, EventProgramCategory, PropagationIntendedForCategory, OpportunityCategory
+from categories.models import EventCategory, EventProgramCategory, PropagationIntendedForCategory, OpportunityCategory, \
+    AdministrationUnitCategory
 from event.models import Event
 from opportunities.models import Opportunity
 
@@ -52,4 +53,15 @@ class OpportunityFilter(FilterSet):
 
     class Meta:
         model = Opportunity
+        fields = []
+
+
+class AdministrationUnitFilter(FilterSet):
+    category = ChoiceInFilter(
+        field_name='category__slug',
+        choices=get_choices(AdministrationUnitCategory, lambda x: (x.slug, x.name))
+    )
+
+    class Meta:
+        model = AdministrationUnit
         fields = []
