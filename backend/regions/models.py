@@ -18,7 +18,7 @@ class Region(Model):
 @translate_model
 class ZipCode(Model):
     zip_code = CharField(max_length=5, unique=True)
-    region = ForeignKey(Region, related_name='zip_code', on_delete=CASCADE, null=True, blank=True)
+    region = ForeignKey(Region, related_name='zip_code', on_delete=PROTECT, null=True, blank=True)
 
     def __str__(self):
         return self.zip_code

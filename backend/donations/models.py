@@ -27,16 +27,16 @@ def get_today():
 
 @translate_model
 class Donor(Model):
-    user = OneToOneField(User, related_name='donor', on_delete=CASCADE)
+    user = OneToOneField(User, related_name='donor', on_delete=PROTECT)
     subscribed_to_newsletter = BooleanField(default=True)
     is_public = BooleanField(default=True)
     has_recurrent_donation = BooleanField(default=False)
 
     date_joined = DateField(default=get_today)
     regional_center_support = ForeignKey(AdministrationUnit, related_name='supported_as_regional_center',
-                                         on_delete=CASCADE, null=True, blank=True, validators=[is_regional_center])
+                                         on_delete=PROTECT, null=True, blank=True, validators=[is_regional_center])
     basic_section_support = ForeignKey(AdministrationUnit, related_name='supported_as_basic_section',
-                                       on_delete=CASCADE, null=True, blank=True, validators=[is_basic_section])
+                                       on_delete=PROTECT, null=True, blank=True, validators=[is_basic_section])
 
     def __str__(self):
         return f"{self.user}"
@@ -95,10 +95,10 @@ class VariableSymbol(Model):
 
 @translate_model
 class Donation(Model):
-    donor = ForeignKey(Donor, on_delete=CASCADE, related_name='donations', null=True)
+    donor = ForeignKey(Donor, on_delete=PROTECT, related_name='donations', null=True)
     donated_at = DateField()
     amount = IntegerField()
-    donation_source = ForeignKey(DonationSourceCategory, related_name='donations', on_delete=CASCADE)
+    donation_source = ForeignKey(DonationSourceCategory, related_name='donations', on_delete=PROTECT)
 
     _variable_symbol = PositiveBigIntegerField(null=True)
     _import_id = PositiveIntegerField(null=True)

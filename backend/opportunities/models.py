@@ -11,13 +11,13 @@ from translation.translate import translate_model
 
 @translate_model
 class Opportunity(Model):
-    category = ForeignKey(OpportunityCategory, on_delete=CASCADE, related_name='opportunities')
+    category = ForeignKey(OpportunityCategory, on_delete=PROTECT, related_name='opportunities')
     name = CharField(max_length=63)
     start = DateField()
     end = DateField()
     on_web_start = DateField()
     on_web_end = DateField()
-    location = ForeignKey(Location, on_delete=CASCADE, related_name='opportunities')
+    location = ForeignKey(Location, on_delete=PROTECT, related_name='opportunities')
 
     introduction = HTMLField()
     description = HTMLField()
@@ -25,7 +25,7 @@ class Opportunity(Model):
     personal_benefits = HTMLField()
     requirements = HTMLField()
 
-    contact_person = ForeignKey(User, on_delete=CASCADE, related_name='opportunities')
+    contact_person = ForeignKey(User, on_delete=PROTECT, related_name='opportunities')
     contact_name = CharField(max_length=63, blank=True)
     contact_phone = PhoneNumberField(blank=True)
     contact_email = EmailField(blank=True)

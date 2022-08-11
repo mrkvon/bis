@@ -27,14 +27,14 @@ class Event(Model):
     start = DateTimeField()
     end = DateField()
     number_of_sub_events = PositiveIntegerField(default=1)
-    location = ForeignKey(Location, on_delete=CASCADE, related_name='events', null=True, blank=True)
+    location = ForeignKey(Location, on_delete=PROTECT, related_name='events', null=True, blank=True)
     online_link = URLField(blank=True)
 
-    category = ForeignKey(EventCategory, on_delete=CASCADE, related_name='events')
-    program = ForeignKey(EventProgramCategory, on_delete=CASCADE, related_name='events', blank=True, null=True)
+    category = ForeignKey(EventCategory, on_delete=PROTECT, related_name='events')
+    program = ForeignKey(EventProgramCategory, on_delete=PROTECT, related_name='events', blank=True, null=True)
 
     administration_units = ManyToManyField(AdministrationUnit, related_name='events')
-    main_organizer = ForeignKey(User, on_delete=CASCADE, related_name='events_where_was_as_main_organizer', null=True)
+    main_organizer = ForeignKey(User, on_delete=PROTECT, related_name='events_where_was_as_main_organizer', null=True)
     other_organizers = ManyToManyField(User, related_name='events_where_was_organizer', blank=True)
 
     is_attendance_list_required = BooleanField(default=False)
@@ -108,7 +108,7 @@ class EventFinance(Model):
 
     bank_account_number = CharField(max_length=63, blank=True)
 
-    grant_category = ForeignKey(GrantCategory, on_delete=CASCADE, related_name='events', null=True, blank=True)
+    grant_category = ForeignKey(GrantCategory, on_delete=PROTECT, related_name='events', null=True, blank=True)
     grant_amount = PositiveIntegerField(null=True, blank=True)
     total_event_cost = PositiveIntegerField(null=True, blank=True)
     budget = FileField(upload_to='budgets', blank=True)
@@ -145,7 +145,7 @@ class EventPropagation(Model):
     maximum_age = PositiveIntegerField(null=True, blank=True)
     cost = PositiveIntegerField()
     discounted_cost = PositiveIntegerField(blank=True, null=True)
-    intended_for = ForeignKey(PropagationIntendedForCategory, on_delete=CASCADE, related_name='events')
+    intended_for = ForeignKey(PropagationIntendedForCategory, on_delete=PROTECT, related_name='events')
     accommodation = CharField(max_length=255)
     diets = ManyToManyField(DietCategory, related_name='events', blank=True)
     organizers = CharField(max_length=255)
@@ -158,7 +158,7 @@ class EventPropagation(Model):
     invitation_text_about_us = HTMLField(blank=True)
     # propagation_images as Model below
 
-    contact_person = ForeignKey(User, on_delete=CASCADE, related_name='events_where_was_as_contact_person', null=True)
+    contact_person = ForeignKey(User, on_delete=PROTECT, related_name='events_where_was_as_contact_person', null=True)
     contact_name = CharField(max_length=63, blank=True)
     contact_phone = PhoneNumberField(blank=True)
     contact_email = EmailField(blank=True)

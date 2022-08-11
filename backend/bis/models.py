@@ -25,17 +25,17 @@ class Location(Model):
     name = CharField(max_length=63)
     description = TextField()
 
-    patron = ForeignKey('bis.User', on_delete=CASCADE, related_name='patron_of', null=True)
-    contact_person = ForeignKey('bis.User', on_delete=CASCADE, related_name='locations_where_is_contact_person',
+    patron = ForeignKey('bis.User', on_delete=PROTECT, related_name='patron_of', null=True)
+    contact_person = ForeignKey('bis.User', on_delete=PROTECT, related_name='locations_where_is_contact_person',
                                 null=True)
 
     for_beginners = BooleanField(default=False)
     is_full = BooleanField(default=False)
     is_unexplored = BooleanField(default=False)
 
-    program = ForeignKey(LocationProgram, on_delete=CASCADE, null=True, blank=True)
-    accessibility_from_prague = ForeignKey(LocationAccessibility, on_delete=CASCADE, related_name='+', null=True)
-    accessibility_from_brno = ForeignKey(LocationAccessibility, on_delete=CASCADE, related_name='+', null=True)
+    program = ForeignKey(LocationProgram, on_delete=PROTECT, null=True, blank=True)
+    accessibility_from_prague = ForeignKey(LocationAccessibility, on_delete=PROTECT, related_name='+', null=True)
+    accessibility_from_brno = ForeignKey(LocationAccessibility, on_delete=PROTECT, related_name='+', null=True)
 
     volunteering_work = TextField()
     volunteering_work_done = TextField()
@@ -46,7 +46,7 @@ class Location(Model):
     web = URLField(blank=True)
     address = CharField(max_length=255, blank=True)
     gps_location = PointField(null=True)
-    region = ForeignKey('regions.Region', related_name='locations', on_delete=CASCADE, null=True, blank=True)
+    region = ForeignKey('regions.Region', related_name='locations', on_delete=PROTECT, null=True, blank=True)
 
     _import_id = CharField(max_length=15, default='')
 
@@ -84,8 +84,8 @@ class User(Model):
     phone = PhoneNumberField(blank=True)
     birthday = DateField(blank=True, null=True)
 
-    close_person = ForeignKey('bis.User', on_delete=SET_NULL, null=True, blank=True, related_name='looking_over')
-    health_insurance_company = ForeignKey(HealthInsuranceCompany, related_name='users', on_delete=CASCADE, null=True,
+    close_person = ForeignKey('bis.User', on_delete=PROTECT, null=True, blank=True, related_name='looking_over')
+    health_insurance_company = ForeignKey(HealthInsuranceCompany, related_name='users', on_delete=PROTECT, null=True,
                                           blank=True)
     health_issues = TextField(blank=True)
 
@@ -410,9 +410,9 @@ class UserContactAddress(BaseAddress):
 
 @translate_model
 class Membership(Model):
-    user = ForeignKey(User, on_delete=CASCADE, related_name='memberships')
-    category = ForeignKey(MembershipCategory, on_delete=CASCADE, related_name='memberships')
-    administration_unit = ForeignKey(AdministrationUnit, on_delete=CASCADE, related_name='memberships')
+    user = ForeignKey(User, on_delete=PROTECT, related_name='memberships')
+    category = ForeignKey(MembershipCategory, on_delete=PROTECT, related_name='memberships')
+    administration_unit = ForeignKey(AdministrationUnit, on_delete=PROTECT, related_name='memberships')
     year = PositiveIntegerField()
 
     _import_id = CharField(max_length=15, default='')
@@ -427,10 +427,10 @@ class Membership(Model):
 @translate_model
 class Qualification(Model):
     user = ForeignKey(User, on_delete=CASCADE, related_name='qualifications')
-    category = ForeignKey(QualificationCategory, on_delete=CASCADE, related_name='qualifications')
+    category = ForeignKey(QualificationCategory, on_delete=PROTECT, related_name='qualifications')
     valid_since = DateField()
     valid_till = DateField()
-    approved_by = ForeignKey(User, on_delete=CASCADE, related_name='approved_qualifications')
+    approved_by = ForeignKey(User, on_delete=PROTECT, related_name='approved_qualifications')
 
     _import_id = CharField(max_length=15, default='')
 

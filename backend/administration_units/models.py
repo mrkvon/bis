@@ -15,7 +15,7 @@ class BaseAddress(Model):
     street = CharField(max_length=127)
     city = CharField(max_length=63)
     zip_code = CharField(max_length=5)
-    region = ForeignKey('regions.Region', related_name='+', on_delete=CASCADE, null=True, blank=True)
+    region = ForeignKey('regions.Region', related_name='+', on_delete=PROTECT, null=True, blank=True)
 
     class Meta:
         ordering = 'id',
@@ -48,10 +48,10 @@ class AdministrationUnit(Model):
     existed_since = DateField(null=True)
     existed_till = DateField(null=True, blank=True)
 
-    category = ForeignKey(AdministrationUnitCategory, related_name='administration_units', on_delete=CASCADE)
-    chairman = ForeignKey('bis.User', related_name='chairman_of', on_delete=CASCADE, null=True)
-    vice_chairman = ForeignKey('bis.User', related_name='vice_chairman_of', on_delete=CASCADE, null=True, blank=True)
-    manager = ForeignKey('bis.User', related_name='manager_of', on_delete=CASCADE, null=True)
+    category = ForeignKey(AdministrationUnitCategory, related_name='administration_units', on_delete=PROTECT)
+    chairman = ForeignKey('bis.User', related_name='chairman_of', on_delete=PROTECT, null=True)
+    vice_chairman = ForeignKey('bis.User', related_name='vice_chairman_of', on_delete=PROTECT, null=True, blank=True)
+    manager = ForeignKey('bis.User', related_name='manager_of', on_delete=PROTECT, null=True)
     board_members = ManyToManyField('bis.User', related_name='administration_units', blank=True)
 
     _import_id = CharField(max_length=15, default='')
@@ -95,8 +95,8 @@ class AdministrationUnitContactAddress(BaseAddress):
 
 @translate_model
 class BrontosaurusMovement(SingletonModel):
-    director = ForeignKey('bis.User', related_name='director_of', on_delete=CASCADE)
-    finance_director = ForeignKey('bis.User', related_name='finance_director_of', on_delete=CASCADE)
+    director = ForeignKey('bis.User', related_name='director_of', on_delete=PROTECT)
+    finance_director = ForeignKey('bis.User', related_name='finance_director_of', on_delete=PROTECT)
     bis_administrators = ManyToManyField('bis.User', related_name='+', blank=True)
     office_workers = ManyToManyField('bis.User', related_name='+', blank=True)
     audit_committee = ManyToManyField('bis.User', related_name='+', blank=True)
