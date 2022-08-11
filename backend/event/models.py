@@ -1,5 +1,6 @@
 from os.path import basename
 
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.gis.db.models import *
@@ -249,6 +250,18 @@ class EventRecord(Model):
 
     def has_edit_permission(self, user):
         return self.event.has_edit_permission(user)
+
+    def get_participants_count(self):
+        return self.number_of_participants or len(self.participants.all())
+
+    def get_young_percentage(self):
+        participants_count = self.get_participants_count()
+        if not participants_count: return '0%'
+        under_26 = len([p for p in self.participants.all() if
+                        p.birthday and relativedelta(self.event.start.date(), p.birthday).years <= 26])
+        under_26 = self.number_of_participants_under_26 or under_26
+        return f"{int(under_26 / participants_count * 100)}%"
+
 
 
 @translate_model

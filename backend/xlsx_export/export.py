@@ -4,16 +4,10 @@ from django.core.files.temp import NamedTemporaryFile
 from django.core.paginator import Paginator
 from django.http import FileResponse
 from rest_framework.serializers import ModelSerializer
+from typing import OrderedDict
 
 from bis.helpers import print_progress
-from bis.models import User
-
-
-class UserExportSerializer(ModelSerializer):
-    class Meta:
-        model = User
-
-        exclude = ()
+from xlsx_export.serializers import UserExportSerializer, EventExportSerializer
 
 
 class XLSXWriter:
@@ -25,6 +19,7 @@ class XLSXWriter:
         self.writer = xlsxwriter.Workbook(self.tmp_file.name, {'constant_memory': True})
         self.worksheet = self.writer.add_worksheet(file_name)
         self.row = 0
+        self.header_keys = []
 
         self.format = lambda: None
         self.format.green = self.writer.add_format({'bg_color': '#c9ffc9'})
@@ -35,42 +30,66 @@ class XLSXWriter:
         self.format.text_wrap.set_text_wrap()
 
     def get_file(self):
-        print('closing writer')
         self.writer.close()
-        print('flusing')
         self.tmp_file.flush()
-        print('flushed')
 
         return self.tmp_file
 
     def from_queryset(self, queryset):
+        queryset = self.serializer_class.get_related(queryset)
+
         for page in Paginator(queryset, 100):
             print_progress('exporting xlsx', page.number, page.paginator.num_pages)
             serializer = self.serializer_class(page.object_list, many=True)
             for item in serializer.data:
                 if not self.row:
-                    self.write_header(item)
+                    self.write_header(serializer.child.get_fields())
                 self.write_row(item)
 
-            self.tmp_file.flush()
-
     def write_values(self, values):
-        for i, value in enumerate(values):
+        values = {key: value for key, value in values}
+        for i, key in enumerate(self.header_keys):
+            value = values.get(key)
+            if isinstance(value, list):
+                value = '\n'.join(str(v) for v in value)
+            if value is False:
+                value = 'ne'
+            if value is True:
+                value = 'ano'
+            if value is None:
+                value = '-'
             self.worksheet.write(self.row, i, str(value), self.format.shrink)
 
         self.row += 1
 
-    def write_header(self, item):
-        values = [self.serializer_class.Meta.model._meta.get_field(key).verbose_name for key in item]
-        self.write_values(values)
+    def get_header_values(self, fields, prefix='', key_prefix=''):
+        if prefix: prefix += ' - '
+        if key_prefix: key_prefix += '_'
+        for key, value in fields.items():
+            if isinstance(value, ModelSerializer):
+                yield from self.get_header_values(value.get_fields(), prefix + value.Meta.model._meta.verbose_name, key_prefix + key)
+            else:
+                self.header_keys.append(key_prefix + key)
+                yield key_prefix + key, prefix + (value.label or key)
+
+    def write_header(self, fields):
+        self.write_values(list(self.get_header_values(fields)))
+
+    def get_row_values(self, item, key_prefix=''):
+        if key_prefix: key_prefix += '_'
+        for key, value in item.items():
+            if isinstance(value, OrderedDict):
+                yield from self.get_row_values(value, key_prefix + key)
+            else:
+                yield key_prefix + key, value
 
     def write_row(self, item):
-        self.write_values(item.values())
+        self.write_values(self.get_row_values(item))
 
 
 @admin.action(description='Exportuj data')
 def export_to_xlsx(model_admin, request, queryset):
-    serializer_class = [s for s in [UserExportSerializer] if s.Meta.model is queryset.model][0]
+    serializer_class = [s for s in [UserExportSerializer, EventExportSerializer] if s.Meta.model is queryset.model][0]
 
     writer = XLSXWriter(queryset.model._meta.verbose_name_plural, serializer_class)
     writer.from_queryset(queryset)
