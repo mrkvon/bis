@@ -15,6 +15,7 @@ from bis.admin_permissions import PermissionMixin
 from bis.models import *
 from opportunities.models import OfferedHelp
 from other.models import DuplicateUser
+from xlsx_export.export import export_to_xlsx
 
 admin.site.unregister(TokenProxy)
 admin.site.unregister(Group)
@@ -84,6 +85,7 @@ class UserOfferedHelpAdmin(PermissionMixin, NestedStackedInline):
 
 @admin.register(User)
 class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin):
+    actions = [export_to_xlsx]
     readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_emails', \
                       'get_events_where_was_organizer', 'get_participated_in_events', \
                       'roles'

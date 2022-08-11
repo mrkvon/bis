@@ -24,3 +24,4 @@ django-more-admin-filters
 python-dateutil
 django-filter
 django-tinymce
+XlsxWriter
