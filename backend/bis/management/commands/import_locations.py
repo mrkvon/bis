@@ -1,4 +1,5 @@
 import re
+from os import makedirs
 from os.path import basename, join, exists
 from urllib import request
 from urllib.request import urlretrieve
@@ -7,7 +8,6 @@ import requests
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand
-from pip._vendor.pep517.dirtools import mkdir_p
 from requests import HTTPError
 
 from bis.helpers import print_progress
@@ -125,7 +125,7 @@ class Command(BaseCommand):
     @with_paused_user_str_signal
     def handle(self, *args, **options):
         dir_path = join(settings.BASE_DIR, 'media', 'location_photos')
-        mkdir_p(dir_path)
+        makedirs(dir_path, exist_ok=True)
 
         opener = request.build_opener()
         opener.addheaders = [('User-agent', 'Mozilla/5.0')]

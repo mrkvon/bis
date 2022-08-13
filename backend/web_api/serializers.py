@@ -8,7 +8,7 @@ from bis.models import User, Location
 from categories.models import PropagationIntendedForCategory, EventProgramCategory, LocationAccessibility, \
     EventCategory, OpportunityCategory, AdministrationUnitCategory
 from common.serializers import make_serializer
-from event.models import Event, EventPropagation, EventRegistration, EventPropagationImage
+from event.models import Event, EventPropagation, EventRegistration
 from opportunities.models import Opportunity
 
 
@@ -36,7 +36,7 @@ class UserSerializer(ModelSerializer):
 class EventPropagationSerializer(ModelSerializer):
     intended_for = make_serializer(PropagationIntendedForCategory)()
     diets = make_serializer(PropagationIntendedForCategory)(many=True)
-    images = SlugRelatedField(slug_field='urls', read_only=True, many=True)
+    images = SerializerMethodField()
     contact_name = SerializerMethodField()
     contact_phone = SerializerMethodField()
     contact_email = SerializerMethodField()
@@ -82,6 +82,9 @@ class EventPropagationSerializer(ModelSerializer):
 
         return cost
 
+    def get_images(self, instance):
+        return [image.image.urls for image in instance.images.all()]
+
 
 class EventRegistrationSerializer(ModelSerializer):
     class Meta:
@@ -99,6 +102,7 @@ class LocationSerializer(ModelSerializer):
     accessibility_from_prague = make_serializer(LocationAccessibility)()
     accessibility_from_brno = make_serializer(LocationAccessibility)()
     region = StringRelatedField()
+    photos = SerializerMethodField()
 
     class Meta:
         model = Location
@@ -118,7 +122,11 @@ class LocationSerializer(ModelSerializer):
             'address',
             'gps_location',
             'region',
+            'photos',
         )
+
+    def get_photos(self, instance):
+        return [photo.photo.urls for photo in instance.photos.all()]
 
 
 class EventSerializer(ModelSerializer):

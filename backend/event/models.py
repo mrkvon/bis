@@ -13,10 +13,10 @@ from tinymce.models import HTMLField
 
 from administration_units.models import AdministrationUnit
 from bis.helpers import permission_cache, update_roles
-from common.thumbnails import ThumbnailImageField
 from bis.models import Location, User
 from categories.models import GrantCategory, PropagationIntendedForCategory, DietCategory, \
     EventCategory, EventProgramCategory
+from common.thumbnails import ThumbnailImageField
 from translation.translate import translate_model
 
 
@@ -280,10 +280,6 @@ class EventPropagationImage(Model):
     def __str__(self):
         return basename(self.image.name)
 
-    @property
-    def urls(self):
-        return self.image.urls
-
 
 @translate_model
 class EventPhoto(Model):
@@ -299,7 +295,3 @@ class EventPhoto(Model):
 
     def __str__(self):
         return basename(self.photo.name)
-
-    @property
-    def urls(self):
-        return self.image.urls
