@@ -5,7 +5,10 @@ from rest_framework.serializers import ModelSerializer
 
 from administration_units.models import AdministrationUnit
 from bis.models import User, Location
-from event.models import Event, EventPropagation, EventRegistration
+from categories.models import PropagationIntendedForCategory, EventProgramCategory, LocationAccessibility, \
+    EventCategory, OpportunityCategory, AdministrationUnitCategory
+from common.serializers import make_serializer
+from event.models import Event, EventPropagation, EventRegistration, EventPropagationImage
 from opportunities.models import Opportunity
 
 
@@ -31,9 +34,9 @@ class UserSerializer(ModelSerializer):
 
 
 class EventPropagationSerializer(ModelSerializer):
-    intended_for = SlugRelatedField(slug_field='slug', read_only=True)
-    diets = SlugRelatedField(slug_field='slug', read_only=True, many=True)
-    images = SlugRelatedField(slug_field='url', read_only=True, many=True)
+    intended_for = make_serializer(PropagationIntendedForCategory)()
+    diets = make_serializer(PropagationIntendedForCategory)(many=True)
+    images = SlugRelatedField(slug_field='urls', read_only=True, many=True)
     contact_name = SerializerMethodField()
     contact_phone = SerializerMethodField()
     contact_email = SerializerMethodField()
@@ -92,9 +95,9 @@ class EventRegistrationSerializer(ModelSerializer):
 
 class LocationSerializer(ModelSerializer):
     patron = UserSerializer()
-    program = StringRelatedField()
-    accessibility_from_prague = StringRelatedField()
-    accessibility_from_brno = StringRelatedField()
+    program = make_serializer(EventProgramCategory)()
+    accessibility_from_prague = make_serializer(LocationAccessibility)()
+    accessibility_from_brno = make_serializer(LocationAccessibility)()
     region = StringRelatedField()
 
     class Meta:
@@ -123,8 +126,8 @@ class EventSerializer(ModelSerializer):
     registration = EventRegistrationSerializer(read_only=True)
 
     location = LocationSerializer()
-    category = SlugRelatedField(slug_field='slug', read_only=True)
-    program = SlugRelatedField(slug_field='slug', read_only=True)
+    category = make_serializer(EventCategory)()
+    program = make_serializer(EventProgramCategory)()
     administration_units = SlugRelatedField(slug_field='abbreviation', read_only=True, many=True)
 
     class Meta:
@@ -146,7 +149,7 @@ class EventSerializer(ModelSerializer):
 
 
 class OpportunitySerializer(ModelSerializer):
-    category = SlugRelatedField(slug_field='slug', read_only=True)
+    category = make_serializer(OpportunityCategory)()
     location = LocationSerializer()
     contact_name = SerializerMethodField()
     contact_phone = SerializerMethodField()
@@ -188,7 +191,7 @@ class OpportunitySerializer(ModelSerializer):
 
 class AdministrationUnitSerializer(ModelSerializer):
     phone = PhoneNumberField()
-    category = SlugRelatedField(slug_field='slug', read_only=True)
+    category = make_serializer(AdministrationUnitCategory)()
     chairman = UserSerializer()
     vice_chairman = UserSerializer()
     manager = UserSerializer()

@@ -248,3 +248,9 @@ TINYMCE_DEFAULT_CONFIG = {
     'block_formats': 'Paragraph=p; Nadpis=h3',
     'fontsize_formats': "12pt"
 }
+
+THUMBNAIL_SIZES = {
+    'small': 352,
+    'medium': 720,
+    'large': 1920,
+}

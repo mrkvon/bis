@@ -13,6 +13,7 @@ from tinymce.models import HTMLField
 
 from administration_units.models import AdministrationUnit
 from bis.helpers import permission_cache, update_roles
+from common.thumbnails import ThumbnailImageField
 from bis.models import Location, User
 from categories.models import GrantCategory, PropagationIntendedForCategory, DietCategory, \
     EventCategory, EventProgramCategory
@@ -98,8 +99,8 @@ class Event(Model):
     @permission_cache
     def has_edit_permission(self, user):
         return hasattr(self, 'propagation') and self.propagation.contact_person == user or \
-                 user in self.other_organizers.all() or \
-                 self.administration_units.filter(board_members=user).exists()
+               user in self.other_organizers.all() or \
+               self.administration_units.filter(board_members=user).exists()
 
 
 @translate_model
@@ -220,7 +221,7 @@ class EventRecord(Model):
     working_hours = PositiveSmallIntegerField(null=True, blank=True)
     working_days = PositiveSmallIntegerField(null=True, blank=True)
     comment_on_work_done = TextField(blank=True)
-    attendance_list = ImageField(upload_to='attendance_lists', null=True, blank=True)
+    attendance_list = ThumbnailImageField(upload_to='attendance_lists', null=True, blank=True)
     participants = ManyToManyField(User, 'participated_in_events', blank=True)
     number_of_participants = PositiveIntegerField(null=True, blank=True)
     number_of_participants_under_26 = PositiveIntegerField(null=True, blank=True)
@@ -263,16 +264,15 @@ class EventRecord(Model):
         return f"{int(under_26 / participants_count * 100)}%"
 
 
-
 @translate_model
 class EventPropagationImage(Model):
     propagation = ForeignKey(EventPropagation, on_delete=CASCADE, related_name='images')
     order = PositiveIntegerField()
-    image = ImageField(upload_to='event_propagation_images', max_length=200)
+    image = ThumbnailImageField(upload_to='event_propagation_images', max_length=200)
 
     @admin.display(description='Náhled')
     def image_tag(self):
-        return mark_safe(f'<img style="max-height: 10rem; max-width: 20rem" src="{self.image.url}" />')
+        return mark_safe(f'<img src="{self.image.urls["small"]}" />')
 
     class Meta:
         ordering = 'order',
@@ -281,14 +281,14 @@ class EventPropagationImage(Model):
         return basename(self.image.name)
 
     @property
-    def url(self):
-        return settings.FULL_HOSTNAME + self.image.url
+    def urls(self):
+        return self.image.urls
 
 
 @translate_model
 class EventPhoto(Model):
     record = ForeignKey(EventRecord, on_delete=CASCADE, related_name='photos')
-    photo = ImageField(upload_to='event_photos')
+    photo = ThumbnailImageField(upload_to='event_photos')
 
     @admin.display(description='Náhled')
     def photo_tag(self):
@@ -299,3 +299,7 @@ class EventPhoto(Model):
 
     def __str__(self):
         return basename(self.photo.name)
+
+    @property
+    def urls(self):
+        return self.image.urls

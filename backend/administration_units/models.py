@@ -6,7 +6,8 @@ from django.core.cache import cache
 from phonenumber_field.modelfields import PhoneNumberField
 from solo.models import SingletonModel
 
-from bis.helpers import record_history, permission_cache, update_roles
+from bis.helpers import permission_cache, update_roles
+from common.history import record_history
 from categories.models import AdministrationUnitCategory
 from translation.translate import translate_model
 

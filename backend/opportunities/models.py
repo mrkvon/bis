@@ -6,6 +6,7 @@ from tinymce.models import HTMLField
 
 from bis.models import User, Location
 from categories.models import EventProgramCategory, TeamRoleCategory, OrganizerRoleCategory, OpportunityCategory
+from common.thumbnails import ThumbnailImageField
 from translation.translate import translate_model
 
 
@@ -29,7 +30,7 @@ class Opportunity(Model):
     contact_name = CharField(max_length=63, blank=True)
     contact_phone = PhoneNumberField(blank=True)
     contact_email = EmailField(blank=True)
-    image = ImageField(upload_to='opportunity_images')
+    image = ThumbnailImageField(upload_to='opportunity_images')
 
     def clean(self):
         if not (self.category.slug == 'collaboration' or self.location_benefits):

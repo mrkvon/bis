@@ -8,7 +8,7 @@ from administration_units.models import AdministrationUnit, BrontosaurusMovement
     AdministrationUnitContactAddress
 from bis.admin_helpers import IsAdministrationUnitActiveFilter
 from bis.admin_permissions import PermissionMixin
-from bis.helpers import show_history
+from common.history import show_history
 
 
 class AdministrationUnitAddressAdmin(PermissionMixin, NestedTabularInline):

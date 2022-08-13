@@ -17,6 +17,7 @@ from bis.admin_helpers import get_admin_edit_url
 from bis.helpers import permission_cache, paused_validation
 from categories.models import QualificationCategory, MembershipCategory, LocationProgram, LocationAccessibility, \
     RoleCategory, HealthInsuranceCompany
+from common.thumbnails import ThumbnailImageField
 from translation.translate import translate_model
 
 
@@ -60,7 +61,7 @@ class Location(Model):
 @translate_model
 class LocationPhoto(Model):
     location = ForeignKey(Location, on_delete=CASCADE, related_name='photos')
-    photo = ImageField(upload_to='location_photos')
+    photo = ThumbnailImageField(upload_to='location_photos')
 
     @admin.display(description='Náhled')
     def photo_tag(self):
