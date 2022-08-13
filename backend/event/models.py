@@ -31,7 +31,7 @@ class Event(Model):
     online_link = URLField(blank=True)
 
     category = ForeignKey(EventCategory, on_delete=PROTECT, related_name='events')
-    program = ForeignKey(EventProgramCategory, on_delete=PROTECT, related_name='events', blank=True, null=True)
+    program = ForeignKey(EventProgramCategory, on_delete=PROTECT, related_name='events')
 
     administration_units = ManyToManyField(AdministrationUnit, related_name='events')
     main_organizer = ForeignKey(User, on_delete=PROTECT, related_name='events_where_was_as_main_organizer', null=True)

@@ -1,12 +1,33 @@
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework.fields import SerializerMethodField
-from rest_framework.relations import SlugRelatedField
+from rest_framework.relations import SlugRelatedField, StringRelatedField
 from rest_framework.serializers import ModelSerializer
 
 from administration_units.models import AdministrationUnit
-from bis.models import User
+from bis.models import User, Location
 from event.models import Event, EventPropagation, EventRegistration
 from opportunities.models import Opportunity
+
+
+class UserSerializer(ModelSerializer):
+    name = SerializerMethodField()
+    phone = PhoneNumberField()
+    email = SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'name',
+            'email',
+            'phone',
+        )
+
+    def get_name(self, instance):
+        return instance.get_name()
+
+    def get_email(self, instance):
+        return getattr(instance.emails.first(), 'email', None)
 
 
 class EventPropagationSerializer(ModelSerializer):
@@ -50,6 +71,8 @@ class EventPropagationSerializer(ModelSerializer):
                instance.contact_person and getattr(instance.contact_person.emails.first(), 'email', None)
 
     def get_cost(self, instance):
+        if not instance.cost:
+            return None
         cost = f"{instance.cost} Kč"
         if instance.discounted_cost is not None:
             cost = f"{instance.discounted_cost}/{cost}"
@@ -67,11 +90,39 @@ class EventRegistrationSerializer(ModelSerializer):
         )
 
 
+class LocationSerializer(ModelSerializer):
+    patron = UserSerializer()
+    program = StringRelatedField()
+    accessibility_from_prague = StringRelatedField()
+    accessibility_from_brno = StringRelatedField()
+    region = StringRelatedField()
+
+    class Meta:
+        model = Location
+        fields = (
+            'name',
+            'description',
+            'patron',
+            'program',
+            'accessibility_from_prague',
+            'accessibility_from_brno',
+            'volunteering_work',
+            'volunteering_work_done',
+            'volunteering_work_goals',
+            'options_around',
+            'facilities',
+            'web',
+            'address',
+            'gps_location',
+            'region',
+        )
+
+
 class EventSerializer(ModelSerializer):
     propagation = EventPropagationSerializer(read_only=True)
     registration = EventRegistrationSerializer(read_only=True)
 
-    location = SlugRelatedField(slug_field='name', read_only=True)
+    location = LocationSerializer()
     category = SlugRelatedField(slug_field='slug', read_only=True)
     program = SlugRelatedField(slug_field='slug', read_only=True)
     administration_units = SlugRelatedField(slug_field='abbreviation', read_only=True, many=True)
@@ -96,7 +147,7 @@ class EventSerializer(ModelSerializer):
 
 class OpportunitySerializer(ModelSerializer):
     category = SlugRelatedField(slug_field='slug', read_only=True)
-    location = SlugRelatedField(slug_field='name', read_only=True)
+    location = LocationSerializer()
     contact_name = SerializerMethodField()
     contact_phone = SerializerMethodField()
     contact_email = SerializerMethodField()
@@ -135,34 +186,15 @@ class OpportunitySerializer(ModelSerializer):
                instance.contact_person and getattr(instance.contact_person.emails.first(), 'email', None)
 
 
-class BoardMemberSerializer(ModelSerializer):
-    name = SerializerMethodField()
-    phone = PhoneNumberField()
-    email = SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = (
-            'id',
-            'name',
-            'email',
-            'phone',
-        )
-
-    def get_name(self, instance):
-        return instance.get_name()
-
-    def get_email(self, instance):
-        return getattr(instance.emails.first(), 'email', None)
-
-
 class AdministrationUnitSerializer(ModelSerializer):
     phone = PhoneNumberField()
     category = SlugRelatedField(slug_field='slug', read_only=True)
-    chairman = BoardMemberSerializer()
-    vice_chairman = BoardMemberSerializer()
-    manager = BoardMemberSerializer()
-    board_members = BoardMemberSerializer(many=True)
+    chairman = UserSerializer()
+    vice_chairman = UserSerializer()
+    manager = UserSerializer()
+    board_members = UserSerializer(many=True)
+    address = StringRelatedField()
+    contact_address = StringRelatedField()
 
     class Meta:
         model = AdministrationUnit
@@ -176,6 +208,8 @@ class AdministrationUnitSerializer(ModelSerializer):
             'email',
             'www',
             'ic',
+            'address',
+            'contact_address',
             'bank_account_number',
             'existed_since',
             'existed_till',
