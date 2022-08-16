@@ -88,6 +88,8 @@ class EventPropagationAdmin(PermissionMixin, NestedStackedInline):
 
     autocomplete_fields = 'contact_person',
 
+    exclude = '_contact_url',
+
 
 class EventRegistrationAdmin(PermissionMixin, NestedStackedInline):
     model = EventRegistration
