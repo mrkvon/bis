@@ -26,6 +26,7 @@ class PermissionMixin:
                self.model in [QuestionnaireAnswers, Answer, Donation, Feedback]
 
     def get_queryset(self, request):
+        self.request = request
         queryset = super().get_queryset(request)
         if self.can_view_all_objs(request):
             return queryset

@@ -77,8 +77,8 @@ class DonorAdmin(PermissionMixin, NestedModelAdmin):
 
     @admin.display(description='Suma darů')
     def get_donations_sum(self, obj):
-        if hasattr(self, 'donations_sum_cache'):
-            return getattr(self, 'donations_sum_cache')[obj.id]
+        if hasattr(self.request, 'donations_sum_cache'):
+            return getattr(self.request, 'donations_sum_cache')[obj.id]
         return obj.donations_sum
 
 

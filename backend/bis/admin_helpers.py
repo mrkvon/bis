@@ -213,7 +213,7 @@ class AnnotateDonationsCount(DateRangeFilter):
                 queryset = queryset.annotate(
                     donations_sum=Subquery(donations_sum)
                 )
-                setattr(self.model_admin, 'donations_sum_cache', {d.id: d.donations_sum for d in queryset})
+                setattr(request, 'donations_sum_cache', {d.id: d.donations_sum for d in queryset})
                 return queryset
 
         return queryset
