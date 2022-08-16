@@ -585,8 +585,10 @@ class Command(BaseCommand):
         b.bis_administrators.add(User.objects.get(emails__email='michal.salajka@protonmail.com'))
         b.bis_administrators.add(User.objects.get(emails__email='dzikilubiabloto@protonmail.com'))
         b.bis_administrators.add(User.objects.get(emails__email='radka@slunovrat.info'))
-        b.bis_administrators.add(User.objects.get(emails__email='terca.op@seznam.cz'))
         b.bis_administrators.add(User.objects.get(emails__email='daniel.kurowski@grifart.cz'))
+
+        b.office_workers.add(User.objects.get(emails__email='terca.op@seznam.cz'))
+        b.office_workers.add(User.objects.get(emails__email='backova.karin@gmail.com'))
 
         self.import_qualifications(data)
         self.import_administration_units(data)
