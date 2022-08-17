@@ -31,6 +31,7 @@ class Donor(Model):
     subscribed_to_newsletter = BooleanField(default=True)
     is_public = BooleanField(default=True)
     has_recurrent_donation = BooleanField(default=False)
+    internal_note = TextField(blank=True)
 
     date_joined = DateField(default=get_today)
     regional_center_support = ForeignKey(AdministrationUnit, related_name='supported_as_regional_center',

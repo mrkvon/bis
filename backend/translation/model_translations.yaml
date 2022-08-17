@@ -466,6 +466,7 @@ Donor:
     regional_center_support: 'podpora RC'
     basic_section_support: 'podpora ZČ'
     has_recurrent_donation: 'Pravidelný dárce'
+    internal_note: 'Interní poznámka'
 
 Donation:
   name: 'Dar'
