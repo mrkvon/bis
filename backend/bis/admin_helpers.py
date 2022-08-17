@@ -181,7 +181,7 @@ class LastDonorsDonationFilter(AggDonorsDonationFilter):
 
 
 class RecurringDonorWhoStoppedFilter(admin.SimpleListFilter):
-    title = 'Pravidelný dárce bez daru za poslední rok'
+    title = 'Pravidelný dárce bez daru za poslední 2 měsíce'
     parameter_name = 'reccuring_donor_who_stopped'
 
     def lookups(self, request, model_admin):
@@ -191,7 +191,7 @@ class RecurringDonorWhoStoppedFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == 'yes':
-            queryset = queryset.exclude(donations__donated_at__gte=now() - relativedelta(years=1)) \
+            queryset = queryset.exclude(donations__donated_at__gte=now() - relativedelta(months=2)) \
                 .filter(has_recurrent_donation=True)
         return queryset
 
