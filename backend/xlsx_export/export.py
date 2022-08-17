@@ -7,7 +7,7 @@ from rest_framework.serializers import ModelSerializer
 from typing import OrderedDict
 
 from bis.helpers import print_progress
-from xlsx_export.serializers import UserExportSerializer, EventExportSerializer
+from xlsx_export.serializers import UserExportSerializer, EventExportSerializer, DonorExportSerializer
 
 
 class XLSXWriter:
@@ -89,7 +89,7 @@ class XLSXWriter:
 
 @admin.action(description='Exportuj data')
 def export_to_xlsx(model_admin, request, queryset):
-    serializer_class = [s for s in [UserExportSerializer, EventExportSerializer] if s.Meta.model is queryset.model][0]
+    serializer_class = [s for s in [UserExportSerializer, EventExportSerializer, DonorExportSerializer] if s.Meta.model is queryset.model][0]
 
     writer = XLSXWriter(queryset.model._meta.verbose_name_plural, serializer_class)
     writer.from_queryset(queryset)

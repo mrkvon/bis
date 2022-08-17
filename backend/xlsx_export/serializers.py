@@ -8,24 +8,6 @@ from event.models import Event, EventFinance, EventPropagation, EventRegistratio
 from opportunities.models import OfferedHelp
 
 
-class DonorExportSerializer(ModelSerializer):
-    variable_symbols = StringRelatedField(many=True)
-    regional_center_support = StringRelatedField()
-    basic_section_support = StringRelatedField()
-
-    class Meta:
-        model = Donor
-        fields = (
-            'subscribed_to_newsletter',
-            'is_public',
-            'has_recurrent_donation',
-            'date_joined',
-            'regional_center_support',
-            'basic_section_support',
-            'variable_symbols',
-        )
-
-
 class OfferedHelpExportSerializer(ModelSerializer):
     programs = StringRelatedField(many=True)
     organizer_roles = StringRelatedField(many=True)
@@ -50,7 +32,6 @@ class UserExportSerializer(ModelSerializer):
     age = ReadOnlyField(label='Věk')
     address = StringRelatedField(label='Adresa')
     contact_address = StringRelatedField(label='Kontaktí adresa')
-    donor = DonorExportSerializer()
     offers = OfferedHelpExportSerializer()
     sex = StringRelatedField(label='Pohlaví')
 
@@ -58,14 +39,11 @@ class UserExportSerializer(ModelSerializer):
     def get_related(queryset):
         return queryset.select_related(
             'address', 'contact_address',
-            'donor__regional_center_support',
-            'donor__basic_section_support',
             'offers',
             'health_insurance_company',
             'sex',
         ).prefetch_related(
             'emails', 'roles',
-            'donor__variable_symbols',
             'offers__programs',
             'offers__organizer_roles',
             'offers__team_roles',
@@ -91,13 +69,49 @@ class UserExportSerializer(ModelSerializer):
             'roles',
             'address',
             'contact_address',
-            'donor',
             'offers',
             'sex',
         )
 
     def get_email(self, instance):
         return instance.emails.first() or ''
+
+
+class DonorExportSerializer(ModelSerializer):
+    user = UserExportSerializer()
+    variable_symbols = StringRelatedField(many=True)
+    regional_center_support = StringRelatedField()
+    basic_section_support = StringRelatedField()
+
+    @staticmethod
+    def get_related(queryset):
+        return queryset.select_related(
+            'user__address', 'user__contact_address',
+            'regional_center_support',
+            'basic_section_support',
+            'user__offers',
+            'user__health_insurance_company',
+            'user__sex',
+        ).prefetch_related(
+            'user__emails', 'user__roles',
+            'variable_symbols',
+            'user__offers__programs',
+            'user__offers__organizer_roles',
+            'user__offers__team_roles',
+        )
+
+    class Meta:
+        model = Donor
+        fields = (
+            'user',
+            'subscribed_to_newsletter',
+            'is_public',
+            'has_recurrent_donation',
+            'date_joined',
+            'regional_center_support',
+            'basic_section_support',
+            'variable_symbols',
+        )
 
 
 class LocationExportSerializer(ModelSerializer):

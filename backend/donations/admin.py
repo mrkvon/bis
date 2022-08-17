@@ -14,6 +14,7 @@ from bis.admin_permissions import PermissionMixin
 from donations.helpers import upload_bank_records
 from donations.models import UploadBankRecords, Donor, Donation, VariableSymbol
 from event.models import *
+from xlsx_export.export import export_to_xlsx
 
 
 @admin.register(Donation)
@@ -38,6 +39,7 @@ class VariableSymbolInline(PermissionMixin, NestedTabularInline):
 
 @admin.register(Donor)
 class DonorAdmin(PermissionMixin, NestedModelAdmin):
+    actions = [export_to_xlsx]
     list_display = 'user', 'subscribed_to_newsletter', 'is_public', \
                    'regional_center_support', 'basic_section_support', \
                    'date_joined', 'get_donations_sum'
