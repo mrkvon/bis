@@ -1,0 +1,6 @@
+login:
+  too_many_retries: 'Příliš mnoho pokusů, zkuste to znovu za hodinu'
+  user_does_not_exist: 'Uživatel s tímto emailem neexistuje'
+  email: 'E-mail'
+  code_form_header: 'Na e-mail {email} byl zaslán kód pro přihlášení'
+  code_invalid: 'Kód není validní (chybný či expirovaný)'
