@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from categories.models import DietCategory, PropagationIntendedForCategory, QualificationCategory, \
     AdministrationUnitCategory, MembershipCategory, EventProgramCategory, \
     EventCategory, GrantCategory, DonationSourceCategory, OrganizerRoleCategory, TeamRoleCategory, OpportunityCategory, \
-    LocationProgram, LocationAccessibility, RoleCategory, HealthInsuranceCompany
+    LocationProgram, LocationAccessibility, RoleCategory, HealthInsuranceCompany, SexCategory
 
 
 class Command(BaseCommand):
@@ -217,3 +217,7 @@ class Command(BaseCommand):
             name='Zdravotní pojišťovna ministerstva vnitra České republiky'))
         HealthInsuranceCompany.objects.update_or_create(slug='RBP', defaults=dict(
             name='RBP, zdravotní pojišťovna'))
+
+        SexCategory.objects.update_or_create(slug='woman', defaults=dict(name='Žena'))
+        SexCategory.objects.update_or_create(slug='man', defaults=dict(name='Muž'))
+        SexCategory.objects.update_or_create(slug='other', defaults=dict(name='Jiné'))

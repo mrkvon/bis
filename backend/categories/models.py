@@ -197,3 +197,15 @@ class HealthInsuranceCompany(Model):
 
     def __str__(self):
         return f"{self.slug} - {self.name}"
+
+
+@translate_model
+class SexCategory(Model):
+    name = CharField(max_length=127)
+    slug = SlugField(unique=True)
+
+    class Meta:
+        ordering = 'id',
+
+    def __str__(self):
+        return self.name

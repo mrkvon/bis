@@ -16,7 +16,7 @@ from administration_units.models import AdministrationUnit, BrontosaurusMovement
 from bis.admin_helpers import get_admin_edit_url
 from bis.helpers import permission_cache, paused_validation
 from categories.models import QualificationCategory, MembershipCategory, LocationProgram, LocationAccessibility, \
-    RoleCategory, HealthInsuranceCompany
+    RoleCategory, HealthInsuranceCompany, SexCategory
 from common.thumbnails import ThumbnailImageField
 from translation.translate import translate_model
 
@@ -89,6 +89,7 @@ class User(Model):
     health_insurance_company = ForeignKey(HealthInsuranceCompany, related_name='users', on_delete=PROTECT, null=True,
                                           blank=True)
     health_issues = TextField(blank=True)
+    sex = ForeignKey(SexCategory, on_delete=PROTECT, null=True, blank=True, related_name='users')
 
     last_login = DateTimeField(blank=True, null=True)
 

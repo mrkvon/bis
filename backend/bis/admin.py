@@ -82,10 +82,17 @@ class UserContactAddressAdmin(PermissionMixin, NestedTabularInline):
 class UserOfferedHelpAdmin(PermissionMixin, NestedStackedInline):
     model = OfferedHelp
 
+@admin.action(description='Označ vybrané jako muže')
+def mark_as_man(self, request, queryset):
+    queryset.update(sex=SexCategory.objects.get(slug='man'))
+
+@admin.action(description='Označ vybrané jako ženy')
+def mark_as_woman(self, request, queryset):
+    queryset.update(sex=SexCategory.objects.get(slug='woman'))
 
 @admin.register(User)
 class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin):
-    actions = [export_to_xlsx]
+    actions = [export_to_xlsx, mark_as_woman, mark_as_man]
     readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_emails', \
                       'get_events_where_was_organizer', 'get_participated_in_events', \
                       'roles'
@@ -93,7 +100,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
 
     fieldsets = (
         (None, {
-            'fields': ('first_name', 'last_name', 'nickname', 'get_emails', 'phone', 'birthday')
+            'fields': ('first_name', 'last_name', 'nickname', 'get_emails', 'phone', 'birthday', 'sex')
         }),
         ('Osobní informace', {
             'fields': ('close_person', 'health_insurance_company', 'health_issues')
@@ -126,7 +133,8 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
                   ('offers__organizer_roles', MultiSelectRelatedDropdownFilter), \
                   ('offers__team_roles', MultiSelectRelatedDropdownFilter), \
                   ('address__region', MultiSelectRelatedDropdownFilter), \
-                  ('health_insurance_company', MultiSelectRelatedDropdownFilter)
+                  ('health_insurance_company', MultiSelectRelatedDropdownFilter), \
+                  'sex'
 
     search_fields = 'emails__email', 'phone', 'first_name', 'last_name', 'nickname'
     list_select_related = 'address', 'contact_address'

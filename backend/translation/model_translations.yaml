@@ -46,6 +46,7 @@ User:
     close_person: 'Rodič / blízká osoba'
     health_insurance_company: 'Pojišťovna'
     health_issues: 'Alergie a zdravotní omezení'
+    sex: 'Pohlaví'
     roles: 'Role'
 
 UserAddress:
@@ -444,6 +445,12 @@ HealthInsuranceCompany:
   name_plural: 'Zdravotní pojišťovny'
   fields:
     name: 'Jméno'
+    slug: 'Zkratka'
+SexCategory:
+  name: 'Pohlaví'
+  name_plural: 'Pohlaví'
+  fields:
+    name: 'Název'
     slug: 'Zkratka'
 
 Donor:

@@ -52,6 +52,7 @@ class UserExportSerializer(ModelSerializer):
     contact_address = StringRelatedField(label='Kontaktí adresa')
     donor = DonorExportSerializer()
     offers = OfferedHelpExportSerializer()
+    sex = StringRelatedField(label='Pohlaví')
 
     @staticmethod
     def get_related(queryset):
@@ -60,7 +61,8 @@ class UserExportSerializer(ModelSerializer):
             'donor__regional_center_support',
             'donor__basic_section_support',
             'offers',
-            'health_insurance_company'
+            'health_insurance_company',
+            'sex',
         ).prefetch_related(
             'emails', 'roles',
             'donor__variable_symbols',
@@ -91,6 +93,7 @@ class UserExportSerializer(ModelSerializer):
             'contact_address',
             'donor',
             'offers',
+            'sex',
         )
 
     def get_email(self, instance):
