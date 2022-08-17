@@ -9,7 +9,7 @@ from rangefilter.filters import DateRangeFilter
 from solo.admin import SingletonModelAdmin
 
 from bis.admin_helpers import HasDonorFilter, FirstDonorsDonationFilter, LastDonorsDonationFilter, \
-    RecurringDonorWhoStoppedFilter, AnnotateDonationsCount, DonationSumAmountFilter
+    RecurringDonorWhoStoppedFilter, DonationSumRangeFilter, DonationSumAmountFilter
 from bis.admin_permissions import PermissionMixin
 from donations.helpers import upload_bank_records
 from donations.models import UploadBankRecords, Donor, Donation, VariableSymbol
@@ -53,7 +53,7 @@ class DonorAdmin(PermissionMixin, NestedModelAdmin):
                   AutocompleteFilterFactory('Podporující ZČ', 'basic_section_support'), \
                   ('donations__donated_at', FirstDonorsDonationFilter), \
                   ('donations__donated_at', LastDonorsDonationFilter), \
-                  ('donations__donated_at', AnnotateDonationsCount), \
+                  ('donations__donated_at', DonationSumRangeFilter), \
                   ('donations__amount', DonationSumAmountFilter), \
                   RecurringDonorWhoStoppedFilter
 

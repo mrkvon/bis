@@ -1,3 +1,4 @@
+from admin_auto_filters.filters import AutocompleteFilterFactory
 from admin_numeric_filter.admin import RangeNumericFilter
 from admin_numeric_filter.forms import SliderNumericForm
 from django.contrib.admin import ListFilter
@@ -196,7 +197,7 @@ class RecurringDonorWhoStoppedFilter(admin.SimpleListFilter):
         return queryset
 
 
-class AnnotateDonationsCount(DateRangeFilter):
+class DonationSumRangeFilter(DateRangeFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
         field_path = 'donated_at'
         super().__init__(field, request, params, model, model_admin, field_path)
@@ -224,3 +225,41 @@ class DonationSumAmountFilter(RangeNumericFilter):
         field_path = 'donations_sum'
         super().__init__(field, request, params, model, model_admin, field_path)
         self.title = 'Dle sumy darů'
+
+
+class ParticipatedInEventRangeFilter(DateRangeFilter):
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        super().__init__(field, request, params, model, model_admin, field_path)
+        self.title = 'Dle: Účast na akci v rozmezí'
+
+    def queryset(self, request, queryset):
+        if self.form.is_valid():
+            validated_data = dict(self.form.cleaned_data.items())
+            if validated_data:
+                query = self._make_query_filter(request, validated_data)
+                for key, value in list(query.items()):
+                    query[key[len('participated_in_events__event__'):]] = value
+                    del query[key]
+                setattr(request, 'participated_in_event_range_query', query)
+
+        return queryset
+
+
+class ParticipatedInEventOfAdministrationUnitFilter(
+    AutocompleteFilterFactory('Účast na akci jen vybraného článku',
+                              'participated_in_events__event__administration_units')
+):
+    def queryset(self, request, queryset):
+        datetime_query = getattr(request, 'participated_in_event_range_query', {})
+
+        if self.value() or datetime_query:
+            Event = apps.get_model('bis', 'Event')
+            events = Event.objects.all()
+            if self.value():
+                events = events.filter(administration_units=self.value())
+            if datetime_query:
+                events = events.filter(**datetime_query)
+
+            return queryset.filter(participated_in_events__event__in=events)
+        else:
+            return queryset

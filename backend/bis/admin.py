@@ -9,8 +9,7 @@ from rangefilter.filters import DateRangeFilter
 from rest_framework.authtoken.models import TokenProxy
 
 from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter, MembershipsYearFilter, AgeFilter, \
-    IsChairmanFilter, IsViceChairmanFilter, IsManagerFilter, \
-    IsBoardMemberFilter
+    ParticipatedInEventRangeFilter, ParticipatedInEventOfAdministrationUnitFilter
 from bis.admin_permissions import PermissionMixin
 from bis.models import *
 from opportunities.models import OfferedHelp
@@ -82,13 +81,16 @@ class UserContactAddressAdmin(PermissionMixin, NestedTabularInline):
 class UserOfferedHelpAdmin(PermissionMixin, NestedStackedInline):
     model = OfferedHelp
 
+
 @admin.action(description='Označ vybrané jako muže')
 def mark_as_man(self, request, queryset):
     queryset.update(sex=SexCategory.objects.get(slug='man'))
 
+
 @admin.action(description='Označ vybrané jako ženy')
 def mark_as_woman(self, request, queryset):
     queryset.update(sex=SexCategory.objects.get(slug='woman'))
+
 
 @admin.register(User)
 class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin):
@@ -125,9 +127,10 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
                   ActiveQualificationFilter, \
                   ('qualifications__category', MultiSelectRelatedDropdownFilter), \
                   ('date_joined', DateRangeFilter), ('birthday', DateRangeFilter), \
-                  ('participated_in_events__event__start', DateRangeFilter), \
                   ('events_where_was_organizer__start', DateRangeFilter), \
                   ('events_where_was_as_main_organizer__start', DateRangeFilter), \
+                  ('participated_in_events__event__start', ParticipatedInEventRangeFilter), \
+                  ParticipatedInEventOfAdministrationUnitFilter, \
                   ('roles', MultiSelectRelatedDropdownFilter), \
                   ('offers__programs', MultiSelectRelatedDropdownFilter), \
                   ('offers__organizer_roles', MultiSelectRelatedDropdownFilter), \
