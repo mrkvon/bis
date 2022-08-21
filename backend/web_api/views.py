@@ -47,8 +47,6 @@ class OpportunityViewSet(ReadOnlyModelViewSet):
         'category',
         'location',
         'contact_person',
-    ).prefetch_related(
-        'contact_person__emails'
     )
     serializer_class = OpportunitySerializer
     filterset_class = OpportunityFilter

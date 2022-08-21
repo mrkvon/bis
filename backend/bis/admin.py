@@ -95,14 +95,14 @@ def mark_as_woman(self, request, queryset):
 @admin.register(User)
 class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin):
     actions = [export_to_xlsx, mark_as_woman, mark_as_man]
-    readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_emails', \
+    readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_all_emails', \
                       'get_events_where_was_organizer', 'get_participated_in_events', \
                       'roles'
     exclude = 'groups', 'user_permissions', 'password', 'is_superuser', '_str'
 
     fieldsets = (
         (None, {
-            'fields': ('first_name', 'last_name', 'nickname', 'get_emails', 'phone', 'birthday', 'sex')
+            'fields': ('first_name', 'last_name', 'nickname', 'get_all_emails', 'phone', 'birthday', 'sex')
         }),
         ('Osobní informace', {
             'fields': ('close_person', 'health_insurance_company', 'health_issues')
@@ -118,7 +118,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
 
     autocomplete_fields = 'close_person',
 
-    list_display = 'get_name', 'birthday', 'address', 'get_emails', 'phone', 'get_qualifications', 'get_memberships', \
+    list_display = 'get_name', 'birthday', 'address', 'get_email', 'phone', 'get_qualifications', 'get_memberships', \
                    'get_programs', 'get_organizer_roles', 'get_team_roles',
     list_filter = ActiveMembershipFilter, \
                   AutocompleteFilterFactory('Člen článku', 'memberships__administration_unit'), \
@@ -139,7 +139,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
                   ('health_insurance_company', MultiSelectRelatedDropdownFilter), \
                   'sex'
 
-    search_fields = 'emails__email', 'phone', 'first_name', 'last_name', 'nickname'
+    search_fields = 'all_emails__email', 'phone', 'first_name', 'last_name', 'nickname'
     list_select_related = 'address', 'contact_address'
 
     def get_inlines(self, request, obj):
@@ -162,7 +162,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related(
-            'memberships', 'qualifications', 'emails',
+            'memberships', 'qualifications',
             'events_where_was_organizer', 'participated_in_events__event',
             'offers__programs', 'offers__organizer_roles', 'offers__team_roles'
         )

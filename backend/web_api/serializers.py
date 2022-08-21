@@ -15,7 +15,6 @@ from opportunities.models import Opportunity
 class UserSerializer(ModelSerializer):
     name = SerializerMethodField()
     phone = PhoneNumberField()
-    email = SerializerMethodField()
 
     class Meta:
         model = User
@@ -28,9 +27,6 @@ class UserSerializer(ModelSerializer):
 
     def get_name(self, instance):
         return instance.get_name()
-
-    def get_email(self, instance):
-        return getattr(instance.emails.first(), 'email', None)
 
 
 class EventPropagationSerializer(ModelSerializer):
@@ -70,8 +66,7 @@ class EventPropagationSerializer(ModelSerializer):
         return str(instance.contact_phone) or instance.contact_person and str(instance.contact_person.phone)
 
     def get_contact_email(self, instance):
-        return instance.contact_email or \
-               instance.contact_person and getattr(instance.contact_person.emails.first(), 'email', None)
+        return instance.contact_email or instance.contact_person and instance.contact_person.email
 
     def get_cost(self, instance):
         if not instance.cost:
@@ -193,8 +188,7 @@ class OpportunitySerializer(ModelSerializer):
         return str(instance.contact_phone) or instance.contact_person and str(instance.contact_person.phone)
 
     def get_contact_email(self, instance):
-        return instance.contact_email or \
-               instance.contact_person and getattr(instance.contact_person.emails.first(), 'email', None)
+        return instance.contact_email or instance.contact_person and instance.contact_person.email
 
 
 class AdministrationUnitSerializer(ModelSerializer):

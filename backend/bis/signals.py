@@ -1,8 +1,8 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
-from bis.models import User, Location
+from bis.models import User, Location, UserEmail
 from project import settings
 from regions.models import Region
 
@@ -56,6 +56,20 @@ def set_region_for_location(instance: Location, created, **kwargs):
             instance.region = region
             instance.save()
 
+
+@receiver(pre_save, sender=User, dispatch_uid='set_primary_email')
+def set_primary_email(instance: User, **kwargs):
+    email = instance.all_emails.first()
+    instance.email = email and email.email
+
+
+@receiver(post_save, sender=UserEmail, dispatch_uid='set_users_primary_email')
+@receiver(post_delete, sender=UserEmail, dispatch_uid='set_users_primary_email_delete')
+def set_primary_email(instance: UserEmail, **kwargs):
+    if instance.user.email != getattr(instance.user.all_emails.first(), 'email', None):
+        instance.user.save()
+
+
 class paused_user_str_signal:
     def __enter__(self):
         post_save.disconnect(sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
@@ -63,6 +77,7 @@ class paused_user_str_signal:
     def __exit__(self, exc_type, exc_val, exc_tb):
         post_save.connect(set_unique_str, sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
         User.objects.first().save()
+
 
 def with_paused_user_str_signal(f):
     def wrapper(*args, **kwargs):

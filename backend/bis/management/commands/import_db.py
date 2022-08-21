@@ -442,7 +442,7 @@ class Command(BaseCommand):
 
             contact = None
             if item['kontakt_email']:
-                contact = User.objects.filter(emails__email=item['kontakt_email'].lower()).first()
+                contact = User.objects.filter(all_emails__email=item['kontakt_email'].lower()).first()
 
             location = None
             if item['lokalita']:
@@ -575,20 +575,20 @@ class Command(BaseCommand):
         self.import_users(data)
 
         director = self.user_map[self.director_id]
-        finance_director = User.objects.filter(emails__email='josef.dvoracek@outlook.com')[0]
+        finance_director = User.objects.filter(all_emails__email='josef.dvoracek@outlook.com')[0]
 
         b = BrontosaurusMovement.objects.update_or_create(defaults=dict(
             director=director,
             finance_director=finance_director
         ))[0]
         b.bis_administrators.set([self.user_map[id] for id in self.admin_ids])
-        b.bis_administrators.add(User.objects.get(emails__email='michal.salajka@protonmail.com'))
-        b.bis_administrators.add(User.objects.get(emails__email='dzikilubiabloto@protonmail.com'))
-        b.bis_administrators.add(User.objects.get(emails__email='radka@slunovrat.info'))
-        b.bis_administrators.add(User.objects.get(emails__email='daniel.kurowski@grifart.cz'))
+        b.bis_administrators.add(User.objects.get(all_emails__email='michal.salajka@protonmail.com'))
+        b.bis_administrators.add(User.objects.get(all_emails__email='dzikilubiabloto@protonmail.com'))
+        b.bis_administrators.add(User.objects.get(all_emails__email='radka@slunovrat.info'))
+        b.bis_administrators.add(User.objects.get(all_emails__email='daniel.kurowski@grifart.cz'))
 
-        b.office_workers.add(User.objects.get(emails__email='terca.op@seznam.cz'))
-        b.office_workers.add(User.objects.get(emails__email='backova.karin@gmail.com'))
+        b.office_workers.add(User.objects.get(all_emails__email='terca.op@seznam.cz'))
+        b.office_workers.add(User.objects.get(all_emails__email='backova.karin@gmail.com'))
 
         self.import_qualifications(data)
         self.import_administration_units(data)

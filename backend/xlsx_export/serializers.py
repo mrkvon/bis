@@ -43,7 +43,7 @@ class UserExportSerializer(ModelSerializer):
             'health_insurance_company',
             'sex',
         ).prefetch_related(
-            'emails', 'roles',
+            'roles',
             'offers__programs',
             'offers__organizer_roles',
             'offers__team_roles',
@@ -73,9 +73,6 @@ class UserExportSerializer(ModelSerializer):
             'sex',
         )
 
-    def get_email(self, instance):
-        return instance.emails.first() or ''
-
 
 class DonorExportSerializer(ModelSerializer):
     user = UserExportSerializer()
@@ -93,7 +90,7 @@ class DonorExportSerializer(ModelSerializer):
             'user__health_insurance_company',
             'user__sex',
         ).prefetch_related(
-            'user__emails', 'user__roles',
+            'user__roles',
             'variable_symbols',
             'user__offers__programs',
             'user__offers__organizer_roles',

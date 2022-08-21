@@ -94,7 +94,7 @@ class Command(BaseCommand):
             if not match: return {}
             email = match.group(0).lower()
 
-            user = User.objects.filter(emails__email=email).first()
+            user = User.objects.filter(all_emails__email=email).first()
             if not user:
                 user = User.objects.create(
                     first_name=attr['value'][:62],

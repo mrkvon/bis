@@ -83,6 +83,7 @@ class User(Model):
     last_name = CharField(max_length=63)
     nickname = CharField(max_length=63, blank=True)
     phone = PhoneNumberField(blank=True)
+    email = EmailField(unique=True, blank=True, null=True)
     birthday = DateField(blank=True, null=True)
 
     close_person = ForeignKey('bis.User', on_delete=PROTECT, null=True, blank=True, related_name='looking_over')
@@ -101,11 +102,6 @@ class User(Model):
     roles = ManyToManyField(RoleCategory, related_name='users')
 
     objects = UserManager()
-
-    @cached_property
-    def email(self):
-        email = self.emails.first()
-        return email and email.email
 
     @cached_property
     def is_director(self):
@@ -211,7 +207,7 @@ class User(Model):
         assert other != self
         with paused_validation():
             for field in self._meta.fields:
-                if field.name in ['id', 'password', '_import_id', 'is_active', 'last_login', '_str', 'roles']:
+                if field.name in ['id', 'password', '_import_id', 'is_active', 'last_login', '_str', 'roles', 'email']:
                     continue
 
                 elif field.name in ['date_joined', ]:
@@ -241,8 +237,8 @@ class User(Model):
                         else:
                             self.donor.merge_with(other.donor)
 
-                elif relation.name == 'emails':
-                    max_order = max([email.order for email in self.emails.all()] + [0])
+                elif relation.name == 'all_emails':
+                    max_order = max([email.order for email in self.all_emails.all()] + [0])
                     for i, obj in enumerate(UserEmail.objects.filter(user=other)):
                         obj.user = self
                         obj.order = max_order + i + 1
@@ -274,7 +270,7 @@ class User(Model):
                 name = self.nickname
 
         if not name.strip():
-            return f"{self.emails.first()}"
+            return f"{self.email}"
 
         return name
 
@@ -282,12 +278,17 @@ class User(Model):
         return self.get_name()
 
     @admin.display(description='E-mailové adresy')
-    def get_emails(self):
-        def split_email(email):
-            name, host = email.split('@')
-            return f'{name}<br>@{host}'
+    def get_all_emails(self):
+        return mark_safe("<br>".join(e.email for e in self.all_emails.all()))
 
-        return mark_safe("<br>".join(split_email(e.email) for e in self.emails.all()))
+
+    @admin.display(description='E-mail')
+    def get_email(self):
+        if not self.email:
+            return ''
+
+        name, host = self.email.split('@')
+        return mark_safe(f'{name}<br>@{host}')
 
     @admin.display(description='Aktivní kvalifikace')
     def get_qualifications(self):
@@ -385,7 +386,7 @@ class User(Model):
 
 @translate_model
 class UserEmail(Model):
-    user = ForeignKey(User, related_name='emails', on_delete=CASCADE)
+    user = ForeignKey(User, related_name='all_emails', on_delete=CASCADE)
     email = EmailField(unique=True)
     order = PositiveSmallIntegerField(default=0)
 

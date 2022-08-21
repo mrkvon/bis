@@ -20,10 +20,10 @@ class LoginForm(Form):
 
     def clean_email(self):
         email = self.cleaned_data['email'].lower()
-        if not User.objects.filter(emails__email=email).exists():
+        if not User.objects.filter(all_emails__email=email).exists():
             raise ValidationError(_('login.user_does_not_exist'))
 
-        user = User.objects.get(emails__email=email)
+        user = User.objects.get(all_emails__email=email)
         try:
             login_code = LoginCode.make(user)
         except Throttled:
@@ -71,7 +71,7 @@ class CodeView(FormView):
         if not next:
             next = '/admin/'
 
-        user = User.objects.get(emails__email=email)
+        user = User.objects.get(all_emails__email=email)
         if LoginCode.is_valid(user, code, raise_exception=False):
             login(self.request, user)
 

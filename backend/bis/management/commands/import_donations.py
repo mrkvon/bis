@@ -51,7 +51,7 @@ class Command(BaseCommand):
             if not transactions:
                 continue
 
-            user = User.objects.get_or_create(emails__email=donor['email'].lower(), defaults=dict(
+            user = User.objects.get_or_create(all_emails__email=donor['email'].lower(), defaults=dict(
                 first_name=donor['firstName'],
                 last_name=donor['lastName'],
                 phone=donor['phone'],

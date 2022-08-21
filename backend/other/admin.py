@@ -17,14 +17,14 @@ class DuplicateUserAdmin(PermissionMixin, NestedModelAdmin):
     list_select_related = 'user__address', 'other__address'
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('user__emails', 'other__emails')
+        return super().get_queryset(request).prefetch_related('user__all_emails', 'other__all_emails')
 
     def get_readonly_fields(self, request, obj=None):
         if obj: return 'get_user_info', 'get_other_info'
         return ()
 
     def get_info(self, user):
-        emails = ", ".join(str(email) for email in user.emails.all())
+        emails = ", ".join(str(email) for email in user.all_emails.all())
         return mark_safe(
             f"{user}<br>Nar: {user.birthday}<br>Adr: {getattr(user, 'address', '')}<br>E-maily: {emails}<br>Tel: {user.phone}")
 
