@@ -6,7 +6,7 @@ from solo.admin import SingletonModelAdmin
 
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, AdministrationUnitAddress, \
     AdministrationUnitContactAddress
-from bis.admin_helpers import IsAdministrationUnitActiveFilter
+from bis.admin_filters import IsAdministrationUnitActiveFilter
 from bis.admin_permissions import PermissionMixin
 from common.history import show_history
 
@@ -51,14 +51,6 @@ class AdministrationUnitAdmin(PermissionMixin, NestedModelAdmin):
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
         form.instance.save()
-
-    def get_search_results(self, request, queryset, search_term):
-        if request.GET.get('field_name') == 'regional_center_support':
-            queryset = queryset.filter(category__slug='regional_center')
-        if request.GET.get('field_name') == 'basic_section_support':
-            queryset = queryset.filter(category__slug='basic_section')
-
-        return super().get_search_results(request, queryset, search_term)
 
 
 @admin.register(BrontosaurusMovement)

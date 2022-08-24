@@ -9,17 +9,6 @@ from categories.models import DonationSourceCategory
 from translation.translate import translate_model
 
 
-def is_regional_center(value: AdministrationUnit):
-    if type(value) == int: value = AdministrationUnit.objects.get(id=value)
-    if value.category.slug != 'regional_center':
-        raise ValidationError('not regional_center')
-
-
-def is_basic_section(value: AdministrationUnit):
-    if type(value) == int: value = AdministrationUnit.objects.get(id=value)
-    if value.category.slug != 'basic_section':
-        raise ValidationError('not basic_section')
-
 
 def get_today():
     return today().date()
@@ -35,9 +24,11 @@ class Donor(Model):
 
     date_joined = DateField(default=get_today)
     regional_center_support = ForeignKey(AdministrationUnit, related_name='supported_as_regional_center',
-                                         on_delete=PROTECT, null=True, blank=True, validators=[is_regional_center])
+                                         on_delete=PROTECT, null=True, blank=True,
+                                         limit_choices_to={'category__slug': 'regional_center'})
     basic_section_support = ForeignKey(AdministrationUnit, related_name='supported_as_basic_section',
-                                       on_delete=PROTECT, null=True, blank=True, validators=[is_basic_section])
+                                       on_delete=PROTECT, null=True, blank=True,
+                                         limit_choices_to={'category__slug': 'basic_section'})
 
     def __str__(self):
         return f"{self.user}"

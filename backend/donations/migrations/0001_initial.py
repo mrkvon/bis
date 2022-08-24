@@ -24,8 +24,8 @@ class Migration(migrations.Migration):
                 ('subscribed_to_newsletter', models.BooleanField(default=True)),
                 ('is_public', models.BooleanField(default=True)),
                 ('date_joined', models.DateField()),
-                ('basic_section_support', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='supported_as_basic_section', to='administration_units.administrationunit', validators=[donations.models.is_basic_section])),
-                ('regional_center_support', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='supported_as_regional_center', to='administration_units.administrationunit', validators=[donations.models.is_regional_center])),
+                ('basic_section_support', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='supported_as_basic_section', to='administration_units.administrationunit')),
+                ('regional_center_support', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='supported_as_regional_center', to='administration_units.administrationunit')),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='donor', to=settings.AUTH_USER_MODEL)),
             ],
             options={

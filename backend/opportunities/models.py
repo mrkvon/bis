@@ -57,7 +57,7 @@ class Opportunity(Model):
 class OfferedHelp(Model):
     user = OneToOneField(User, on_delete=CASCADE, related_name='offers')
 
-    programs = ManyToManyField(EventProgramCategory, related_name='offered_help', blank=True)
+    programs = ManyToManyField(EventProgramCategory, related_name='offered_help', blank=True, limit_choices_to=~Q(slug='none'))
     organizer_roles = ManyToManyField(OrganizerRoleCategory, related_name='offered_help', blank=True)
     additional_organizer_role = CharField(max_length=63, blank=True)
     team_roles = ManyToManyField(TeamRoleCategory, related_name='offered_help', blank=True)

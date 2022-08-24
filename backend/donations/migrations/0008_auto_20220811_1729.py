@@ -29,12 +29,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='donor',
             name='basic_section_support',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='supported_as_basic_section', to='administration_units.administrationunit', validators=[donations.models.is_basic_section]),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='supported_as_basic_section', to='administration_units.administrationunit'),
         ),
         migrations.AlterField(
             model_name='donor',
             name='regional_center_support',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='supported_as_regional_center', to='administration_units.administrationunit', validators=[donations.models.is_regional_center]),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='supported_as_regional_center', to='administration_units.administrationunit'),
         ),
         migrations.AlterField(
             model_name='donor',
