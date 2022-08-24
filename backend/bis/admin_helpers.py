@@ -162,7 +162,7 @@ def event_of_administration_unit_filter_factory(title, parameter_name, cache_nam
                 if datetime_query:
                     items = items.filter(**datetime_query)
 
-                return queryset.filter(**{prefix + '__in': items})
+                return queryset.filter(**{prefix + '__in': items}).distinct()
             else:
                 return queryset
 

@@ -177,7 +177,7 @@ class QualificationCategoryFilter(MultiSelectRelatedDropdownFilter):
             query.update(date_filter)
             params |= Q(**query)
         try:
-            return queryset.filter(qualifications__in=Qualification.objects.filter(params))
+            return queryset.filter(qualifications__in=Qualification.objects.filter(params)).distinct()
         except (ValueError, ValidationError) as e:
             # Fields may raise a ValueError or ValidationError when converting
             # the parameters to the correct type.
