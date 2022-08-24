@@ -589,6 +589,8 @@ class Command(BaseCommand):
 
         b.office_workers.add(User.objects.get(all_emails__email='terca.op@seznam.cz'))
         b.office_workers.add(User.objects.get(all_emails__email='backova.karin@gmail.com'))
+        b.office_workers.add(User.objects.get(all_emails__email='martin.rehus8@gmail.com'))
+        b.office_workers.add(User.objects.get(all_emails__email='tereza.louckova8@gmail.com'))
 
         self.import_qualifications(data)
         self.import_administration_units(data)
