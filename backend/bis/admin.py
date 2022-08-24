@@ -1,4 +1,3 @@
-from admin_auto_filters.filters import AutocompleteFilterFactory
 from admin_numeric_filter.admin import NumericFilterModelAdmin
 from django.contrib.auth.models import Group
 from django.contrib.gis.admin import OSMGeoAdmin
@@ -8,8 +7,11 @@ from nested_admin.nested import NestedTabularInline, NestedStackedInline, Nested
 from rangefilter.filters import DateRangeFilter
 from rest_framework.authtoken.models import TokenProxy
 
-from bis.admin_helpers import ActiveQualificationFilter, ActiveMembershipFilter, MembershipsYearFilter, AgeFilter, \
-    ParticipatedInEventRangeFilter, ParticipatedInEventOfAdministrationUnitFilter
+from bis.admin_filters import AgeFilter, NoBirthdayFilter, MainOrganizerOfEventRangeFilter, \
+    OrganizerOfEventRangeFilter, ParticipatedInEventRangeFilter, MainOrganizerOfEventOfAdministrationUnitFilter, \
+    OrganizerOfEventOfAdministrationUnitFilter, ParticipatedInEventOfAdministrationUnitFilter, MemberDuringYearsFilter, \
+    MemberOfAdministrationUnitFilter, QualificationCategoryFilter, QualificationValidAtFilter
+from bis.admin_helpers import list_filter_extra_title
 from bis.admin_permissions import PermissionMixin
 from bis.models import *
 from opportunities.models import OfferedHelp
@@ -120,24 +122,42 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
 
     list_display = 'get_name', 'birthday', 'address', 'get_email', 'phone', 'get_qualifications', 'get_memberships', \
                    'get_programs', 'get_organizer_roles', 'get_team_roles',
-    list_filter = ActiveMembershipFilter, \
-                  AutocompleteFilterFactory('Člen článku', 'memberships__administration_unit'), \
-                  ('memberships__year', MembershipsYearFilter), \
-                  AgeFilter, \
-                  ActiveQualificationFilter, \
-                  ('qualifications__category', MultiSelectRelatedDropdownFilter), \
-                  ('date_joined', DateRangeFilter), ('birthday', DateRangeFilter), \
-                  ('events_where_was_organizer__start', DateRangeFilter), \
-                  ('events_where_was_as_main_organizer__start', DateRangeFilter), \
-                  ('participated_in_events__event__start', ParticipatedInEventRangeFilter), \
-                  ParticipatedInEventOfAdministrationUnitFilter, \
-                  ('roles', MultiSelectRelatedDropdownFilter), \
-                  ('offers__programs', MultiSelectRelatedDropdownFilter), \
-                  ('offers__organizer_roles', MultiSelectRelatedDropdownFilter), \
-                  ('offers__team_roles', MultiSelectRelatedDropdownFilter), \
-                  ('address__region', MultiSelectRelatedDropdownFilter), \
-                  ('health_insurance_company', MultiSelectRelatedDropdownFilter), \
-                  'sex'
+
+    list_filter = [
+        AgeFilter,
+
+        list_filter_extra_title('Účast na akcích'),
+        ('events_where_was_as_main_organizer__start', MainOrganizerOfEventRangeFilter),
+        MainOrganizerOfEventOfAdministrationUnitFilter,
+        ('events_where_was_organizer__start', OrganizerOfEventRangeFilter),
+        OrganizerOfEventOfAdministrationUnitFilter,
+        ('participated_in_events__event__start', ParticipatedInEventRangeFilter),
+        ParticipatedInEventOfAdministrationUnitFilter,
+
+        list_filter_extra_title('Členství'),
+        ('memberships__year', MemberDuringYearsFilter),
+        MemberOfAdministrationUnitFilter,
+
+        list_filter_extra_title('Nabízená pomoc'),
+        ('offers__programs', MultiSelectRelatedDropdownFilter),
+        ('offers__organizer_roles', MultiSelectRelatedDropdownFilter),
+        ('offers__team_roles', MultiSelectRelatedDropdownFilter),
+
+        list_filter_extra_title('Kvalifikace'),
+        ('qualifications__valid_since', QualificationValidAtFilter),
+        ('qualifications__category', QualificationCategoryFilter),
+
+        list_filter_extra_title('Osobní info'),
+        ('birthday', DateRangeFilter),
+        NoBirthdayFilter,
+        ('sex', MultiSelectRelatedDropdownFilter),
+        ('address__region', MultiSelectRelatedDropdownFilter),
+        ('health_insurance_company', MultiSelectRelatedDropdownFilter),
+
+        list_filter_extra_title('Ostatní'),
+        ('roles', MultiSelectRelatedDropdownFilter),
+        ('date_joined', DateRangeFilter),
+    ]
 
     search_fields = 'all_emails__email', 'phone', 'first_name', 'last_name', 'nickname'
     list_select_related = 'address', 'contact_address'
@@ -162,7 +182,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related(
-            'memberships', 'qualifications',
+            'memberships__administration_unit', 'qualifications__category',
             'events_where_was_organizer', 'participated_in_events__event',
             'offers__programs', 'offers__organizer_roles', 'offers__team_roles'
         )

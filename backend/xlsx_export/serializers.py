@@ -27,7 +27,6 @@ class OfferedHelpExportSerializer(ModelSerializer):
 
 class UserExportSerializer(ModelSerializer):
     roles = StringRelatedField(label='Role', many=True)
-    email = SerializerMethodField(label='Email')
     get_name = ReadOnlyField(label='Celé jméno')
     age = ReadOnlyField(label='Věk')
     address = StringRelatedField(label='Adresa')

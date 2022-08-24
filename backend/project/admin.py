@@ -9,6 +9,7 @@ class MyAdminSite(admin.AdminSite):
         'BIS administrace')
     index_title = 'Ať žije nový BIS!'
     site_url = 'https://brontosaurus.cz/'
+    empty_value_display = 'Nevyplněno'
 
     def get_app_list(self, request):
         list = super().get_app_list(request)

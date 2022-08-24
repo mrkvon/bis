@@ -8,8 +8,8 @@ from nested_admin.nested import NestedModelAdmin, NestedTabularInline
 from rangefilter.filters import DateRangeFilter
 from solo.admin import SingletonModelAdmin
 
-from bis.admin_helpers import HasDonorFilter, FirstDonorsDonationFilter, LastDonorsDonationFilter, \
-    RecurringDonorWhoStoppedFilter, DonationSumRangeFilter, DonationSumAmountFilter
+from bis.admin_filters import HasDonorFilter, FirstDonorsDonationFilter, LastDonorsDonationFilter, \
+    RecurringDonorWhoStoppedFilter, DonationSumAmountFilter, DonationSumRangeFilter
 from bis.admin_permissions import PermissionMixin
 from donations.helpers import upload_bank_records
 from donations.models import UploadBankRecords, Donor, Donation, VariableSymbol
@@ -72,16 +72,11 @@ class DonorAdmin(PermissionMixin, NestedModelAdmin):
         super().save_formset(request, form, formset, change)
 
     def get_queryset(self, request):
-        return super().get_queryset(request) \
-            .annotate(first_donation=Min('donations__donated_at')) \
-            .annotate(last_donation=Max('donations__donated_at')) \
-            .annotate(donations_sum=Sum('donations__amount'))
+        return super().get_queryset(request).prefetch_related('donations')
 
     @admin.display(description='Suma darů')
     def get_donations_sum(self, obj):
-        if hasattr(self.request, 'donations_sum_cache'):
-            return getattr(self.request, 'donations_sum_cache')[obj.id]
-        return obj.donations_sum
+        return sum([donation.amount for donation in obj.donations.all()])
 
 
 @admin.register(UploadBankRecords)

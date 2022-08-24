@@ -1,5 +1,4 @@
 from admin_auto_filters.filters import AutocompleteFilterFactory
-from dateutil.relativedelta import relativedelta
 from more_admin_filters import MultiSelectRelatedDropdownFilter
 from nested_admin.forms import SortableHiddenMixin
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin, NestedStackedInline
@@ -112,14 +111,21 @@ class EventAdmin(PermissionMixin, NestedModelAdmin):
     save_as = True
     filter_horizontal = 'other_organizers',
 
-    list_filter = AutocompleteFilterFactory('Článek', 'administration_units'), \
-                  ('start', DateRangeFilter), ('end', DateRangeFilter), \
-                  ('category', MultiSelectRelatedDropdownFilter), ('program', MultiSelectRelatedDropdownFilter), \
-                  'propagation__is_shown_on_web', ('propagation__intended_for', MultiSelectRelatedDropdownFilter), \
-                  'is_canceled', 'is_internal', \
-                  'registration__is_registration_required', 'registration__is_event_full', \
-                  'is_attendance_list_required', \
-                  ('location__region', MultiSelectRelatedDropdownFilter)
+    list_filter = [
+        AutocompleteFilterFactory('Zorganizováno pod', 'administration_units'),
+        ('start', DateRangeFilter),
+        ('end', DateRangeFilter),
+        ('category', MultiSelectRelatedDropdownFilter),
+        ('program', MultiSelectRelatedDropdownFilter),
+        'propagation__is_shown_on_web',
+        ('propagation__intended_for', MultiSelectRelatedDropdownFilter),
+        'is_canceled',
+        'is_internal',
+        'registration__is_registration_required',
+        'registration__is_event_full',
+        'is_attendance_list_required',
+        ('location__region', MultiSelectRelatedDropdownFilter),
+    ]
 
     list_display = 'name', 'get_date', 'get_administration_units', 'location', 'category', 'program', \
                    'get_participants_count', 'get_young_percentage', 'get_total_hours_worked'
