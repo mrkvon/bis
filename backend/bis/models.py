@@ -319,6 +319,7 @@ class User(Model):
             Q(participated_in_events__event__administration_units__board_members=user),
             Q(events_where_was_organizer__administration_units__board_members=user),
             Q(events_where_was_as_contact_person__event__administration_units__board_members=user),
+            Q(memberships__administration_unit__board_members=user),
         ]
         if not backend_only:
             queries += [
