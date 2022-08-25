@@ -147,7 +147,8 @@ class EventAdmin(PermissionMixin, NestedModelAdmin):
     ]
 
     list_display = 'name', 'get_date', 'get_administration_units', 'location', 'category', 'program', \
-                   'get_participants_count', 'get_young_percentage', 'get_total_hours_worked'
+                   'get_participants_count', 'get_young_percentage', 'get_total_hours_worked', \
+                   'get_event_record_photos_uploaded', 'get_event_finance_receipts_uploaded'
     list_select_related = 'location', 'category', 'program', 'record'
 
     @admin.display(description='Administrativní jednotky')
@@ -169,8 +170,19 @@ class EventAdmin(PermissionMixin, NestedModelAdmin):
         if not hasattr(obj, 'record'): return None
         return obj.record.total_hours_worked
 
+    @admin.display(description='Fotky nahrány?', boolean=True)
+    def get_event_record_photos_uploaded(self, obj):
+        if not hasattr(obj, 'record'): return False
+        return bool(len(obj.record.photos.all()))
+
+    @admin.display(description='Účtenky nahrány?', boolean=True)
+    def get_event_finance_receipts_uploaded(self, obj):
+        if not hasattr(obj, 'finance'): return False
+        return bool(len(obj.finance.receipts.all()))
+
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('administration_units', 'record__participants')
+        return super().get_queryset(request).prefetch_related('administration_units', 'record__participants',
+                                                              'record__photos', 'finance__receipts')
 
     date_hierarchy = 'start'
     search_fields = 'name',
