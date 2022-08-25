@@ -170,15 +170,21 @@ class QualificationCategoryFilter(MultiSelectRelatedDropdownFilter):
             date_filter['valid_till__gte'] = value
 
         params = Q()
-
         for lookup_arg, value in self.used_parameters.items():
             lookup_arg = lookup_arg.replace('qualifications__', '')
             query = {lookup_arg: value}
             query.update(date_filter)
             params |= Q(**query)
-        try:
-            return queryset.filter(qualifications__in=Qualification.objects.filter(params)).distinct()
-        except (ValueError, ValidationError) as e:
-            # Fields may raise a ValueError or ValidationError when converting
-            # the parameters to the correct type.
-            raise IncorrectLookupParameters(e)
+
+        if not params and date_filter:
+            params = Q(**date_filter)
+
+        if params:
+            try:
+                return queryset.filter(qualifications__in=Qualification.objects.filter(params)).distinct()
+            except (ValueError, ValidationError) as e:
+                # Fields may raise a ValueError or ValidationError when converting
+                # the parameters to the correct type.
+                raise IncorrectLookupParameters(e)
+
+        return queryset
