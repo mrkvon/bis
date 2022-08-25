@@ -42,7 +42,8 @@ class Donor(Model):
             if field.name in ['id', 'subscribed_to_newsletter', 'is_public', 'user']:
                 continue
 
-            elif field.name in ['regional_center_support', 'basic_section_support', 'has_recurrent_donation']:
+            elif field.name in ['regional_center_support', 'basic_section_support', 'has_recurrent_donation',
+                                'internal_note']:
                 if not getattr(self, field.name) and getattr(other, field.name):
                     setattr(self, field.name, getattr(other, field.name))
 

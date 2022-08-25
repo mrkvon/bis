@@ -23,6 +23,18 @@ from event.models import Event, EventPropagation, EventRegistration, EventRecord
 from project.settings import BASE_DIR
 
 
+def get_or_create_user(email, first_name, last_name):
+    user_email = UserEmail.objects.filter(email=email).first()
+    if user_email:
+        return user_email.user
+
+    user = User.objects.get_or_create(first_name=first_name, last_name=last_name)[0]
+
+    UserEmail.objects.create(email=email, user=user)
+
+    return user
+
+
 def parse_date(data):
     if data:
         year, month, day = data.split('-')
@@ -215,7 +227,9 @@ class Command(BaseCommand):
                 is_active=True,
             ))[0]
             if item['email']:
-                UserEmail.objects.update_or_create(email=item['email'].lower(), defaults=dict(user=user))
+                email = item['email'].lower()
+                UserEmail.objects.filter(email=email).delete()
+                UserEmail.objects.create(email=email, user=user)
 
             street = item["ulice"]
             city = item["mesto"]

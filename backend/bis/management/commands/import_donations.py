@@ -66,8 +66,13 @@ class Command(BaseCommand):
 
             donor = Donor.objects.get_or_create(user=user)[0]
 
-            basic_section_support = custom.get('Brontosaurus_adopce_ZC') and \
-                                    AdministrationUnit.objects.get(abbreviation=custom['Brontosaurus_adopce_ZC'])
+            basic_section_support = custom.get('Brontosaurus_adopce_ZC')
+            if basic_section_support:
+                if basic_section_support == 'Draci':
+                    basic_section_support = 'Brďo Draci'
+
+                basic_section_support = AdministrationUnit.objects.get(abbreviation=basic_section_support)
+
             regional_center_support = custom.get('Brontosaurus_adopce_RC') and \
                                       AdministrationUnit.objects.get(abbreviation=custom['Brontosaurus_adopce_RC'])
             date_joined = isoparse(pledge['pledgedAt'])

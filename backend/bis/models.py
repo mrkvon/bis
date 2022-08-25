@@ -215,7 +215,7 @@ class User(Model):
                         setattr(self, field.name, getattr(other, field.name))
 
                 elif field.name in ['first_name', 'last_name', 'nickname', 'phone',
-                                    'birthday', 'close_person', 'health_insurance_company', 'health_issues']:
+                                    'birthday', 'close_person', 'health_insurance_company', 'health_issues', 'sex']:
                     if not getattr(self, field.name) and getattr(other, field.name):
                         setattr(self, field.name, getattr(other, field.name))
 
@@ -233,16 +233,17 @@ class User(Model):
                 elif relation.name == 'donor':
                     if hasattr(other, relation.name):
                         if not hasattr(self, relation.name):
-                            setattr(self, relation.name, getattr(other, relation.name))
+                            obj = getattr(other, relation.name)
+                            obj.user = self
+                            obj.save()
                         else:
                             self.donor.merge_with(other.donor)
 
                 elif relation.name == 'all_emails':
                     max_order = max([email.order for email in self.all_emails.all()] + [0])
-                    for i, obj in enumerate(UserEmail.objects.filter(user=other)):
-                        obj.user = self
-                        obj.order = max_order + i + 1
-                        obj.save()
+                    for i, obj in enumerate(list(UserEmail.objects.filter(user=other))):
+                        obj.delete()
+                        UserEmail.objects.create(email=obj.email, user=self, order=max_order + i + 1)
 
                 elif isinstance(relation, ManyToOneRel) or isinstance(relation, OneToOneRel):
                     for obj in relation.field.model.objects.filter(**{relation.field.name: other}):

@@ -65,7 +65,7 @@ def set_primary_email(instance: User, **kwargs):
 
 @receiver(post_save, sender=UserEmail, dispatch_uid='set_users_primary_email')
 @receiver(post_delete, sender=UserEmail, dispatch_uid='set_users_primary_email_delete')
-def set_primary_email(instance: UserEmail, **kwargs):
+def set_users_primary_email(instance: UserEmail, **kwargs):
     if instance.user.email != getattr(instance.user.all_emails.first(), 'email', None):
         instance.user.save()
 
