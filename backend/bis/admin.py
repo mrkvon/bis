@@ -10,7 +10,7 @@ from rest_framework.authtoken.models import TokenProxy
 from bis.admin_filters import AgeFilter, NoBirthdayFilter, MainOrganizerOfEventRangeFilter, \
     OrganizerOfEventRangeFilter, ParticipatedInEventRangeFilter, MainOrganizerOfEventOfAdministrationUnitFilter, \
     OrganizerOfEventOfAdministrationUnitFilter, ParticipatedInEventOfAdministrationUnitFilter, MemberDuringYearsFilter, \
-    MemberOfAdministrationUnitFilter, QualificationCategoryFilter, QualificationValidAtFilter
+    MemberOfAdministrationUnitFilter, QualificationCategoryFilter, QualificationValidAtFilter, UserStatsDateFilter
 from bis.admin_helpers import list_filter_extra_title
 from bis.admin_permissions import PermissionMixin
 from bis.models import *
@@ -157,6 +157,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
         list_filter_extra_title('Ostatní'),
         ('roles', MultiSelectRelatedDropdownFilter),
         ('date_joined', DateRangeFilter),
+        ('close_person__birthday', UserStatsDateFilter),
     ]
 
     search_fields = 'all_emails__email', 'phone', 'first_name', 'last_name', 'nickname'

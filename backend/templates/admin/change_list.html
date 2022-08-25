@@ -1,5 +1,5 @@
 {% extends "admin/change_list.html" %}
-{% load i18n admin_urls static admin_list %}
+{% load i18n admin_urls static admin_list bis_tags %}
 
 {% block filters %}
     {% if cl.has_filters %}
@@ -26,4 +26,9 @@
             })
         </script>
     {% endif %}
+{% endblock %}
+
+{% block pagination %}
+    {% pagination cl %}
+    {% user_stats cl %}
 {% endblock %}

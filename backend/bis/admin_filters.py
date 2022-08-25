@@ -188,3 +188,15 @@ class QualificationCategoryFilter(MultiSelectRelatedDropdownFilter):
                 raise IncorrectLookupParameters(e)
 
         return queryset
+
+
+class EventStatsDateFilter(CustomDateRangeFilter):
+    custom_title = 'Datum pro statistiku věku účastníků a orgů'
+    single_date_only = True
+    cache_name = 'events_stats_date_cache'
+
+
+class UserStatsDateFilter(CustomDateRangeFilter):
+    custom_title = 'Datum pro statistiku věku'
+    single_date_only = True
+    cache_name = 'users_stats_date_cache'

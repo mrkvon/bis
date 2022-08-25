@@ -1,10 +1,13 @@
 from admin_auto_filters.filters import AutocompleteFilterFactory
+from django.utils.datetime_safe import date
 from more_admin_filters import MultiSelectRelatedDropdownFilter
 from nested_admin.forms import SortableHiddenMixin
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin, NestedStackedInline
 from rangefilter.filters import DateRangeFilter
 
+from bis.admin_filters import EventStatsDateFilter
 from bis.admin_permissions import PermissionMixin
+from bis.helpers import AgeStats
 from event.models import *
 from questionnaire.admin import QuestionnaireAdmin
 from xlsx_export.export import export_to_xlsx
@@ -101,7 +104,22 @@ class EventRecordAdmin(PermissionMixin, NestedStackedInline):
     inlines = EventPhotoAdmin,
     classes = 'collapse',
 
+    readonly_fields = 'get_participants_age_stats_event_start', 'get_participants_age_stats_year_start'
     autocomplete_fields = 'participants',
+
+    @admin.display(description='Statistika věku účastníků k začátku akce')
+    def get_participants_age_stats_event_start(self, obj):
+        return AgeStats('účastníků', obj.participants.all(), obj.event.start.date()).as_table()
+
+    @admin.display(description='Statistika věku účastníků k začátku roku')
+    def get_participants_age_stats_year_start(self, obj):
+        return AgeStats('účastníků', obj.participants.all(), date(obj.event.start.year, 1, 1)).as_table()
+
+    def get_formset(self, request, obj=None, **kwargs):
+        kwargs.update({'help_texts': {
+            'get_participants_age_stats_year_start': 'Pro podmínky dotací',
+        }})
+        return super().get_formset(request, obj, **kwargs)
 
 
 @admin.register(Event)
@@ -125,6 +143,7 @@ class EventAdmin(PermissionMixin, NestedModelAdmin):
         'registration__is_event_full',
         'is_attendance_list_required',
         ('location__region', MultiSelectRelatedDropdownFilter),
+        ('main_organizer__birthday', EventStatsDateFilter),
     ]
 
     list_display = 'name', 'get_date', 'get_administration_units', 'location', 'category', 'program', \

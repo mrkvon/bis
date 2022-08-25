@@ -1,7 +1,10 @@
+from collections import Counter
 from time import time
 
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.cache import cache
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 
@@ -84,3 +87,63 @@ def with_paused_validation(f):
             return f(*args, **kwargs)
 
     return wrapper
+
+
+class AgeStats:
+    def __init__(self, header, queryset, date):
+        self.date = date
+        self.total = queryset.count()
+        self.header = header
+
+        birthdays = queryset.filter(birthday__isnull=False).values_list('birthday', flat=True)
+        ages = [relativedelta(date, birthday).years for birthday in birthdays]
+        self.without_birthday = self.total - len(ages)
+        self.unborn = len([age for age in ages if age < 0])
+
+        ages = [age for age in ages if age >= 0]
+        self.oldest = max(ages + [0])
+        self.birthdays_stats = Counter(ages)
+
+    def age_stats(self, low, high):
+        total = sum(self.birthdays_stats.get(age, 0) for age in range(low, high + 1))
+        return self.format_count(total)
+
+    def format_count(self, count):
+        if not count: return None
+        alive = self.total - self.unborn
+        if not alive: return count
+
+        return f'{count} - {count / alive * 100:.1f}%'
+
+    def get_header(self):
+        return f'Statistika věku {self.total} {self.header} ke dni {self.date}'
+
+    def get_data(self):
+        data = {
+            'celkem': self.total,
+            'nenarození': self.unborn,
+            'věk neznámý': self.format_count(self.without_birthday),
+            'nezletilí (0-17)': self.age_stats(0, 17),
+            'mládež (0-26)': self.age_stats(0, 26),
+            'středoškoláci (15-20)': self.age_stats(15, 20),
+            'do 6 let': self.age_stats(0, 6),
+            '7 až 15 let': self.age_stats(7, 15),
+            '16 až 18 let': self.age_stats(16, 18),
+            '19 až 26 let': self.age_stats(19, 26),
+            '27 a více let': self.age_stats(27, self.oldest),
+        }
+        return {key: str(value) for key, value in data.items() if value}
+
+    def as_table(self):
+        data = self.get_data()
+
+        def make_cell(item): return f'<td>{item.replace(" - ", "<br>")}</td>'
+        def make_row(items): return f'<tr>{"".join(make_cell(item) for item in items)}</tr>'
+
+        header = f'<tr><th colspan={len(data)}>{self.get_header()}</th></tr>'
+
+        return mark_safe(f"<table>"
+                         f"{header}"
+                         f"{make_row(data.keys())}"
+                         f"{make_row(data.values())}"
+                         f"</table>")
