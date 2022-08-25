@@ -74,11 +74,13 @@ def update_roles(*roles):
 
 class paused_validation:
     def __enter__(self):
-        assert not settings.SKIP_VALIDATION
-        settings.SKIP_VALIDATION = True
+        self.validation_paused = not settings.SKIP_VALIDATION
+        if self.validation_paused:
+            settings.SKIP_VALIDATION = True
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        settings.SKIP_VALIDATION = False
+        if self.validation_paused:
+            settings.SKIP_VALIDATION = False
 
 
 def with_paused_validation(f):
