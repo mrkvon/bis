@@ -1,5 +1,6 @@
 from os import symlink, makedirs
 from os.path import splitext, join, exists
+from typing import TypedDict
 
 from PIL import Image, UnidentifiedImageError
 from django.conf import settings
@@ -14,8 +15,10 @@ def get_thumbnail_path(file_name, size_name):
 
 
 class ThumbnailImageFieldFile(ImageFieldFile):
+    UrlsType = TypedDict('UrlsType', {size: str for size in list(settings.THUMBNAIL_SIZES.keys()) + ['original']})
+
     @property
-    def urls(self):
+    def urls(self) -> UrlsType:
         urls = {
             size: '/media/' + get_thumbnail_path(self.name, size) for size in settings.THUMBNAIL_SIZES
         }

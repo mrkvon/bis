@@ -1,3 +1,5 @@
+from typing import Optional
+
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework.fields import SerializerMethodField
 from rest_framework.relations import SlugRelatedField, StringRelatedField
@@ -5,9 +7,10 @@ from rest_framework.serializers import ModelSerializer
 
 from administration_units.models import AdministrationUnit
 from bis.models import User, Location
-from categories.models import PropagationIntendedForCategory, EventProgramCategory, LocationAccessibility, \
-    EventCategory, OpportunityCategory, AdministrationUnitCategory
-from common.serializers import make_serializer
+from categories.serializers import OpportunityCategorySerializer, EventCategorySerializer, \
+    EventProgramCategorySerializer, AdministrationUnitCategorySerializer, LocationAccessibilitySerializer, \
+    PropagationIntendedForCategorySerializer, DietCategorySerializer
+from common.thumbnails import ThumbnailImageFieldFile
 from event.models import Event, EventPropagation, EventRegistration
 from opportunities.models import Opportunity
 
@@ -25,13 +28,13 @@ class UserSerializer(ModelSerializer):
             'phone',
         )
 
-    def get_name(self, instance):
+    def get_name(self, instance) -> str:
         return instance.get_name()
 
 
 class EventPropagationSerializer(ModelSerializer):
-    intended_for = make_serializer(PropagationIntendedForCategory)()
-    diets = make_serializer(PropagationIntendedForCategory)(many=True)
+    intended_for = PropagationIntendedForCategorySerializer()
+    diets = DietCategorySerializer(many=True)
     images = SerializerMethodField()
     contact_name = SerializerMethodField()
     contact_phone = SerializerMethodField()
@@ -59,16 +62,16 @@ class EventPropagationSerializer(ModelSerializer):
             'images',
         )
 
-    def get_contact_name(self, instance):
+    def get_contact_name(self, instance) -> str:
         return instance.contact_name or instance.contact_person and instance.contact_person.get_name()
 
-    def get_contact_phone(self, instance):
+    def get_contact_phone(self, instance) -> str:
         return str(instance.contact_phone) or instance.contact_person and str(instance.contact_person.phone)
 
-    def get_contact_email(self, instance):
+    def get_contact_email(self, instance) -> str:
         return instance.contact_email or instance.contact_person and instance.contact_person.email
 
-    def get_cost(self, instance):
+    def get_cost(self, instance) -> Optional[str]:
         if not instance.cost:
             return None
         cost = f"{instance.cost} Kč"
@@ -77,7 +80,7 @@ class EventPropagationSerializer(ModelSerializer):
 
         return cost
 
-    def get_images(self, instance):
+    def get_images(self, instance) -> list[ThumbnailImageFieldFile.UrlsType]:
         return [image.image.urls for image in instance.images.all()]
 
 
@@ -93,9 +96,9 @@ class EventRegistrationSerializer(ModelSerializer):
 
 class LocationSerializer(ModelSerializer):
     patron = UserSerializer()
-    program = make_serializer(EventProgramCategory)()
-    accessibility_from_prague = make_serializer(LocationAccessibility)()
-    accessibility_from_brno = make_serializer(LocationAccessibility)()
+    program = EventProgramCategorySerializer()
+    accessibility_from_prague = LocationAccessibilitySerializer()
+    accessibility_from_brno = LocationAccessibilitySerializer()
     region = StringRelatedField()
     photos = SerializerMethodField()
 
@@ -120,7 +123,7 @@ class LocationSerializer(ModelSerializer):
             'photos',
         )
 
-    def get_photos(self, instance):
+    def get_photos(self, instance) -> list[ThumbnailImageFieldFile.UrlsType]:
         return [photo.photo.urls for photo in instance.photos.all()]
 
 
@@ -129,8 +132,8 @@ class EventSerializer(ModelSerializer):
     registration = EventRegistrationSerializer(read_only=True)
 
     location = LocationSerializer()
-    category = make_serializer(EventCategory)()
-    program = make_serializer(EventProgramCategory)()
+    category = EventCategorySerializer()
+    program = EventProgramCategorySerializer()
     administration_units = SlugRelatedField(slug_field='abbreviation', read_only=True, many=True)
 
     class Meta:
@@ -152,7 +155,7 @@ class EventSerializer(ModelSerializer):
 
 
 class OpportunitySerializer(ModelSerializer):
-    category = make_serializer(OpportunityCategory)()
+    category = OpportunityCategorySerializer()
     location = LocationSerializer()
     contact_name = SerializerMethodField()
     contact_phone = SerializerMethodField()
@@ -181,19 +184,19 @@ class OpportunitySerializer(ModelSerializer):
             'image',
         )
 
-    def get_contact_name(self, instance):
+    def get_contact_name(self, instance) -> str:
         return instance.contact_name or instance.contact_person and instance.contact_person.get_name()
 
-    def get_contact_phone(self, instance):
+    def get_contact_phone(self, instance) -> str:
         return str(instance.contact_phone) or instance.contact_person and str(instance.contact_person.phone)
 
-    def get_contact_email(self, instance):
+    def get_contact_email(self, instance) -> str:
         return instance.contact_email or instance.contact_person and instance.contact_person.email
 
 
 class AdministrationUnitSerializer(ModelSerializer):
     phone = PhoneNumberField()
-    category = make_serializer(AdministrationUnitCategory)()
+    category = AdministrationUnitCategorySerializer()
     chairman = UserSerializer()
     vice_chairman = UserSerializer()
     manager = UserSerializer()

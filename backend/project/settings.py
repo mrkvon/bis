@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     'opportunities',
     'more_admin_filters',
     'regions',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -183,8 +184,16 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 TOKEN_EXPIRE_AFTER_INACTIVITY_SECONDS = 20 * 60
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'BIS API',
+    'DESCRIPTION': 'API Brontosauřího informačního systému, veřejné pro web, interní pro frontend',
+    'VERSION': '1.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
 
 # API settings
 API_BASE = environ['API_BASE']
