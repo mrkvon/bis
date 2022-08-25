@@ -75,13 +75,13 @@ class OpportunityCategorySerializer(ModelSerializer):
         exclude = ()
 
 
-class LocationProgramSerializer(ModelSerializer):
+class LocationProgramCategorySerializer(ModelSerializer):
     class Meta:
         model = LocationProgramCategory
         exclude = ()
 
 
-class LocationAccessibilitySerializer(ModelSerializer):
+class LocationAccessibilityCategorySerializer(ModelSerializer):
     class Meta:
         model = LocationAccessibilityCategory
         exclude = ()

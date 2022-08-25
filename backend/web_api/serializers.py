@@ -8,7 +8,7 @@ from rest_framework.serializers import ModelSerializer
 from administration_units.models import AdministrationUnit
 from bis.models import User, Location
 from categories.serializers import OpportunityCategorySerializer, EventCategorySerializer, \
-    EventProgramCategorySerializer, AdministrationUnitCategorySerializer, LocationAccessibilitySerializer, \
+    EventProgramCategorySerializer, AdministrationUnitCategorySerializer, LocationAccessibilityCategorySerializer, \
     PropagationIntendedForCategorySerializer, DietCategorySerializer
 from common.thumbnails import ThumbnailImageFieldFile
 from event.models import Event, EventPropagation, EventRegistration
@@ -97,8 +97,8 @@ class EventRegistrationSerializer(ModelSerializer):
 class LocationSerializer(ModelSerializer):
     patron = UserSerializer()
     program = EventProgramCategorySerializer()
-    accessibility_from_prague = LocationAccessibilitySerializer()
-    accessibility_from_brno = LocationAccessibilitySerializer()
+    accessibility_from_prague = LocationAccessibilityCategorySerializer()
+    accessibility_from_brno = LocationAccessibilityCategorySerializer()
     region = StringRelatedField()
     photos = SerializerMethodField()
 

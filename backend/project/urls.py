@@ -20,6 +20,7 @@ urlpatterns = [
     path('tinymce/', include('tinymce.urls')),
 
     path(f'{settings.API_BASE}web/', include('web_api.urls')),
+    path(f'{settings.API_BASE}categories/', include('categories.urls')),
 ]
 
 if settings.DEBUG:

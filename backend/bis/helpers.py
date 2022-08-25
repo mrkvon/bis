@@ -1,3 +1,4 @@
+import re
 from collections import Counter
 from time import time
 
@@ -149,3 +150,9 @@ class AgeStats:
                          f"{make_row(data.keys())}"
                          f"{make_row(data.values())}"
                          f"</table>")
+
+def to_snake_case(name):
+    name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    name = re.sub('__([A-Z])', r'_\1', name)
+    name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', name)
+    return name.lower()
