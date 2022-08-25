@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from categories.models import DietCategory, PropagationIntendedForCategory, QualificationCategory, \
     AdministrationUnitCategory, MembershipCategory, EventProgramCategory, \
     EventCategory, GrantCategory, DonationSourceCategory, OrganizerRoleCategory, TeamRoleCategory, OpportunityCategory, \
-    LocationProgram, LocationAccessibility, RoleCategory, HealthInsuranceCompany, SexCategory
+    LocationProgramCategory, LocationAccessibilityCategory, RoleCategory, HealthInsuranceCompany, SexCategory
 
 
 class Command(BaseCommand):
@@ -183,12 +183,12 @@ class Command(BaseCommand):
             name='Pomoc lokalitě',
             description='Příležitosti k pomoci dané lokalitě, která to aktuálně potřebuje.'))
 
-        LocationProgram.objects.update_or_create(slug='nature', defaults=dict(name='AP - Akce příroda'))
-        LocationProgram.objects.update_or_create(slug='monuments', defaults=dict(name='APAM - Akce památky'))
+        LocationProgramCategory.objects.update_or_create(slug='nature', defaults=dict(name='AP - Akce příroda'))
+        LocationProgramCategory.objects.update_or_create(slug='monuments', defaults=dict(name='APAM - Akce památky'))
 
-        LocationAccessibility.objects.update_or_create(slug='good', defaults=dict(name='Snadná (0-1,5h)'))
-        LocationAccessibility.objects.update_or_create(slug='ok', defaults=dict(name='Středně obtížná (1,5-3h)'))
-        LocationAccessibility.objects.update_or_create(slug='bad', defaults=dict(name='Obtížná (více než 3h)'))
+        LocationAccessibilityCategory.objects.update_or_create(slug='good', defaults=dict(name='Snadná (0-1,5h)'))
+        LocationAccessibilityCategory.objects.update_or_create(slug='ok', defaults=dict(name='Středně obtížná (1,5-3h)'))
+        LocationAccessibilityCategory.objects.update_or_create(slug='bad', defaults=dict(name='Obtížná (více než 3h)'))
 
         RoleCategory.objects.update_or_create(slug='director', defaults=dict(name='Ředitel'))
         RoleCategory.objects.update_or_create(slug='admin', defaults=dict(name='Admin'))

@@ -15,7 +15,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, BaseAddress
 from bis.admin_helpers import get_admin_edit_url
 from bis.helpers import permission_cache, paused_validation
-from categories.models import QualificationCategory, MembershipCategory, LocationProgram, LocationAccessibility, \
+from categories.models import QualificationCategory, MembershipCategory, LocationProgramCategory, LocationAccessibilityCategory, \
     RoleCategory, HealthInsuranceCompany, SexCategory
 from common.thumbnails import ThumbnailImageField
 from translation.translate import translate_model
@@ -34,9 +34,9 @@ class Location(Model):
     is_full = BooleanField(default=False)
     is_unexplored = BooleanField(default=False)
 
-    program = ForeignKey(LocationProgram, on_delete=PROTECT, null=True, blank=True)
-    accessibility_from_prague = ForeignKey(LocationAccessibility, on_delete=PROTECT, related_name='+', null=True)
-    accessibility_from_brno = ForeignKey(LocationAccessibility, on_delete=PROTECT, related_name='+', null=True)
+    program = ForeignKey(LocationProgramCategory, on_delete=PROTECT, null=True, blank=True)
+    accessibility_from_prague = ForeignKey(LocationAccessibilityCategory, on_delete=PROTECT, related_name='+', null=True)
+    accessibility_from_brno = ForeignKey(LocationAccessibilityCategory, on_delete=PROTECT, related_name='+', null=True)
 
     volunteering_work = TextField()
     volunteering_work_done = TextField()

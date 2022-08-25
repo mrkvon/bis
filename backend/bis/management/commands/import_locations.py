@@ -13,7 +13,7 @@ from requests import HTTPError
 from bis.helpers import print_progress
 from bis.models import Location, User, UserEmail, LocationPhoto
 from bis.signals import with_paused_user_str_signal
-from categories.models import LocationProgram, LocationAccessibility
+from categories.models import LocationProgramCategory, LocationAccessibilityCategory
 
 
 class Command(BaseCommand):
@@ -21,44 +21,44 @@ class Command(BaseCommand):
 
     categories_map = {
         2371: dict(
-            program=LocationProgram.objects.get(slug='nature'),
+            program=LocationProgramCategory.objects.get(slug='nature'),
             for_beginners=True,
             is_unexplored=False,
         ),
         2376: dict(
-            program=LocationProgram.objects.get(slug='nature'),
+            program=LocationProgramCategory.objects.get(slug='nature'),
             for_beginners=False,
             is_unexplored=False,
         ),
         2377: dict(
-            program=LocationProgram.objects.get(slug='nature'),
+            program=LocationProgramCategory.objects.get(slug='nature'),
             for_beginners=False,
             is_unexplored=True,
         ),
         2378: dict(
-            program=LocationProgram.objects.get(slug='monuments'),
+            program=LocationProgramCategory.objects.get(slug='monuments'),
             for_beginners=True,
             is_unexplored=False,
         ),
         2379: dict(
-            program=LocationProgram.objects.get(slug='monuments'),
+            program=LocationProgramCategory.objects.get(slug='monuments'),
             for_beginners=False,
             is_unexplored=False,
         ),
         2380: dict(
-            program=LocationProgram.objects.get(slug='monuments'),
+            program=LocationProgramCategory.objects.get(slug='monuments'),
             for_beginners=False,
             is_unexplored=True,
         ),
     }
 
     location_accessibility_map = {
-        '629m': LocationAccessibility.objects.get(slug='good'),
-        'wqrv': LocationAccessibility.objects.get(slug='good'),
-        'x0b3': LocationAccessibility.objects.get(slug='ok'),
-        'i0km': LocationAccessibility.objects.get(slug='ok'),
-        'jckv': LocationAccessibility.objects.get(slug='bad'),
-        'yojk': LocationAccessibility.objects.get(slug='bad'),
+        '629m': LocationAccessibilityCategory.objects.get(slug='good'),
+        'wqrv': LocationAccessibilityCategory.objects.get(slug='good'),
+        'x0b3': LocationAccessibilityCategory.objects.get(slug='ok'),
+        'i0km': LocationAccessibilityCategory.objects.get(slug='ok'),
+        'jckv': LocationAccessibilityCategory.objects.get(slug='bad'),
+        'yojk': LocationAccessibilityCategory.objects.get(slug='bad'),
     }
 
     def get_info(self):

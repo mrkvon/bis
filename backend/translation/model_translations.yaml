@@ -422,13 +422,13 @@ OpportunityCategory:
     name: 'Jméno'
     description: 'Popis'
     slug: 'Zkratka'
-LocationProgram:
+LocationProgramCategory:
   name: 'Program lokality'
   name_plural: 'Programy lokalit'
   fields:
     name: 'Jméno'
     slug: 'Zkratka'
-LocationAccessibility:
+LocationAccessibilityCategory:
   name: 'Dostupnost lokality'
   name_plural: 'Dostupnosti lokalit'
   fields:

@@ -152,7 +152,7 @@ class OpportunityCategory(Model):
 
 
 @translate_model
-class LocationProgram(Model):
+class LocationProgramCategory(Model):
     name = CharField(max_length=63)
     slug = SlugField(unique=True)
 
@@ -164,7 +164,7 @@ class LocationProgram(Model):
 
 
 @translate_model
-class LocationAccessibility(Model):
+class LocationAccessibilityCategory(Model):
     name = CharField(max_length=63)
     slug = SlugField(unique=True)
 
