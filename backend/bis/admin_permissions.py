@@ -89,7 +89,7 @@ class PermissionMixin:
         return False
 
     def has_change_permission(self, request, obj=None):
-        if self.model in [UploadBankRecords, VariableSymbol]: return False
+        if self.model in [VariableSymbol]: return False
         if self.is_readonly(): return False
         if request.user.is_superuser: return True
 
