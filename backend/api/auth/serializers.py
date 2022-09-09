@@ -1,14 +1,10 @@
-from rest_framework.fields import EmailField, CharField
+from rest_framework.fields import EmailField, CharField, IntegerField
 from rest_framework.serializers import Serializer
 
 
 class LoginRequestSerializer(Serializer):
     email = EmailField()
     password = CharField()
-
-
-class TokenResponse(Serializer):
-    token = CharField()
 
 
 class SendVerificationLinkRequestSerializer(Serializer):
@@ -19,3 +15,11 @@ class ResetPasswordRequestSerializer(Serializer):
     email = EmailField()
     code = CharField()
     password = CharField()
+
+
+class TokenResponse(Serializer):
+    token = CharField()
+
+
+class UserIdResponse(Serializer):
+    id = IntegerField()

@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import login as _login
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.permissions import IsAuthenticated
@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 
 from api.auth.serializers import LoginRequestSerializer, SendVerificationLinkRequestSerializer, \
-    ResetPasswordRequestSerializer, TokenResponse
+    ResetPasswordRequestSerializer, TokenResponse, UserIdResponse
 from api.helpers import parse_request_data
 from bis.emails import email_text
 from bis.models import User
@@ -20,14 +20,19 @@ def login_and_return_token(request, user):
     return Response({'token': user.auth_token.key})
 
 
-# @extend_schema(responses=User())
+@extend_schema(responses=UserIdResponse())
 @api_view()
 @permission_classes([IsAuthenticated])
 def whoami(request):
     return Response({'id': request.user.id})
 
 
-@extend_schema(request=LoginRequestSerializer, responses=TokenResponse)
+@extend_schema(request=LoginRequestSerializer,
+               responses={
+                   200: TokenResponse,
+                   401: OpenApiResponse(description='E-mail or password incorrect'),
+                   429: OpenApiResponse(description='Too many requests'),
+               })
 @api_view(['post'])
 @parse_request_data(LoginRequestSerializer)
 def login(request, data):
@@ -43,7 +48,12 @@ def login(request, data):
     return login_and_return_token(request, user)
 
 
-@extend_schema(request=SendVerificationLinkRequestSerializer, responses={HTTP_204_NO_CONTENT: None})
+@extend_schema(request=SendVerificationLinkRequestSerializer,
+               responses={
+                   HTTP_204_NO_CONTENT: None,
+                   404: OpenApiResponse(description='User with email not found'),
+                   429: OpenApiResponse(description='Too many requests'),
+               })
 @api_view(['post'])
 @parse_request_data(SendVerificationLinkRequestSerializer)
 def send_verification_link(request, data):
@@ -59,7 +69,12 @@ def send_verification_link(request, data):
     return Response(status=HTTP_204_NO_CONTENT)
 
 
-@extend_schema(request=ResetPasswordRequestSerializer, responses=TokenResponse)
+@extend_schema(request=ResetPasswordRequestSerializer,
+               responses={
+                   200: TokenResponse,
+                   404: OpenApiResponse(description='User with email not found'),
+                   429: OpenApiResponse(description='Too many requests'),
+               })
 @api_view(['post'])
 @parse_request_data(SendVerificationLinkRequestSerializer)
 def reset_password(request, data):
