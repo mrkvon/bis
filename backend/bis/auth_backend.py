@@ -1,11 +1,6 @@
-from django.contrib.auth.backends import BaseBackend
-
-from bis.models import User
+from django.contrib.auth.backends import ModelBackend
 
 
-class BISBackend(BaseBackend):
-    def get_user(self, user_id):
-        return User.objects.filter(pk=user_id).first()
-
+class BISBackend(ModelBackend):
     def has_perm(self, user_obj, perm, obj=None):
         return user_obj.is_active

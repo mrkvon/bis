@@ -4,7 +4,8 @@ from os.path import basename
 from dateutil.relativedelta import relativedelta
 from django.apps import apps
 from django.contrib import admin
-from django.contrib.auth.models import UserManager
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import UserManager, User
 from django.contrib.gis.db.models import *
 from django.db import transaction
 from django.utils import timezone
@@ -15,7 +16,8 @@ from phonenumber_field.modelfields import PhoneNumberField
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, BaseAddress
 from bis.admin_helpers import get_admin_edit_url
 from bis.helpers import permission_cache, paused_validation
-from categories.models import QualificationCategory, MembershipCategory, LocationProgramCategory, LocationAccessibilityCategory, \
+from categories.models import QualificationCategory, MembershipCategory, LocationProgramCategory, \
+    LocationAccessibilityCategory, \
     RoleCategory, HealthInsuranceCompany, SexCategory
 from common.thumbnails import ThumbnailImageField
 from translation.translate import translate_model
@@ -35,7 +37,8 @@ class Location(Model):
     is_unexplored = BooleanField(default=False)
 
     program = ForeignKey(LocationProgramCategory, on_delete=PROTECT, null=True, blank=True)
-    accessibility_from_prague = ForeignKey(LocationAccessibilityCategory, on_delete=PROTECT, related_name='+', null=True)
+    accessibility_from_prague = ForeignKey(LocationAccessibilityCategory, on_delete=PROTECT, related_name='+',
+                                           null=True)
     accessibility_from_brno = ForeignKey(LocationAccessibilityCategory, on_delete=PROTECT, related_name='+', null=True)
 
     volunteering_work = TextField()
@@ -75,9 +78,8 @@ class LocationPhoto(Model):
 
 
 @translate_model
-class User(Model):
-    REQUIRED_FIELDS = []
-    USERNAME_FIELD = 'id'
+class User(AbstractBaseUser):
+    USERNAME_FIELD = 'email'
 
     first_name = CharField(max_length=63)
     last_name = CharField(max_length=63)
@@ -91,8 +93,6 @@ class User(Model):
                                           blank=True)
     health_issues = TextField(blank=True)
     sex = ForeignKey(SexCategory, on_delete=PROTECT, null=True, blank=True, related_name='users')
-
-    last_login = DateTimeField(blank=True, null=True)
 
     is_active = BooleanField(default=True)
     date_joined = DateField(default=timezone.now)
@@ -165,8 +165,6 @@ class User(Model):
     def is_superuser(self):
         return self.is_director or self.is_admin
 
-    def has_usable_password(self):
-        return False
 
     def has_perm(self, perm, obj=None):
         return True
@@ -192,9 +190,6 @@ class User(Model):
     def age(self):
         if self.birthday:
             return relativedelta(now().date(), self.birthday).years
-
-    def get_username(self):
-        return None
 
     class Meta:
         ordering = '-id',
@@ -281,7 +276,6 @@ class User(Model):
     @admin.display(description='E-mailové adresy')
     def get_all_emails(self):
         return mark_safe("<br>".join(e.email for e in self.all_emails.all()))
-
 
     @admin.display(description='E-mail')
     def get_email(self):
