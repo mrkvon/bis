@@ -54,7 +54,7 @@ class EventProgramCategorySerializer(ModelSerializer):
 class DonationSourceCategorySerializer(ModelSerializer):
     class Meta:
         model = DonationSourceCategory
-        exclude = ()
+        exclude = '_import_id',
 
 
 class OrganizerRoleCategorySerializer(ModelSerializer):

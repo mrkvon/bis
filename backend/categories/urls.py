@@ -3,6 +3,7 @@ from rest_framework import routers
 
 from bis.helpers import to_snake_case
 from categories.views import *
+from regions.views import RegionViewSet
 
 router = routers.DefaultRouter()
 
@@ -12,6 +13,8 @@ def register(viewset):
     model_name = to_snake_case(model_name)
     if model_name.endswith('y'):
         model_name = model_name[:-1] + 'ies'
+    else:
+        model_name += 's'
 
     router.register(model_name, viewset, model_name)
 
@@ -33,6 +36,7 @@ register(LocationAccessibilityCategoryViewSet)
 register(RoleCategoryViewSet)
 register(HealthInsuranceCompanyViewSet)
 register(SexCategoryViewSet)
+register(RegionViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
