@@ -4,8 +4,8 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from administration_units.models import AdministrationUnit
 from event.models import Event
 from opportunities.models import Opportunity
-from web_api.filters import EventFilter, OpportunityFilter, AdministrationUnitFilter
-from web_api.serializers import EventSerializer, OpportunitySerializer, AdministrationUnitSerializer
+from api.web.filters import EventFilter, OpportunityFilter, AdministrationUnitFilter
+from api.web.serializers import EventSerializer, OpportunitySerializer, AdministrationUnitSerializer
 
 
 class EventViewSet(ReadOnlyModelViewSet):
