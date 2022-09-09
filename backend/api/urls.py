@@ -2,6 +2,7 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
+    path(f'auth/', include('api.auth.urls')),
     path(f'web/', include('api.web.urls')),
     path(f'categories/', include('api.categories.urls')),
 
