@@ -76,7 +76,7 @@ def send_verification_link(request, data):
                    429: OpenApiResponse(description='Too many requests'),
                })
 @api_view(['post'])
-@parse_request_data(SendVerificationLinkRequestSerializer)
+@parse_request_data(ResetPasswordRequestSerializer)
 def reset_password(request, data):
     user = User.objects.filter(all_emails__email=data['email']).first()
     if not user: raise NotFound()
