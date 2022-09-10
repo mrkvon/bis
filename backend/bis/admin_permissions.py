@@ -37,7 +37,7 @@ class PermissionMixin:
         if self.model in [BrontosaurusMovement]:
             return queryset
 
-        queryset = self.model.filter_queryset(queryset, request.user, True)
+        queryset = self.model.filter_queryset(queryset, request.user)
 
         ordering = self.get_ordering(request)
         if ordering:
@@ -104,10 +104,7 @@ class PermissionMixin:
                 return True
 
         if request.user.is_board_member:
-            if self.model in [Location]:
-                return True
-
-            if self.model in [User, UserAddress, UserContactAddress, Event, DuplicateUser, Membership,
+            if self.model in [Location, User, UserAddress, UserContactAddress, Event, DuplicateUser, Membership,
                               AdministrationUnit, AdministrationUnitAddress, AdministrationUnitContactAddress] \
                     or self.model._meta.app_label in ['event', 'questionnaire']:
                 return not obj or obj.has_edit_permission(request.user)

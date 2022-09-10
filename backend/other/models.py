@@ -19,8 +19,8 @@ class DuplicateUser(Model):
         super().save(force_insert, force_update, using, update_fields)
 
     @classmethod
-    def filter_queryset(cls, queryset, user, backend_only=False):
-        visible_users = User.filter_queryset(User.objects.all(), user, backend_only)
+    def filter_queryset(cls, queryset, user):
+        visible_users = User.filter_queryset(User.objects.all(), user)
         return queryset.filter(user__in=visible_users, other__in=visible_users)
 
     def can_be_merged_by(self, user):
@@ -43,7 +43,7 @@ class Feedback(Model):
     created_at = DateTimeField(auto_now=True)
 
     @classmethod
-    def filter_queryset(cls, queryset, user, backend_only=False):
+    def filter_queryset(cls, queryset, user):
         return queryset.filter(user=user)
 
     def __str__(self):

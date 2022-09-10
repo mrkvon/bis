@@ -156,3 +156,10 @@ def to_snake_case(name):
     name = re.sub('__([A-Z])', r'_\1', name)
     name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', name)
     return name.lower()
+
+
+def filter_queryset_with_multiple_or_queries(queryset, queries):
+    ids = set()
+    for query in queries:
+        ids = ids.union(queryset.filter(query).order_by().values_list('id', flat=True))
+    return queryset.filter(id__in=ids)

@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.gis.db.models import *
 from django.core.exceptions import ValidationError
-from django.db.models import Q
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from phonenumber_field.modelfields import PhoneNumberField
@@ -85,21 +84,12 @@ class Event(Model):
         return result
 
     @classmethod
-    def filter_queryset(cls, queryset, user, backend_only=False):
-        ids = set()
-        if backend_only:
-            return queryset.filter(administration_units__board_members=user)
-
-        for query in [Q(administration_units__board_members=user),
-                      Q(other_organizers=user),
-                      Q(record__participants=user)]:
-            ids = ids.union(queryset.filter(query).order_by().values_list('id', flat=True))
-        return Event.objects.filter(id__in=ids)
+    def filter_queryset(cls, queryset, user):
+        return queryset.filter(administration_units__board_members=user).distinct()
 
     @permission_cache
     def has_edit_permission(self, user):
-        return hasattr(self, 'propagation') and self.propagation.contact_person == user or \
-               user in self.other_organizers.all() or \
+        return user in self.other_organizers.all() or \
                self.administration_units.filter(board_members=user).exists()
 
 

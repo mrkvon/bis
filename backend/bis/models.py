@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from django.apps import apps
 from django.contrib import admin
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import UserManager, User
+from django.contrib.auth.models import UserManager
 from django.contrib.gis.db.models import *
 from django.db import transaction
 from django.utils import timezone
@@ -15,7 +15,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, BaseAddress
 from bis.admin_helpers import get_admin_edit_url
-from bis.helpers import permission_cache, paused_validation
+from bis.helpers import permission_cache, paused_validation, filter_queryset_with_multiple_or_queries
 from categories.models import QualificationCategory, MembershipCategory, LocationProgramCategory, \
     LocationAccessibilityCategory, \
     RoleCategory, HealthInsuranceCompany, SexCategory
@@ -59,6 +59,10 @@ class Location(Model):
 
     def __str__(self):
         return self.name
+
+    @permission_cache
+    def has_edit_permission(self, user):
+        return user.is_organizer or user.is_staff
 
 
 @translate_model
@@ -164,7 +168,6 @@ class User(AbstractBaseUser):
     @cached_property
     def is_superuser(self):
         return self.is_director or self.is_admin
-
 
     def has_perm(self, perm, obj=None):
         return True
@@ -302,49 +305,30 @@ class User(AbstractBaseUser):
         return mark_safe(', '.join(get_admin_edit_url(e.event) for e in self.participated_in_events.all()))
 
     @classmethod
-    def filter_queryset(cls, queryset, user, backend_only=False):
+    def filter_queryset(cls, queryset, user):
         if user.is_education_member:
             return queryset
 
-        ids = set()
         queries = [
             # ja
             Q(id=user.id),
             # lidi kolem akci od clanku kde user je board member
             Q(participated_in_events__event__administration_units__board_members=user),
             Q(events_where_was_organizer__administration_units__board_members=user),
-            Q(events_where_was_as_contact_person__event__administration_units__board_members=user),
+            Q(filled_questionnaires__questionnaire__event_registration__event__administration_units__board_members=user),
+            # clenove meho clanku
             Q(memberships__administration_unit__board_members=user),
         ]
-        if not backend_only:
-            queries += [
-                # lidi kolem akci, kde user byl other organizer
-                Q(participated_in_events__event__other_organizers=user),
-                Q(events_where_was_organizer__other_organizers=user),
-                Q(events_where_was_as_contact_person__event__other_organizers=user),
-                # lidi kolem akci, kde user byl kontaktni osoba
-                Q(participated_in_events__event__propagation__contact_person=user),
-                Q(events_where_was_organizer__propagation__contact_person=user),
-                Q(events_where_was_as_contact_person__event__propagation__contact_person=user),
-                # orgove akci, kde user byl ucastnik
-                Q(events_where_was_organizer__record__participants=user),
-                Q(events_where_was_as_contact_person__event__record__participants=user)
-                # # ostatni ucastnici akci, kde jsem byl
-                # Q(participated_in_events__participants=user),
-            ]
-
-        for query in queries:
-            ids = ids.union(queryset.filter(query).order_by().values_list('id', flat=True))
-
-        return User.objects.filter(id__in=ids)
+        return filter_queryset_with_multiple_or_queries(queryset, queries)
 
     @permission_cache
     def has_edit_permission(self, user):
         if self == user: return True
         events = []
+        events += apps.get_model('event', 'Event').objects \
+            .filter(registration__questionnaire__answers__in=self.filled_questionnaires.all())
         events += self.participated_in_events.all()
         events += self.events_where_was_organizer.all()
-        events += self.events_where_was_as_contact_person.all()
         for event in events:
             if event.has_edit_permission(user):
                 return True

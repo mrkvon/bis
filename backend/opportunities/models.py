@@ -48,8 +48,8 @@ class Opportunity(Model):
         ordering = 'id',
 
     @classmethod
-    def filter_queryset(cls, queryset, user, backend_only=False):
-        visible_users = User.filter_queryset(User.objects.all(), user, backend_only)
+    def filter_queryset(cls, queryset, user):
+        visible_users = User.filter_queryset(User.objects.all(), user)
         return queryset.filter(contact_person__in=visible_users)
 
 
