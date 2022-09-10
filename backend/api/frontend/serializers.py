@@ -1,6 +1,8 @@
+from django.db import transaction
 from rest_framework.fields import SerializerMethodField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer as _ModelSerializer
+from rest_framework.utils import model_meta
 
 from bis.models import User, Location, UserAddress, UserContactAddress, Membership, Qualification
 from donations.models import Donor, Donation
@@ -11,6 +13,19 @@ from questionnaire.models import Questionnaire, Question
 
 
 class ModelSerializer(_ModelSerializer):
+    @property
+    def m2m_fields(self):
+        info = model_meta.get_field_info(self.Meta.model)
+        return [field_name for field_name, relation_info in info.relations.items() if relation_info.to_many]
+
+    @property
+    def nested_serializers(self):
+        return {
+            field_name: (type(field), self.Meta.model._meta.get_field(field_name).remote_field.name)
+            for field_name, field in self.fields.items()
+            if isinstance(field, ModelSerializer)
+        }
+
     def get_excluded_fields(self, fields):
         return []
 
@@ -25,6 +40,62 @@ class ModelSerializer(_ModelSerializer):
 
     def to_internal_value(self, data):
         return self._exclude_fields(super().to_internal_value(data))
+
+    @staticmethod
+    def extract_fields(data, fields):
+        return {field: data.pop(field) for field in fields if field in data}
+
+    @transaction.atomic
+    def create(self, validated_data):
+        m2m_fields = self.extract_fields(validated_data, self.m2m_fields)
+        nested_serializers = self.extract_fields(validated_data, self.nested_serializers.keys())
+
+        instance = self.Meta.model.objects.create(**validated_data)
+
+        for field, value in nested_serializers.items():
+            if value is None:
+                continue
+
+            serializer_class, reverse_field = self.nested_serializers[field]
+            value[reverse_field] = instance
+            serializer = serializer_class(data=value)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        for field, value in m2m_fields.items():
+            getattr(instance, field).set(value)
+
+        return instance
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        m2m_fields = self.extract_fields(validated_data, self.m2m_fields)
+        nested_serializers = self.extract_fields(validated_data, self.nested_serializers.keys())
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+
+        for field, value in nested_serializers.items():
+            serializer_class, reverse_field = self.nested_serializers[field]
+            nested_instance = getattr(instance, field, None)
+
+            if value is None:
+                if nested_instance is not None:
+                    nested_instance.delete()
+                continue
+
+            value[reverse_field] = instance
+
+            serializer = serializer_class(instance=nested_instance, data=value)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        for attr, value in m2m_fields:
+            getattr(instance, attr).set(value)
+
+        return instance
 
 
 class BaseAddressSerializer(ModelSerializer):
@@ -141,11 +212,11 @@ class QualificationSerializer(ModelSerializer):
 
 class UserSerializer(ContactUserSerializer):
     all_emails = SlugRelatedField(slug_field='email', many=True, read_only=True)
-    close_person = ContactUserSerializer(required=False)
-    donor = DonorSerializer(required=False)
-    offers = OfferedHelpSerializer(required=False)
+    close_person = ContactUserSerializer(allow_null=True)
+    donor = DonorSerializer(allow_null=True)
+    offers = OfferedHelpSerializer(allow_null=True)
     address = UserAddressSerializer()
-    contact_address = UserContactAddressSerializer(required=False)
+    contact_address = UserContactAddressSerializer(allow_null=True)
     memberships = MembershipSerializer(many=True, read_only=True)
     qualifications = QualificationSerializer(many=True, read_only=True)
 
@@ -209,7 +280,7 @@ class VIPPropagationSerializer(ModelSerializer):
 
 
 class PropagationSerializer(ModelSerializer):
-    vip_propagation = VIPPropagationSerializer()
+    vip_propagation = VIPPropagationSerializer(allow_null=True)
 
     class Meta:
         model = EventPropagation
@@ -246,7 +317,7 @@ class QuestionnaireSerializer(ModelSerializer):
 
 
 class RegistrationSerializer(ModelSerializer):
-    questionnaire = QuestionnaireSerializer()
+    questionnaire = QuestionnaireSerializer(allow_null=True)
 
     class Meta:
         model = EventRegistration
@@ -273,10 +344,10 @@ class RecordSerializer(ModelSerializer):
 
 
 class EventSerializer(ModelSerializer):
-    finance = FinanceSerializer()
-    propagation = PropagationSerializer()
-    registration = RegistrationSerializer()
-    record = RecordSerializer()
+    finance = FinanceSerializer(allow_null=True)
+    propagation = PropagationSerializer(allow_null=True)
+    registration = RegistrationSerializer(allow_null=True)
+    record = RecordSerializer(allow_null=True)
 
     class Meta:
         model = Event
