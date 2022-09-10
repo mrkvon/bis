@@ -62,7 +62,7 @@ class Location(Model):
 
     @permission_cache
     def has_edit_permission(self, user):
-        return user.is_organizer or user.is_staff
+        return not user.is_member_only
 
 
 @translate_model
@@ -154,6 +154,10 @@ class User(AbstractBaseUser):
     @cached_property
     def is_organizer(self):
         return self.roles.filter(slug='organizer').exists()
+
+    @cached_property
+    def is_member_only(self):
+        return not self.roles.exists()
 
     @cached_property
     def can_see_all(self):
@@ -312,13 +316,27 @@ class User(AbstractBaseUser):
         queries = [
             # ja
             Q(id=user.id),
-            # lidi kolem akci od clanku kde user je board member
-            Q(participated_in_events__event__administration_units__board_members=user),
-            Q(events_where_was_organizer__administration_units__board_members=user),
-            Q(filled_questionnaires__questionnaire__event_registration__event__administration_units__board_members=user),
-            # clenove meho clanku
-            Q(memberships__administration_unit__board_members=user),
+            # orgove akci, kde user byl ucastnik
+            Q(events_where_was_organizer__record__participants=user),
         ]
+
+        if user.is_organizer:
+            queries += [
+                # lidi kolem akci, kde user byl organizer
+                Q(participated_in_events__event__other_organizers=user),
+                Q(events_where_was_organizer__other_organizers=user),
+                Q(filled_questionnaires__questionnaire__event_registration__event__other_organizers=user),
+            ]
+
+        if user.is_board_member:
+            queries += [
+                # lidi kolem akci od clanku kde user je board member
+                Q(participated_in_events__event__administration_units__board_members=user),
+                Q(events_where_was_organizer__administration_units__board_members=user),
+                Q(filled_questionnaires__questionnaire__event_registration__event__administration_units__board_members=user),
+                # clenove meho clanku
+                Q(memberships__administration_unit__board_members=user),
+            ]
         return filter_queryset_with_multiple_or_queries(queryset, queries)
 
     @permission_cache

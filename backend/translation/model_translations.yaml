@@ -315,6 +315,7 @@ Questionnaire:
   name_plural: 'Dotazník'
   fields:
     event_registration: 'Registrace k události'
+    introduction: 'Úvodní text dotazníku'
 
 Question:
   name: 'Otázka dotazníku'

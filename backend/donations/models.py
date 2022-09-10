@@ -1,13 +1,12 @@
 from dateutil.utils import today
 from django.contrib.gis.db.models import *
-from django.core.exceptions import ValidationError
 from solo.models import SingletonModel
 
 from administration_units.models import AdministrationUnit
+from bis.helpers import filter_queryset_with_multiple_or_queries
 from bis.models import User
 from categories.models import DonationSourceCategory
 from translation.translate import translate_model
-
 
 
 def get_today():
@@ -28,7 +27,7 @@ class Donor(Model):
                                          limit_choices_to={'category__slug': 'regional_center'})
     basic_section_support = ForeignKey(AdministrationUnit, related_name='supported_as_basic_section',
                                        on_delete=PROTECT, null=True, blank=True,
-                                         limit_choices_to={'category__slug': 'basic_section'})
+                                       limit_choices_to={'category__slug': 'basic_section'})
 
     def __str__(self):
         return f"{self.user}"
@@ -69,9 +68,16 @@ class Donor(Model):
 
     @classmethod
     def filter_queryset(cls, queryset, user):
-        return queryset.filter(
-            Q(regional_center_support__in=user.administration_units.all()) |
-            Q(basic_section_support__in=user.administration_units.all()))
+        queries = [
+            Q(user=user)
+        ]
+        if user.is_board_member:
+            queries += [
+                Q(regional_center_support__in=user.administration_units.all()),
+                Q(basic_section_support__in=user.administration_units.all())
+            ]
+
+        return filter_queryset_with_multiple_or_queries(queryset, queries)
 
 
 @translate_model

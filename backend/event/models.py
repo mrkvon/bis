@@ -11,7 +11,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from tinymce.models import HTMLField
 
 from administration_units.models import AdministrationUnit
-from bis.helpers import permission_cache, update_roles
+from bis.helpers import permission_cache, update_roles, filter_queryset_with_multiple_or_queries
 from bis.models import Location, User
 from categories.models import GrantCategory, PropagationIntendedForCategory, DietCategory, \
     EventCategory, EventProgramCategory
@@ -85,7 +85,25 @@ class Event(Model):
 
     @classmethod
     def filter_queryset(cls, queryset, user):
-        return queryset.filter(administration_units__board_members=user).distinct()
+        queries = [
+            # ucast na akci
+            Q(record__participants=user),
+            # registrace na akci
+            Q(registration__questionnaire__answers__user=user),
+        ]
+
+        if user.is_organizer:
+            queries += [
+                # kde jsem byl org
+                Q(other_organizers=user),
+            ]
+
+        if user.is_board_member:
+            queries += [
+                # pod mym clankem
+                Q(administration_units__board_members=user)
+            ]
+        return filter_queryset_with_multiple_or_queries(queryset, queries)
 
     @permission_cache
     def has_edit_permission(self, user):

@@ -1,6 +1,6 @@
 from django.contrib.gis.db.models import *
 
-from event.models import EventRegistration
+from event.models import EventRegistration, Event
 from translation.translate import translate_model
 
 
@@ -9,6 +9,7 @@ class Questionnaire(Model):
     # one to one relationship to event
     # holds relations to its questions and answers
     event_registration = OneToOneField(EventRegistration, on_delete=CASCADE, related_name='questionnaire')
+    introduction = TextField(blank=True)
 
     class Meta:
         ordering = 'id',
@@ -32,6 +33,11 @@ class Question(Model):
 
     def __str__(self):
         return self.question
+
+    @classmethod
+    def filter_queryset(cls, queryset, user):
+        events = Event.filter_queryset(Event.objects.all(), user)
+        return queryset.filter(questionnaire__event_registration__event__in=events)
 
 
 @translate_model

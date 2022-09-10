@@ -25,5 +25,5 @@ python-dateutil
 django-filter
 django-tinymce
 XlsxWriter
-drf-writable-nested
 drf-spectacular
+drf-nested-routers
