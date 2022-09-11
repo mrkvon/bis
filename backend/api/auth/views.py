@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import login as _login
+from django.contrib.auth.password_validation import validate_password
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import AuthenticationFailed, NotFound
@@ -80,6 +81,7 @@ def send_verification_link(request, data):
 def reset_password(request, data):
     user = User.objects.filter(all_emails__email=data['email']).first()
     if not user: raise NotFound()
+    validate_password(data['password'], user)
     LoginCode.is_valid(user, data['code'])
     user.set_password(data['password'])
     user.save()
