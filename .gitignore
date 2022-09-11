@@ -12,16 +12,22 @@ local_settings.py
 /frontend/public/index.html
 /frontend/test/public
 dj_static
-/docker-compose/.dev.yaml
+/docker-compose/dev_exported_config.yaml
 
 /postgresqldata*
 .venv
 /venv
 /.dockerignore
 __pycache__
+package.json
+yarn.lock
+
+/cypress/videos
+/cypress/screenshots
 
 /postgresqldata_test
 .env
 
 /.idea
 /backend/old_database_dump
+/node_modules
