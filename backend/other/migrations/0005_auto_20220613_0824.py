@@ -9,7 +9,7 @@ from project.settings import BASE_DIR
 
 def migrate(apps, schema_editor):
     Region = apps.get_model('other', 'Region')
-    path = join(BASE_DIR, 'other', 'region_borders', 'SPH_KRAJ.shp')
+    path = join(BASE_DIR, 'regions', 'region_borders', 'SPH_KRAJ.shp')
     data = DataSource(path)
 
     for item in data[0]:
