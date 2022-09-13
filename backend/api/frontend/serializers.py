@@ -1,5 +1,6 @@
 from django.db import transaction
 from rest_framework.fields import SerializerMethodField
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer as _ModelSerializer
 from rest_framework.utils import model_meta
@@ -40,6 +41,28 @@ class ModelSerializer(_ModelSerializer):
 
     def to_internal_value(self, data):
         return self._exclude_fields(super().to_internal_value(data))
+
+    @staticmethod
+    def is_serializer_with_id(field):
+        return isinstance(field, _ModelSerializer) and 'id' in field.get_fields()
+
+    def get_fields(self):
+        fields = super().get_fields()
+
+        # replace serializers with id field with default PrimaryKeyRelatedField
+        if 'request' in self.context and self.context['request'].method not in SAFE_METHODS:
+            _declared_fields, self._declared_fields = self._declared_fields, []
+            self._declared_fields = {key: field for
+                                     key, field in _declared_fields.items()
+                                     if not self.is_serializer_with_id(field)}
+            without_id_serializers = super().get_fields()
+            self._declared_fields = _declared_fields
+
+            for field_name, field in list(fields.items()):
+                if self.is_serializer_with_id(field):
+                    fields[field_name] = without_id_serializers[field_name]
+
+        return fields
 
     @staticmethod
     def extract_fields(data, fields):
