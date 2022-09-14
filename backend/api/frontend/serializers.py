@@ -5,7 +5,8 @@ from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer as _ModelSerializer
 from rest_framework.utils import model_meta
 
-from bis.models import User, Location, UserAddress, UserContactAddress, Membership, Qualification
+from bis.models import User, Location, UserAddress, UserContactAddress, Membership, Qualification, UserClosePerson, \
+    LocationContactPerson, LocationPatron
 from donations.models import Donor, Donation
 from event.models import Event, EventFinance, EventPropagation, EventRegistration, EventRecord, EventFinanceReceipt, \
     EventPropagationImage, EventPhoto, VIPEventPropagation
@@ -80,10 +81,9 @@ class ModelSerializer(_ModelSerializer):
                 continue
 
             serializer_class, reverse_field = self.nested_serializers[field]
-            value[reverse_field] = instance
             serializer = serializer_class(data=value)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializer.save(**{reverse_field: instance})
 
         for field, value in m2m_fields.items():
             getattr(instance, field).set(value)
@@ -129,34 +129,17 @@ class BaseAddressSerializer(ModelSerializer):
             'zip_code',
             'region',
         )
-        read_only_fields = ['region']
+        read_only_fields = 'region',
 
 
-class ContactUserSerializer(ModelSerializer):
-    display_name = SerializerMethodField()
-
+class BaseContactSerializer(ModelSerializer):
     class Meta:
-        model = User
         fields = (
             'first_name',
             'last_name',
-            'nickname',
-            'display_name',
-            'phone',
             'email',
+            'phone',
         )
-        read_only_fields = ['email']
-
-    def get_display_name(self, instance) -> str:
-        return str(instance)
-
-    def create(self, validated_data):
-        # todo manage email into all_emails
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        # todo manage email into all_emails
-        return super().update(instance, validated_data)
 
 
 class DonationSerializer(ModelSerializer):
@@ -220,8 +203,13 @@ class MembershipSerializer(ModelSerializer):
         )
 
 
+class QualificationApprovedBySerializer(BaseContactSerializer):
+    class Meta(BaseContactSerializer.Meta):
+        model = User
+
+
 class QualificationSerializer(ModelSerializer):
-    approved_by = ContactUserSerializer()
+    approved_by = QualificationApprovedBySerializer()
 
     class Meta:
         model = Qualification
@@ -233,15 +221,21 @@ class QualificationSerializer(ModelSerializer):
         )
 
 
-class UserSerializer(ContactUserSerializer):
+class ClosePersonSerializer(BaseContactSerializer):
+    class Meta(BaseContactSerializer.Meta):
+        model = UserClosePerson
+
+
+class UserSerializer(ModelSerializer):
     all_emails = SlugRelatedField(slug_field='email', many=True, read_only=True)
-    close_person = ContactUserSerializer(allow_null=True)
+    close_person = ClosePersonSerializer(allow_null=True)
     donor = DonorSerializer(allow_null=True)
     offers = OfferedHelpSerializer(allow_null=True)
     address = UserAddressSerializer()
     contact_address = UserContactAddressSerializer(allow_null=True)
     memberships = MembershipSerializer(many=True, read_only=True)
     qualifications = QualificationSerializer(many=True, read_only=True)
+    display_name = SerializerMethodField()
 
     class Meta:
         model = User
@@ -269,13 +263,16 @@ class UserSerializer(ContactUserSerializer):
             'memberships',
             'qualifications',
         )
-        read_only_fields = ['date_joined', 'is_active', 'roles', 'email']
+        read_only_fields = ['date_joined', 'is_active', 'roles']
 
     def get_excluded_fields(self, fields):
         if self.context['request'].user.id != fields.get('id'):
             return ['donor']
 
         return []
+
+    def get_display_name(self, instance) -> str:
+        return str(instance)
 
 
 class FinanceSerializer(ModelSerializer):
@@ -405,10 +402,17 @@ class EventSerializer(ModelSerializer):
 
         return []
 
+class LocationContactPersonSerializer(BaseContactSerializer):
+    class Meta(BaseContactSerializer.Meta):
+        model = LocationContactPerson
+class LocationPatronSerializer(BaseContactSerializer):
+    class Meta(BaseContactSerializer.Meta):
+        model = LocationPatron
+
 
 class LocationSerializer(ModelSerializer):
-    patron = ContactUserSerializer()
-    contact_person = ContactUserSerializer()
+    patron = LocationPatronSerializer()
+    contact_person = LocationContactPersonSerializer()
 
     class Meta:
         model = Location

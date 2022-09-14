@@ -1,24 +1,28 @@
+import datetime
 from functools import cached_property
 from os.path import basename
 
 from dateutil.relativedelta import relativedelta
 from django.apps import apps
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import UserManager
 from django.contrib.gis.db.models import *
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from phonenumber_field.modelfields import PhoneNumberField
 
-from administration_units.models import AdministrationUnit, BrontosaurusMovement, BaseAddress
+from administration_units.models import AdministrationUnit, BrontosaurusMovement
 from bis.admin_helpers import get_admin_edit_url
 from bis.helpers import permission_cache, paused_validation, filter_queryset_with_multiple_or_queries
 from categories.models import QualificationCategory, MembershipCategory, LocationProgramCategory, \
     LocationAccessibilityCategory, \
     RoleCategory, HealthInsuranceCompany, SexCategory
+from common.abstract_models import BaseContact, BaseAddress
 from common.thumbnails import ThumbnailImageField
 from translation.translate import translate_model
 
@@ -27,10 +31,6 @@ from translation.translate import translate_model
 class Location(Model):
     name = CharField(max_length=63)
     description = TextField()
-
-    patron = ForeignKey('bis.User', on_delete=PROTECT, related_name='patron_of', null=True)
-    contact_person = ForeignKey('bis.User', on_delete=PROTECT, related_name='locations_where_is_contact_person',
-                                null=True)
 
     for_beginners = BooleanField(default=False)
     is_full = BooleanField(default=False)
@@ -80,6 +80,28 @@ class LocationPhoto(Model):
     def __str__(self):
         return basename(self.photo.name)
 
+    @permission_cache
+    def has_edit_permission(self, user):
+        return self.location.has_edit_permission(user)
+
+
+@translate_model
+class LocationContactPerson(BaseContact):
+    location = OneToOneField(Location, on_delete=CASCADE, related_name='contact_person')
+
+    @permission_cache
+    def has_edit_permission(self, user):
+        return self.location.has_edit_permission(user)
+
+
+@translate_model
+class LocationPatron(BaseContact):
+    location = OneToOneField(Location, on_delete=CASCADE, related_name='patron')
+
+    @permission_cache
+    def has_edit_permission(self, user):
+        return self.location.has_edit_permission(user)
+
 
 @translate_model
 class User(AbstractBaseUser):
@@ -92,16 +114,15 @@ class User(AbstractBaseUser):
     email = EmailField(unique=True, blank=True, null=True)
     birthday = DateField(blank=True, null=True)
 
-    close_person = ForeignKey('bis.User', on_delete=PROTECT, null=True, blank=True, related_name='looking_over')
     health_insurance_company = ForeignKey(HealthInsuranceCompany, related_name='users', on_delete=PROTECT, null=True,
                                           blank=True)
     health_issues = TextField(blank=True)
     sex = ForeignKey(SexCategory, on_delete=PROTECT, null=True, blank=True, related_name='users')
 
     is_active = BooleanField(default=True)
-    date_joined = DateField(default=timezone.now)
+    date_joined = DateField(default=datetime.date.today)
 
-    _import_id = CharField(max_length=15, default='')
+    _import_id = CharField(max_length=255, default='')
     _str = CharField(max_length=255)
     roles = ManyToManyField(RoleCategory, related_name='users')
 
@@ -200,9 +221,33 @@ class User(AbstractBaseUser):
 
     class Meta:
         ordering = '-id',
+        unique_together = 'first_name', 'last_name', 'birthday'
 
     def __str__(self):
         return self._str
+
+    @classmethod
+    def get(cls, *, email=None, first_name=None, last_name=None, birthday=None):
+        if email:
+            email = email.lower()
+            return cls.objects.filter(all_emails__email=email).first()
+
+        if first_name and last_name and birthday:
+            return cls.objects.filter(first_name=first_name, last_name=last_name, birthday=birthday).first()
+
+    def clean(self):
+        super().clean()
+
+        if self.email:
+            self.email = self.email.lower()
+            user_email = UserEmail.objects.filter(email=self.email).first()
+            if user_email and user_email.user != self:
+                raise ValidationError(f'Cannot set e-mail {self.email} for user {self}, another user with ' \
+                                      f'this email already exists')
+
+    def save(self, *args, **kwargs):
+        if not settings.SKIP_VALIDATION: self.clean()
+        super().save(*args, **kwargs)
 
     @transaction.atomic
     def merge_with(self, other):
@@ -407,6 +452,11 @@ class UserAddress(BaseAddress):
 @translate_model
 class UserContactAddress(BaseAddress):
     user = OneToOneField(User, on_delete=CASCADE, related_name='contact_address')
+
+
+@translate_model
+class UserClosePerson(BaseContact):
+    user = OneToOneField(User, on_delete=CASCADE, related_name='close_person')
 
 
 @translate_model

@@ -29,6 +29,25 @@ LocationPhoto:
     location: 'Lokalita'
     photo: 'Fotka'
 
+LocationContactPerson:
+  name: 'Kontakt na lokalitě'
+  name_plural: 'Kontakt na lokalitě'
+  fields:
+    location: 'Lokalita'
+    first_name: 'Křestní jméno'
+    last_name: 'Příjmení'
+    phone: 'Tel. číslo'
+    email: 'E-mail'
+
+LocationPatron:
+  name: 'Kontakt v hnutí'
+  name_plural: 'Kontakt v hnutí'
+  fields:
+    location: 'Lokalita'
+    first_name: 'Křestní jméno'
+    last_name: 'Příjmení'
+    phone: 'Tel. číslo'
+    email: 'E-mail'
 
 User:
   name: 'Uživatel'
@@ -49,6 +68,15 @@ User:
     sex: 'Pohlaví'
     roles: 'Role'
 
+UserClosePerson:
+  name: 'Rodič / blízká osoba'
+  name_plural: 'Rodič / blízká osoba'
+  fields:
+    user: 'Uživatel'
+    first_name: 'Křestní jméno'
+    last_name: 'Příjmení'
+    phone: 'Tel. číslo'
+    email: 'E-mail'
 UserAddress:
   name: 'Adresa uživatele'
   name_plural: 'Adresa uživatele'

@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save, pre_save, post_delete
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
@@ -57,16 +57,29 @@ def set_region_for_location(instance: Location, created, **kwargs):
             instance.save()
 
 
-@receiver(pre_save, sender=User, dispatch_uid='set_primary_email')
+@receiver(post_save, sender=User, dispatch_uid='set_primary_email')
 def set_primary_email(instance: User, **kwargs):
     email = instance.all_emails.first()
-    instance.email = email and email.email
+    email = email and email.email
+    if email != instance.email:
+        if instance.email is not None:
+            UserEmail.objects.get_or_create(user=instance, email=instance.email)
+            all_emails = sorted(instance.all_emails.all(), key=lambda x: x != instance.email)
+            for i, obj in enumerate(all_emails):
+                if obj.order != i:
+                    obj.order = i
+                    obj.save()
+        else:
+            instance.email = email
+            instance.save()
 
 
 @receiver(post_save, sender=UserEmail, dispatch_uid='set_users_primary_email')
 @receiver(post_delete, sender=UserEmail, dispatch_uid='set_users_primary_email_delete')
 def set_users_primary_email(instance: UserEmail, **kwargs):
-    if instance.user.email != getattr(instance.user.all_emails.first(), 'email', None):
+    first = getattr(instance.user.all_emails.first(), 'email', None)
+    if instance.user.email != first:
+        instance.user.email = first
         instance.user.save()
 
 

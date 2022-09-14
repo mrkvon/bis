@@ -24,13 +24,13 @@ from project.settings import BASE_DIR
 
 
 def get_or_create_user(email, first_name, last_name):
-    user_email = UserEmail.objects.filter(email=email).first()
-    if user_email:
-        return user_email.user
+    user = User.get(email=email)
+    if user:
+        return user
 
     user = User.objects.get_or_create(first_name=first_name, last_name=last_name)[0]
-
-    UserEmail.objects.create(email=email, user=user)
+    user.email = email
+    user.save()
 
     return user
 
@@ -181,7 +181,7 @@ class Command(BaseCommand):
     }
 
     def reset_cache(self):
-        self.user_map = {u._import_id: u for u in User.objects.all()}
+        self.user_map = {_id: u for u in User.objects.all() for _id in u._import_id.split(',') if _id}
         self.administration_unit_map = {au._import_id: au for au in AdministrationUnit.objects.all()}
         self.location_map = {l._import_id: l for l in Location.objects.all()}
         self.event_map = {e._import_id: e for e in Event.objects.all()}
@@ -217,19 +217,31 @@ class Command(BaseCommand):
             print_progress('importing users', i, len(data['adresa']))
 
             birthday = parse_date(item['datum_narozeni'])
+            first_name = item['jmeno']
+            last_name = item['prijmeni']
+            user = User.get(first_name=first_name, last_name=last_name, birthday=birthday)
 
-            user = User.objects.update_or_create(_import_id=id, defaults=dict(
-                first_name=item['jmeno'],
-                last_name=item['prijmeni'],
-                nickname=item['prezdivka'] or '',
-                phone=item['telefon'] or '',
-                birthday=birthday,
-                is_active=True,
-            ))[0]
+            if user:
+                user.nickname = item['prezdivka'] or user.nickname
+                user.phone = item['telefon'] or user.phone
+                _import_ids = set(_id for _id in user._import_id.split(',') if _id)
+                _import_ids.add(str(id))
+                user._import_id = f','.join(_import_ids)
+                user.save()
+
+            else:
+                user = User.objects.update_or_create(_import_id=id, defaults=dict(
+                    first_name=item['jmeno'],
+                    last_name=item['prijmeni'],
+                    nickname=item['prezdivka'] or '',
+                    phone=item['telefon'] or '',
+                    birthday=birthday,
+                ))[0]
+
             if item['email']:
                 email = item['email'].lower()
-                UserEmail.objects.filter(email=email).delete()
-                UserEmail.objects.create(email=email, user=user)
+                if not UserEmail.objects.filter(email=email).exists():
+                    UserEmail.objects.create(email=email, user=user)
 
             street = item["ulice"]
             city = item["mesto"]

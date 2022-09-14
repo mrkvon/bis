@@ -34,6 +34,7 @@ class DuplicateUser(Model):
 
     class Meta:
         ordering = 'id',
+        unique_together = 'user', 'other'
 
 
 @translate_model

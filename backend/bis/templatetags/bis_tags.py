@@ -19,7 +19,7 @@ def user_stats(context, changelist):
     if queryset.model is User:
         selected_date = getattr(context['request'], UserStatsDateFilter.cache_name, None)
         if selected_date:
-            to_date = selected_date['close_person__birthday'].date()
+            to_date = selected_date['chairman_of__existed_since'].date()
 
         age_stats.append(AgeStats('lidí', queryset, to_date))
 

@@ -1,7 +1,7 @@
 from administration_units.models import BrontosaurusMovement, AdministrationUnit, AdministrationUnitAddress, \
     AdministrationUnitContactAddress
 from bis.models import Qualification, User, UserAddress, UserContactAddress, UserEmail, Location, LocationPhoto, \
-    Membership
+    Membership, LocationContactPerson, UserClosePerson, LocationPatron
 from donations.models import Donation, UploadBankRecords, VariableSymbol, Donor
 from event.models import Event
 from opportunities.models import OfferedHelp, Opportunity
@@ -21,7 +21,7 @@ class Permissions:
         return self.user.can_see_all or \
                self.model._meta.app_label in ['categories', 'regions'] or \
                self.model in [BrontosaurusMovement,
-                              Location, LocationPhoto,
+                              Location, LocationPhoto, LocationContactPerson, LocationPatron,
                               AdministrationUnit, AdministrationUnitAddress, AdministrationUnitContactAddress]
 
     def is_readonly(self):
@@ -49,7 +49,8 @@ class Permissions:
             return True
 
         if self.user.is_education_member:
-            return self.model in [Qualification, User, UserAddress, UserContactAddress, Feedback, DuplicateUser]
+            return self.model in [Qualification, User, UserAddress, UserContactAddress, UserClosePerson, Feedback,
+                                  DuplicateUser]
 
         # frontend access
         return True
@@ -74,13 +75,15 @@ class Permissions:
                 return True
 
         # for any user
-        if self.model in [UserAddress, UserContactAddress, OfferedHelp, QuestionnaireAnswers, Answer, Donor]:
+        if self.model in [UserAddress, UserContactAddress, UserClosePerson, OfferedHelp, QuestionnaireAnswers, Answer,
+                          Donor]:
             if not obj or obj.has_edit_permission(self.user):
                 return True
 
         # common for organizers and board members
         if self.user.is_organizer or self.user.is_board_member:
-            if self.model in [Location, LocationPhoto, Event, User, Opportunity, Questionnaire, Question] \
+            if self.model in [Location, LocationPhoto, LocationContactPerson, LocationPatron, Event, User, Opportunity,
+                              Questionnaire, Question] \
                     or self.model._meta.app_label in ['event']:
                 if not obj or obj.has_edit_permission(self.user):
                     return True
@@ -108,13 +111,14 @@ class Permissions:
                 return True
 
         # for any user
-        if self.model in [User, UserAddress, UserContactAddress, OfferedHelp, Donor]:
+        if self.model in [User, UserAddress, UserContactAddress, UserClosePerson, OfferedHelp, Donor]:
             if not obj or obj.has_edit_permission(self.user):
                 return True
 
         # common for organizers and board members
         if self.user.is_organizer or self.user.is_board_member:
-            if self.model in [Location, Event, Opportunity, Questionnaire, Question] \
+            if self.model in [Location, LocationContactPerson,  LocationPatron,Event, Opportunity, Questionnaire,
+                              Question] \
                     or self.model._meta.app_label in ['event']:
                 if not obj or obj.has_edit_permission(self.user):
                     return True
@@ -143,7 +147,7 @@ class Permissions:
                 return True
 
         # for any user
-        if self.model in [UserContactAddress, OfferedHelp]:
+        if self.model in [UserContactAddress, UserClosePerson, OfferedHelp]:
             if not obj or obj.has_edit_permission(self.user):
                 return True
 

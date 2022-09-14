@@ -6,7 +6,7 @@ from django.utils.text import slugify
 
 from administration_units.models import AdministrationUnit
 from bis.helpers import print_progress
-from bis.models import User, UserEmail, UserAddress
+from bis.models import User, UserAddress
 from bis.signals import with_paused_user_str_signal
 from categories.models import DonationSourceCategory
 from donations.models import Donor, Donation
@@ -51,13 +51,14 @@ class Command(BaseCommand):
             if not transactions:
                 continue
 
-            user = User.objects.get_or_create(all_emails__email=donor['email'].lower(), defaults=dict(
+            email = donor['email'].lower()
+            user = User.objects.get_or_create(all_emails__email=email, defaults=dict(
                 first_name=donor['firstName'],
                 last_name=donor['lastName'],
                 phone=donor['phone'],
+                email=email,
             ))[0]
 
-            UserEmail.objects.get_or_create(email=donor['email'].lower(), defaults=dict(user=user))
             UserAddress.objects.get_or_create(user=user, defaults=dict(
                 street=donor['address']['street'],
                 city=donor['address']['city'],

@@ -15,10 +15,7 @@ class Command(BaseCommand):
             print_progress('merging users', i, len(users))
             for other in User.objects.filter(id__gt=user.id, first_name=user.first_name, last_name=user.last_name):
                 if user.birthday and other.birthday and user.birthday != other.birthday:
-                    DuplicateUser.objects.get_or_create(user=user, other=other)
                     continue
 
-                try:
-                    user.merge_with(other)
-                except ValidationError:
-                    pass
+                DuplicateUser.objects.get_or_create(user=user, other=other)
+

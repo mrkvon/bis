@@ -11,7 +11,7 @@ from django.core.management.base import BaseCommand
 from requests import HTTPError
 
 from bis.helpers import print_progress
-from bis.models import Location, User, UserEmail, LocationPhoto
+from bis.models import Location, User, LocationPhoto, LocationContactPerson, LocationPatron
 from bis.signals import with_paused_user_str_signal
 from categories.models import LocationProgramCategory, LocationAccessibilityCategory
 
@@ -90,22 +90,17 @@ class Command(BaseCommand):
             return dict(options_around=attr['value'])
         if attr['attribute']['id'] in [2264, 2265]:
             attr_name = 'patron' if attr['attribute']['id'] == 2264 else 'contact_person'
+            obj_class = LocationPatron if attr['attribute']['id'] == 2264 else LocationContactPerson
             match = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', attr['value'])
             if not match: return {}
             email = match.group(0).lower()
 
-            user = User.objects.filter(all_emails__email=email).first()
-            if not user:
-                user = User.objects.create(
-                    first_name=attr['value'][:62],
-                    last_name=attr['value'][62:124]
-                )
-                UserEmail.objects.create(user=user, email=email)
+            obj = None
+            if email:
+                obj = obj_class(first_name=attr['value'][:62], last_name=attr['value'][62:124], email=email)
 
-            return {attr_name: user}
+            return {attr_name: obj}
 
-        if attr['attribute']['id'] == 2265:
-            return dict()
         if attr['attribute']['id'] == 2266:
             return dict(web=attr['value'])
         if attr['attribute']['id'] == 8118:

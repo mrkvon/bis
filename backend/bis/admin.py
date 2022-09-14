@@ -27,11 +27,18 @@ class LocationPhotosAdmin(PermissionMixin, NestedTabularInline):
     readonly_fields = 'photo_tag',
 
 
+class LocationContactPersonAdmin(PermissionMixin, NestedTabularInline):
+    model = LocationContactPerson
+
+
+class LocationPatronAdmin(PermissionMixin, NestedTabularInline):
+    model = LocationPatron
+
+
 @admin.register(Location)
 class LocationAdmin(PermissionMixin, OSMGeoAdmin):
-    inlines = LocationPhotosAdmin,
+    inlines = LocationContactPersonAdmin, LocationPatronAdmin, LocationPhotosAdmin,
     search_fields = 'name',
-    autocomplete_fields = 'patron', 'contact_person'
     exclude = '_import_id',
 
     list_filter = 'program', 'for_beginners', 'is_full', 'is_unexplored', \
@@ -72,6 +79,10 @@ class DuplicateUserAdminInline(PermissionMixin, NestedTabularInline):
     extra = 0
 
 
+class ClosePersonAdmin(PermissionMixin, NestedTabularInline):
+    model = UserClosePerson
+
+
 class UserAddressAdmin(PermissionMixin, NestedTabularInline):
     model = UserAddress
 
@@ -107,7 +118,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
             'fields': ('first_name', 'last_name', 'nickname', 'get_all_emails', 'phone', 'birthday', 'sex')
         }),
         ('Osobní informace', {
-            'fields': ('close_person', 'health_insurance_company', 'health_issues')
+            'fields': ('health_insurance_company', 'health_issues')
         }),
         ('Události', {
             'fields': ('get_events_where_was_organizer', 'get_participated_in_events')
@@ -117,8 +128,6 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
             'classes': ('collapse',)
         })
     )
-
-    autocomplete_fields = 'close_person',
 
     list_display = 'get_name', 'birthday', 'address', 'get_email', 'phone', 'get_qualifications', 'get_memberships', \
                    'get_programs', 'get_organizer_roles', 'get_team_roles',
@@ -157,7 +166,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
         list_filter_extra_title('Ostatní'),
         ('roles', MultiSelectRelatedDropdownFilter),
         ('date_joined', DateRangeFilter),
-        ('close_person__birthday', UserStatsDateFilter),
+        ('chairman_of__existed_since', UserStatsDateFilter),
     ]
 
     search_fields = 'all_emails__email', 'phone', 'first_name', 'last_name', 'nickname'
@@ -165,6 +174,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
 
     def get_inlines(self, request, obj):
         inlines = [UserAddressAdmin, UserContactAddressAdmin,
+                   ClosePersonAdmin,
                    UserOfferedHelpAdmin,
                    QualificationAdmin, MembershipAdmin,
                    DuplicateUserAdminInline]
