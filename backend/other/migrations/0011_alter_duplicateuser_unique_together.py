@@ -4,14 +4,19 @@ from django.conf import settings
 from django.db import migrations
 
 
-class Migration(migrations.Migration):
+def migrate(apps, schema):
+    DuplicateUser = apps.get_model('other', 'DuplicateUser')
+    DuplicateUser.objects.all().delete()
 
+
+class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('other', '0010_auto_20220726_1206'),
     ]
 
     operations = [
+        migrations.RunPython(migrate),
         migrations.AlterUniqueTogether(
             name='duplicateuser',
             unique_together={('user', 'other')},
