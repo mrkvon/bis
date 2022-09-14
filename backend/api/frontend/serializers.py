@@ -7,11 +7,17 @@ from rest_framework.utils import model_meta
 
 from bis.models import User, Location, UserAddress, UserContactAddress, Membership, Qualification, UserClosePerson, \
     LocationContactPerson, LocationPatron
+from categories.serializers import DonationSourceCategorySerializer, EventProgramCategorySerializer, \
+    OrganizerRoleCategorySerializer, TeamRoleCategorySerializer, MembershipCategorySerializer, \
+    QualificationCategorySerializer, HealthInsuranceCompanySerializer, SexCategorySerializer, RoleCategorySerializer, \
+    GrantCategorySerializer, PropagationIntendedForCategorySerializer, DietCategorySerializer, EventCategorySerializer, \
+    LocationProgramCategorySerializer, LocationAccessibilityCategorySerializer, OpportunityCategorySerializer
 from donations.models import Donor, Donation
 from event.models import Event, EventFinance, EventPropagation, EventRegistration, EventRecord, EventFinanceReceipt, \
     EventPropagationImage, EventPhoto, VIPEventPropagation
 from opportunities.models import Opportunity, OfferedHelp
 from questionnaire.models import Questionnaire, Question
+from regions.serializers import RegionSerializer
 
 
 class ModelSerializer(_ModelSerializer):
@@ -122,6 +128,8 @@ class ModelSerializer(_ModelSerializer):
 
 
 class BaseAddressSerializer(ModelSerializer):
+    region = RegionSerializer()
+
     class Meta:
         fields = (
             'street',
@@ -143,6 +151,8 @@ class BaseContactSerializer(ModelSerializer):
 
 
 class DonationSerializer(ModelSerializer):
+    donation_source = DonationSourceCategorySerializer()
+
     class Meta:
         model = Donation
         fields = (
@@ -167,10 +177,14 @@ class DonorSerializer(ModelSerializer):
             'variable_symbols',
             'donations',
         )
-        read_only_fields = ['id', 'date_joined']
+        read_only_fields = 'id', 'date_joined'
 
 
 class OfferedHelpSerializer(ModelSerializer):
+    programs = EventProgramCategorySerializer(many=True)
+    organizer_roles = OrganizerRoleCategorySerializer(many=True)
+    team_roles = TeamRoleCategorySerializer(many=True)
+
     class Meta:
         model = OfferedHelp
         fields = (
@@ -194,6 +208,8 @@ class UserContactAddressSerializer(BaseAddressSerializer):
 
 
 class MembershipSerializer(ModelSerializer):
+    category = MembershipCategorySerializer()
+
     class Meta:
         model = Membership
         fields = (
@@ -210,6 +226,8 @@ class QualificationApprovedBySerializer(BaseContactSerializer):
 
 class QualificationSerializer(ModelSerializer):
     approved_by = QualificationApprovedBySerializer()
+
+    category = QualificationCategorySerializer()
 
     class Meta:
         model = Qualification
@@ -237,6 +255,10 @@ class UserSerializer(ModelSerializer):
     qualifications = QualificationSerializer(many=True, read_only=True)
     display_name = SerializerMethodField()
 
+    health_insurance_company = HealthInsuranceCompanySerializer()
+    sex = SexCategorySerializer()
+    roles = RoleCategorySerializer(many=True)
+
     class Meta:
         model = User
         fields = (
@@ -263,7 +285,7 @@ class UserSerializer(ModelSerializer):
             'memberships',
             'qualifications',
         )
-        read_only_fields = ['date_joined', 'is_active', 'roles']
+        read_only_fields = 'date_joined', 'is_active', 'roles'
 
     def get_excluded_fields(self, fields):
         if self.context['request'].user.id != fields.get('id'):
@@ -276,6 +298,8 @@ class UserSerializer(ModelSerializer):
 
 
 class FinanceSerializer(ModelSerializer):
+    grant_category = GrantCategorySerializer()
+
     class Meta:
         model = EventFinance
         fields = (
@@ -301,6 +325,9 @@ class VIPPropagationSerializer(ModelSerializer):
 
 class PropagationSerializer(ModelSerializer):
     vip_propagation = VIPPropagationSerializer(allow_null=True)
+
+    intended_for = PropagationIntendedForCategorySerializer()
+    diets = DietCategorySerializer(many=True)
 
     class Meta:
         model = EventPropagation
@@ -369,6 +396,9 @@ class EventSerializer(ModelSerializer):
     registration = RegistrationSerializer(allow_null=True)
     record = RecordSerializer(allow_null=True)
 
+    category = EventCategorySerializer()
+    program = EventProgramCategorySerializer()
+
     class Meta:
         model = Event
         fields = (
@@ -402,9 +432,12 @@ class EventSerializer(ModelSerializer):
 
         return []
 
+
 class LocationContactPersonSerializer(BaseContactSerializer):
     class Meta(BaseContactSerializer.Meta):
         model = LocationContactPerson
+
+
 class LocationPatronSerializer(BaseContactSerializer):
     class Meta(BaseContactSerializer.Meta):
         model = LocationPatron
@@ -413,6 +446,11 @@ class LocationPatronSerializer(BaseContactSerializer):
 class LocationSerializer(ModelSerializer):
     patron = LocationPatronSerializer()
     contact_person = LocationContactPersonSerializer()
+
+    program = LocationProgramCategorySerializer()
+    accessibility_from_prague = LocationAccessibilityCategorySerializer()
+    accessibility_from_brno = LocationAccessibilityCategorySerializer()
+    region = RegionSerializer()
 
     class Meta:
         model = Location
@@ -441,6 +479,8 @@ class LocationSerializer(ModelSerializer):
 
 
 class OpportunitySerializer(ModelSerializer):
+    category = OpportunityCategorySerializer()
+
     class Meta:
         model = Opportunity
         fields = (

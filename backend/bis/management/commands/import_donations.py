@@ -80,8 +80,8 @@ class Command(BaseCommand):
             has_recurrent_donation = pledge['isRecurrent']
 
             donor.date_joined = min(donor.date_joined, date_joined.date())
-            donor.basic_section_support = basic_section_support or donor.basic_section_support
-            donor.regional_center_support = regional_center_support or donor.regional_center_support
+            donor.basic_section_support = donor.basic_section_support or basic_section_support
+            donor.regional_center_support = donor.regional_center_support or regional_center_support
             donor.has_recurrent_donation = has_recurrent_donation or donor.has_recurrent_donation
             donor.save()
 

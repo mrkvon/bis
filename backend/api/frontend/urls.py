@@ -2,7 +2,8 @@ from django.urls import path, include
 from rest_framework_nested import routers
 
 from api.frontend.views import UserViewSet, EventViewSet, LocationViewSet, OpportunityViewSet, FinanceReceiptViewSet, \
-    EventPropagationImageViewSet, EventPhotoViewSet, QuestionViewSet
+    EventPropagationImageViewSet, EventPhotoViewSet, QuestionViewSet, ParticipatedInViewSet, RegisteredInViewSet, \
+    WhereWasOrganizerViewSet, ParticipantsViewSet, OrganizersViewSet, RegisteredViewSet
 
 router = routers.DefaultRouter()
 
@@ -10,26 +11,25 @@ router.register('users', UserViewSet, 'users')
 router.register('events', EventViewSet, 'events')
 router.register('locations', LocationViewSet, 'locations')
 
-user_router = routers.NestedDefaultRouter(router, 'users', lookup='user')
-user_router.register('opportunities', OpportunityViewSet, 'opportunities')
+users_router = routers.NestedDefaultRouter(router, 'users', lookup='user')
+users_router.register('opportunities', OpportunityViewSet)
 
-event_finance_router = routers.NestedDefaultRouter(router, 'events', lookup='event')
-event_finance_router.register('finance/receipts', FinanceReceiptViewSet)
+users_router.register('participated_in_events', ParticipatedInViewSet)
+users_router.register('registered_in_events', RegisteredInViewSet)
+users_router.register('events_where_was_organizer', WhereWasOrganizerViewSet)
 
-event_propagation_router = routers.NestedDefaultRouter(router, 'events', lookup='event')
-event_propagation_router.register('propagation/images', EventPropagationImageViewSet)
+events_router = routers.NestedDefaultRouter(router, 'events', lookup='event')
+events_router.register('finance/receipts', FinanceReceiptViewSet)
+events_router.register('propagation/images', EventPropagationImageViewSet)
+events_router.register('record/photos', EventPhotoViewSet)
+events_router.register('registration/questionnaire/questions', QuestionViewSet)
 
-event_record_router = routers.NestedDefaultRouter(router, 'events', lookup='event')
-event_record_router.register('record/photos', EventPhotoViewSet)
-
-questionnaire_router = routers.NestedDefaultRouter(router, 'events', lookup='event')
-questionnaire_router.register('registration/questionnaire/questions', QuestionViewSet)
+events_router.register('record/participants', ParticipantsViewSet)
+events_router.register('registered', RegisteredViewSet)
+events_router.register('organizers', OrganizersViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('', include(user_router.urls)),
-    path('', include(event_finance_router.urls)),
-    path('', include(event_propagation_router.urls)),
-    path('', include(event_record_router.urls)),
-    path('', include(questionnaire_router.urls)),
+    path('', include(users_router.urls)),
+    path('', include(events_router.urls)),
 ]
