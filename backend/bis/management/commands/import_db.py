@@ -240,6 +240,10 @@ class Command(BaseCommand):
 
             if item['email']:
                 email = item['email'].lower()
+                if '+' in email:
+                    name, host = email.split('@')
+                    name = name.split('+')[0]
+                    email = '@'.join([name, host])
                 if not UserEmail.objects.filter(email=email).exists():
                     UserEmail.objects.create(email=email, user=user)
 
