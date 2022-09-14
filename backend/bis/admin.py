@@ -1,4 +1,5 @@
 from admin_numeric_filter.admin import NumericFilterModelAdmin
+from dateutil.utils import today
 from django.contrib.auth.models import Group
 from django.contrib.gis.admin import OSMGeoAdmin
 from more_admin_filters import MultiSelectRelatedDropdownFilter
@@ -105,9 +106,42 @@ def mark_as_woman(self, request, queryset):
     queryset.update(sex=SexCategory.objects.get(slug='woman'))
 
 
+def get_member_action(membership_category, administration_unit):
+    def action(view, request, queryset):
+        for user in queryset:
+            Membership.objects.get_or_create(
+                user=user,
+                category=membership_category,
+                administration_unit=administration_unit,
+                year=today().year
+            )
+
+    action.__name__ = f'add_member_{membership_category.id}_{administration_unit.id}'
+    return action
+
+
+add_members_actions = [
+    admin.action(
+        description=f'Přidej členství {membership_category.name} za tento rok pod {administration_unit.abbreviation}'
+    )(get_member_action(membership_category, administration_unit))
+    for administration_unit in AdministrationUnit.objects.filter(existed_till__isnull=True)
+    for membership_category in MembershipCategory.objects.filter(slug__in=['kid', 'student', 'adult'])
+]
+
+
 @admin.register(User)
 class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin):
-    actions = [export_to_xlsx, mark_as_woman, mark_as_man]
+    actions = [export_to_xlsx, mark_as_woman, mark_as_man] + add_members_actions
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        user_administration_units = request.user.administration_units.all()
+        for key in list(actions.keys()):
+            if 'add_member' in key and not any([key.endswith(f'_{au.id}') for au in user_administration_units]):
+                del actions[key]
+
+        return actions
+
     readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_all_emails', \
                       'get_events_where_was_organizer', 'get_participated_in_events', \
                       'roles'
