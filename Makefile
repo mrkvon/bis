@@ -1,4 +1,4 @@
-.PHONY: build run dev_mac dev_wsl dev_linux no_python_mac no_python_wsl no_python_linux test test_wsl clean submodule_checkout_next submodule_update gen_dev_dockercompose_file open_cypress_wsl prepare_test_env startup_testing_backend
+.PHONY: build run dev_mac dev_wsl dev_linux no_python_mac no_python_wsl no_python_linux test test_wsl clean submodule_checkout_next submodule_update gen_dev_dockercompose_file open_cypress_wsl prepare_test_env startup_testing_backend backend frontend
 
 define with_os
 if [ "$(shell uname)" = "Darwin" ]; then		                                           \
