@@ -2,6 +2,7 @@ from admin_numeric_filter.admin import NumericFilterModelAdmin
 from dateutil.utils import today
 from django.contrib.auth.models import Group
 from django.contrib.gis.admin import OSMGeoAdmin
+from django.db import ProgrammingError
 from more_admin_filters import MultiSelectRelatedDropdownFilter
 from nested_admin.forms import SortableHiddenMixin
 from nested_admin.nested import NestedTabularInline, NestedStackedInline, NestedModelAdminMixin
@@ -120,18 +121,22 @@ def get_member_action(membership_category, administration_unit):
     return action
 
 
-add_members_actions = [
-    admin.action(
-        description=f'Přidej členství {membership_category.name} za tento rok pod {administration_unit.abbreviation}'
-    )(get_member_action(membership_category, administration_unit))
-    for administration_unit in AdministrationUnit.objects.filter(existed_till__isnull=True)
-    for membership_category in MembershipCategory.objects.filter(slug__in=['kid', 'student', 'adult'])
-]
+def get_add_members_actions():
+    try:
+        return [
+            admin.action(
+                description=f'Přidej členství {membership_category.name} za tento rok pod {administration_unit.abbreviation}'
+            )(get_member_action(membership_category, administration_unit))
+            for administration_unit in AdministrationUnit.objects.filter(existed_till__isnull=True)
+            for membership_category in MembershipCategory.objects.filter(slug__in=['kid', 'student', 'adult'])
+        ]
+    except ProgrammingError:
+        return []
 
 
 @admin.register(User)
 class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin):
-    actions = [export_to_xlsx, mark_as_woman, mark_as_man] + add_members_actions
+    actions = [export_to_xlsx, mark_as_woman, mark_as_man] + get_add_members_actions()
 
     def get_actions(self, request):
         actions = super().get_actions(request)
