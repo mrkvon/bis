@@ -11,7 +11,8 @@ from categories.serializers import DonationSourceCategorySerializer, EventProgra
     OrganizerRoleCategorySerializer, TeamRoleCategorySerializer, MembershipCategorySerializer, \
     QualificationCategorySerializer, HealthInsuranceCompanySerializer, SexCategorySerializer, RoleCategorySerializer, \
     GrantCategorySerializer, PropagationIntendedForCategorySerializer, DietCategorySerializer, EventCategorySerializer, \
-    LocationProgramCategorySerializer, LocationAccessibilityCategorySerializer, OpportunityCategorySerializer
+    LocationProgramCategorySerializer, LocationAccessibilityCategorySerializer, OpportunityCategorySerializer, \
+    EventGroupCategorySerializer
 from donations.models import Donor, Donation
 from event.models import Event, EventFinance, EventPropagation, EventRegistration, EventRecord, EventFinanceReceipt, \
     EventPropagationImage, EventPhoto, VIPEventPropagation
@@ -396,6 +397,7 @@ class EventSerializer(ModelSerializer):
     registration = RegistrationSerializer(allow_null=True)
     record = RecordSerializer(allow_null=True)
 
+    group = EventGroupCategorySerializer()
     category = EventCategorySerializer()
     program = EventProgramCategorySerializer()
 
@@ -410,6 +412,7 @@ class EventSerializer(ModelSerializer):
             'number_of_sub_events',
             'location',
             'online_link',
+            'group',
             'category',
             'program',
             'administration_units',

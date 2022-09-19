@@ -16,7 +16,7 @@ from bis.helpers import print_progress, with_paused_validation
 from bis.models import User, UserAddress, Qualification, Location, Membership, UserEmail, UserContactAddress
 from bis.signals import with_paused_user_str_signal
 from categories.models import MembershipCategory, EventCategory, EventProgramCategory, QualificationCategory, \
-    AdministrationUnitCategory, PropagationIntendedForCategory, DietCategory, GrantCategory
+    AdministrationUnitCategory, PropagationIntendedForCategory, DietCategory, GrantCategory, EventGroupCategory
 from donations.models import Donor, VariableSymbol
 from event.models import Event, EventPropagation, EventRegistration, EventRecord, EventFinance, VIPEventPropagation, \
     EventPropagationImage
@@ -108,6 +108,10 @@ class Command(BaseCommand):
         "4": MembershipCategory.objects.get(slug='kid'),
         "5": MembershipCategory.objects.get(slug='member_elsewhere'),
         "6": MembershipCategory.objects.get(slug='student'),
+    }
+
+    event_group_category_map = {
+        group.slug: group for group in EventGroupCategory.objects.all()
     }
 
     event_category_map = {
@@ -458,9 +462,11 @@ class Command(BaseCommand):
         for i, (id, item) in enumerate(data['akce'].items()):
             print_progress('importing events', i, len(data['akce']))
             attachments = self.get_attachments(item)
+            group = None
             if id in data['tabor']:
                 attachments = attachments.union(self.get_attachments(data['tabor'][id]))
                 item.update(data['tabor'][id])
+                group = 'camp'
 
             start = get_event_start(item)
             end = parse_date(item['do'])
@@ -485,12 +491,19 @@ class Command(BaseCommand):
                     location.address = item['gps']
                     location.save()
 
+            if group is None:
+                group = 'other'
+                duration = max((end - start.date()).days + 1, 0)
+                if end.weekday() == 6 and 2 <= duration <= 3:
+                    group = 'weekend_event'
+
             event = Event.objects.update_or_create(_import_id=id, defaults=dict(
                 name=item['nazev'][:63],
                 start=start,
                 end=end,
                 is_canceled=is_canceled,
                 location=location,
+                group=self.event_group_category_map[group],
                 category=self.event_category_map[item['typ']],
                 program=self.event_program_category_map[item['program']],
                 main_organizer=self.user_map.get(item.get('odpovedna')),

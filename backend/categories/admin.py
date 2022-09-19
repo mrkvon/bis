@@ -34,6 +34,11 @@ class MembershipCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 
+@admin.register(EventGroupCategory)
+class EventGroupCategoryAdmin(PermissionMixin, admin.ModelAdmin):
+    pass
+
+
 @admin.register(EventCategory)
 class EventCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
@@ -61,4 +66,29 @@ class TeamRoleCategoryAdmin(PermissionMixin, admin.ModelAdmin):
 
 @admin.register(OpportunityCategory)
 class OpportunityCategoryAdmin(PermissionMixin, admin.ModelAdmin):
+    pass
+
+
+@admin.register(LocationProgramCategory)
+class LocationProgramCategoryAdmin(PermissionMixin, admin.ModelAdmin):
+    pass
+
+
+@admin.register(LocationAccessibilityCategory)
+class LocationAccessibilityCategoryAdmin(PermissionMixin, admin.ModelAdmin):
+    pass
+
+
+@admin.register(RoleCategory)
+class RoleCategoryAdmin(PermissionMixin, admin.ModelAdmin):
+    pass
+
+
+@admin.register(HealthInsuranceCompany)
+class HealthInsuranceCompanyAdmin(PermissionMixin, admin.ModelAdmin):
+    pass
+
+
+@admin.register(SexCategory)
+class SexCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass

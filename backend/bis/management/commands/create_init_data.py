@@ -3,7 +3,8 @@ from django.core.management.base import BaseCommand
 from categories.models import DietCategory, PropagationIntendedForCategory, QualificationCategory, \
     AdministrationUnitCategory, MembershipCategory, EventProgramCategory, \
     EventCategory, GrantCategory, DonationSourceCategory, OrganizerRoleCategory, TeamRoleCategory, OpportunityCategory, \
-    LocationProgramCategory, LocationAccessibilityCategory, RoleCategory, HealthInsuranceCompany, SexCategory
+    LocationProgramCategory, LocationAccessibilityCategory, RoleCategory, HealthInsuranceCompany, SexCategory, \
+    EventGroupCategory
 
 
 class Command(BaseCommand):
@@ -75,6 +76,10 @@ class Command(BaseCommand):
         MembershipCategory.objects.update_or_create(slug='student', defaults=dict(name='individuální 15-26 let'))
         MembershipCategory.objects.update_or_create(slug='adult', defaults=dict(name='individuální nad 26 let'))
         MembershipCategory.objects.update_or_create(slug='member_elsewhere', defaults=dict(name='platil v jiném ZČ'))
+
+        EventGroupCategory.objects.update_or_create(slug='camp', defaults=dict(name='Tábor'))
+        EventGroupCategory.objects.update_or_create(slug='weekend_event', defaults=dict(name='Víkendovka'))
+        EventGroupCategory.objects.update_or_create(slug='other', defaults=dict(name='Ostatní'))
 
         EventProgramCategory.objects.update_or_create(slug='monuments', defaults=dict(name='Akce památky'))
         EventProgramCategory.objects.update_or_create(slug='nature', defaults=dict(name='Akce příroda'))

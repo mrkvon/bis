@@ -39,6 +39,12 @@ class MembershipCategorySerializer(ModelSerializer):
         exclude = ()
 
 
+class EventGroupCategorySerializer(ModelSerializer):
+    class Meta:
+        model = EventGroupCategory
+        exclude = ()
+
+
 class EventCategorySerializer(ModelSerializer):
     class Meta:
         model = EventCategory

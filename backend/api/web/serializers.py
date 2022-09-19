@@ -9,7 +9,7 @@ from administration_units.models import AdministrationUnit
 from bis.models import User, Location
 from categories.serializers import OpportunityCategorySerializer, EventCategorySerializer, \
     EventProgramCategorySerializer, AdministrationUnitCategorySerializer, LocationAccessibilityCategorySerializer, \
-    PropagationIntendedForCategorySerializer, DietCategorySerializer
+    PropagationIntendedForCategorySerializer, DietCategorySerializer, EventGroupCategorySerializer
 from common.thumbnails import ThumbnailImageFieldFile
 from event.models import Event, EventPropagation, EventRegistration
 from opportunities.models import Opportunity
@@ -132,6 +132,7 @@ class EventSerializer(ModelSerializer):
     registration = EventRegistrationSerializer(read_only=True)
 
     location = LocationSerializer()
+    group = EventGroupCategorySerializer()
     category = EventCategorySerializer()
     program = EventProgramCategorySerializer()
     administration_units = SlugRelatedField(slug_field='abbreviation', read_only=True, many=True)

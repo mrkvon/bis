@@ -33,6 +33,11 @@ class MembershipCategoryViewSet(ReadOnlyModelViewSet):
     queryset = MembershipCategory.objects.all()
 
 
+class EventGroupCategoryViewSet(ReadOnlyModelViewSet):
+    serializer_class = EventGroupCategorySerializer
+    queryset = EventGroupCategory.objects.all()
+
+
 class EventCategoryViewSet(ReadOnlyModelViewSet):
     serializer_class = EventCategorySerializer
     queryset = EventCategory.objects.all()

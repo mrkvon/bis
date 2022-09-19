@@ -78,6 +78,18 @@ class MembershipCategory(Model):
 
 
 @translate_model
+class EventGroupCategory(Model):
+    name = CharField(max_length=63)
+    slug = SlugField(unique=True)
+
+    class Meta:
+        ordering = 'id',
+
+    def __str__(self):
+        return self.name
+
+
+@translate_model
 class EventCategory(Model):
     name = CharField(max_length=63)
     slug = SlugField(unique=True)

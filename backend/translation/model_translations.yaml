@@ -202,6 +202,7 @@ Event:
   name_plural: 'Události'
   fields:
     name: 'Název'
+    group: 'Druh'
     category: 'Typ'
     internal_note: 'Privátní poznámka'
     program: 'Program'
@@ -411,6 +412,12 @@ AdministrationUnitCategory:
 MembershipCategory:
   name: 'Členství'
   name_plural: 'Členství'
+  fields:
+    name: 'Jméno'
+    slug: 'Zkratka'
+EventGroupCategory:
+  name: 'Druh akce'
+  name_plural: 'Druhy akcí'
   fields:
     name: 'Jméno'
     slug: 'Zkratka'

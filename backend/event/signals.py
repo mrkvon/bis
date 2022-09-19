@@ -19,5 +19,3 @@ def compute_duration_of_event(instance: Event, **kwargs):
     new_value = max((instance.end - instance.start.date()).days + 1, 0)
     if instance.duration != new_value:
         instance.duration = new_value
-
-        instance.is_attendance_list_required = new_value > 1
