@@ -35,7 +35,6 @@ class UserViewSet(PermissionViewSetBase):
         'contact_address',
         'contact_address__region',
         'donor',
-        'donor__donation_source',
         'health_insurance_company',
         'sex',
     ).prefetch_related(
@@ -44,6 +43,7 @@ class UserViewSet(PermissionViewSetBase):
         'offers__team_roles',
         'all_emails',
         'donor__donations',
+        'donor__donations__donation_source',
         'donor__variable_symbols',
         'memberships',
         'memberships__category',
