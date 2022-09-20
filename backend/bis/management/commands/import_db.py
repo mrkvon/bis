@@ -13,7 +13,8 @@ from django.utils.datetime_safe import date, datetime
 
 from administration_units.models import AdministrationUnit, AdministrationUnitAddress, BrontosaurusMovement
 from bis.helpers import print_progress, with_paused_validation
-from bis.models import User, UserAddress, Qualification, Location, Membership, UserEmail, UserContactAddress
+from bis.models import User, UserAddress, Qualification, Location, Membership, UserEmail, UserContactAddress, \
+    LocationPatron
 from bis.signals import with_paused_user_str_signal
 from categories.models import MembershipCategory, EventCategory, EventProgramCategory, QualificationCategory, \
     AdministrationUnitCategory, PropagationIntendedForCategory, DietCategory, GrantCategory, EventGroupCategory
@@ -413,15 +414,20 @@ class Command(BaseCommand):
     def import_locations(self, data):
         print('importing locations')
         for id, item in data['lokalita'].items():
-            location = Location.objects.update_or_create(
+            patron = self.user_map.get(item['patron'], None)
+            if patron:
+                patron = LocationPatron(
+                    first_name=patron.first_name, last_name=patron.last_name, email=patron.email, phone=patron.phone
+                )
+            Location.objects.update_or_create(
                 _import_id=id,
                 defaults=dict(
                     name=item['nazev'],
-                    patron=self.user_map.get(item['patron'], None),
+                    patron=patron,
                     address=item['misto'] or '',
                     gps_location=None,
                 )
-            )[0]
+            )
 
         self.reset_cache()
 
