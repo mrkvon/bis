@@ -600,6 +600,8 @@ class EventApplicationSerializer(ModelSerializer):
             'health_issues',
             'sex',
             'created_at',
+            'close_person',
+            'address',
         )
 
     def create(self, validated_data):
