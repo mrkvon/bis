@@ -86,7 +86,7 @@ def reset_password(request, data):
     try:
         validate_password(data['password'], user)
     except DjangoValidationError as e:
-        raise ValidationError(e.message_dict)
+        raise ValidationError(e.messages)
 
     LoginCode.is_valid(user, data['code'])
     user.set_password(data['password'])
