@@ -7,7 +7,7 @@ from django.forms import Form, EmailField, TextInput, NumberInput
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import FormView
-from rest_framework.exceptions import Throttled
+from rest_framework.exceptions import Throttled, AuthenticationFailed
 
 from bis.emails import email_login_code
 from bis.models import User
@@ -72,10 +72,16 @@ class CodeView(FormView):
             next = '/admin/'
 
         user = User.objects.get(all_emails__email=email)
-        if LoginCode.is_valid(user, code, raise_exception=False):
+        try:
+            LoginCode.is_valid(user, code)
             login(self.request, user)
 
             return HttpResponseRedirect(next)
 
-        form.add_error('code', _('login.code_invalid'))
+        except Throttled:
+            form.add_error('code', _('login.too_many_retries'))
+
+        except AuthenticationFailed:
+            form.add_error('code', _('login.code_invalid'))
+
         return self.form_invalid(form)
