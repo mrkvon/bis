@@ -1,4 +1,3 @@
-
 from admin_auto_filters.filters import AutocompleteFilterFactory
 from django.utils.datetime_safe import date
 from more_admin_filters import MultiSelectRelatedDropdownFilter
@@ -29,7 +28,7 @@ class EventPropagationImageAdmin(PermissionMixin, SortableHiddenMixin, NestedTab
                 super().clean()
                 forms = [form for form in _self.forms if form.is_valid()]
                 forms = [form for form in forms if form.cleaned_data.get('image')]
-                forms = [form for form in forms if not form.cleaned_data.get('DELETE', False)]
+                forms = [form for form in forms if not (_self.can_delete and _self._should_delete_form(form))]
                 if len(forms) < 1:
                     raise ValidationError('Nutno nahrát alespoň jeden obrázek')
 

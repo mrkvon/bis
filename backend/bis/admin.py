@@ -49,22 +49,57 @@ class LocationAdmin(PermissionMixin, OSMGeoAdmin):
                   ('region', MultiSelectRelatedDropdownFilter)
 
 
-class MembershipAdmin(PermissionMixin, NestedTabularInline):
+class AllMembershipAdmin(PermissionMixin, NestedTabularInline):
+    verbose_name_plural = 'Všechna členství'
     model = Membership
     extra = 0
-
     autocomplete_fields = 'administration_unit',
-
     exclude = '_import_id',
+
+    def has_add_permission(self, request, obj=None): return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None): return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None): return request.user.is_superuser
+
+
+class MembershipAdmin(PermissionMixin, NestedTabularInline):
+    verbose_name_plural = 'Členství za tento rok'
+    model = Membership
+    extra = 0
+    autocomplete_fields = 'administration_unit',
+    exclude = '_import_id',
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request).filter(year=today().year)
+        if not request.user.is_superuser:
+            queryset = queryset.filter(administration_unit__in=request.user.administration_units.all())
+        return queryset
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super(MembershipAdmin, self).get_formset(request, obj, **kwargs)
+
+        class Formset(formset):
+            def clean(_self):
+                super().clean()
+                forms = [form for form in _self.forms if form.is_valid()]
+                forms = [form for form in forms if not (_self.can_delete and _self._should_delete_form(form))]
+                forms = [form for form in forms if not request.user.is_superuser]
+
+                for form in forms:
+                    if form.instance.year != today().year:
+                        raise ValidationError('Můžeš editovat členství jen za tento rok')
+                    if form.instance.administration_unit not in request.user.administration_units.all():
+                        raise ValidationError('Můžeš přidat členství jen ke svému článku')
+
+        return Formset
 
 
 class QualificationAdmin(PermissionMixin, NestedTabularInline):
     model = Qualification
     fk_name = 'user'
     extra = 0
-
     autocomplete_fields = 'approved_by',
-
     exclude = '_import_id',
 
 
@@ -110,11 +145,11 @@ def mark_as_woman(self, request, queryset):
 def get_member_action(membership_category, administration_unit):
     def action(view, request, queryset):
         for user in queryset:
-            Membership.objects.get_or_create(
+            Membership.objects.update_or_create(
                 user=user,
-                category=membership_category,
                 administration_unit=administration_unit,
-                year=today().year
+                year=today().year,
+                defaults=dict(category=membership_category)
             )
 
     action.__name__ = f'add_member_{membership_category.id}_{administration_unit.id}'
@@ -215,7 +250,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
         inlines = [UserAddressAdmin, UserContactAddressAdmin,
                    ClosePersonAdmin,
                    UserOfferedHelpAdmin,
-                   QualificationAdmin, MembershipAdmin,
+                   QualificationAdmin, AllMembershipAdmin, MembershipAdmin,
                    DuplicateUserAdminInline]
         if request.user.is_superuser:
             inlines.append(UserEmailAdmin)
