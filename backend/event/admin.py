@@ -1,3 +1,4 @@
+
 from admin_auto_filters.filters import AutocompleteFilterFactory
 from django.utils.datetime_safe import date
 from more_admin_filters import MultiSelectRelatedDropdownFilter
@@ -9,7 +10,7 @@ from bis.admin_filters import EventStatsDateFilter
 from bis.admin_permissions import PermissionMixin
 from bis.helpers import AgeStats
 from event.models import *
-from questionnaire.admin import QuestionnaireAdmin
+from questionnaire.admin import QuestionnaireAdmin, EventApplicationAdmin
 from xlsx_export.export import export_to_xlsx
 
 
@@ -96,7 +97,7 @@ class EventPropagationAdmin(PermissionMixin, NestedStackedInline):
 class EventRegistrationAdmin(PermissionMixin, NestedStackedInline):
     model = EventRegistration
     classes = 'collapse',
-    inlines = QuestionnaireAdmin,
+    inlines = QuestionnaireAdmin, EventApplicationAdmin
 
 
 class EventRecordAdmin(PermissionMixin, NestedStackedInline):

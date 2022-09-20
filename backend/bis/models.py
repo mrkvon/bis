@@ -370,7 +370,7 @@ class User(AbstractBaseUser):
                 # lidi kolem akci, kde user byl organizer
                 Q(participated_in_events__event__other_organizers=user),
                 Q(events_where_was_organizer__other_organizers=user),
-                Q(filled_questionnaires__questionnaire__event_registration__event__other_organizers=user),
+                Q(applications__event_registration__event__other_organizers=user),
             ]
 
         if user.is_board_member:
@@ -378,7 +378,7 @@ class User(AbstractBaseUser):
                 # lidi kolem akci od clanku kde user je board member
                 Q(participated_in_events__event__administration_units__board_members=user),
                 Q(events_where_was_organizer__administration_units__board_members=user),
-                Q(filled_questionnaires__questionnaire__event_registration__event__administration_units__board_members=user),
+                Q(applications__event_registration__event__administration_units__board_members=user),
                 # clenove meho clanku
                 Q(memberships__administration_unit__board_members=user),
             ]
@@ -388,8 +388,7 @@ class User(AbstractBaseUser):
     def has_edit_permission(self, user):
         if self == user: return True
         events = []
-        events += apps.get_model('event', 'Event').objects \
-            .filter(registration__questionnaire__answers__in=self.filled_questionnaires.all())
+        events += apps.get_model('event', 'Event').objects.filter(registration__applications__user=self)
         events += self.participated_in_events.all()
         events += self.events_where_was_organizer.all()
         for event in events:

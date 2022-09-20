@@ -6,7 +6,8 @@ from donations.models import Donation, UploadBankRecords, VariableSymbol, Donor
 from event.models import Event
 from opportunities.models import OfferedHelp, Opportunity
 from other.models import Feedback, DuplicateUser
-from questionnaire.models import QuestionnaireAnswers, Answer, Questionnaire, Question
+from questionnaire.models import Answer, Questionnaire, Question, EventApplication, EventApplicationClosePerson, \
+    EventApplicationAddress
 
 
 class Permissions:
@@ -75,8 +76,8 @@ class Permissions:
                 return True
 
         # for any user
-        if self.model in [UserAddress, UserContactAddress, UserClosePerson, OfferedHelp, QuestionnaireAnswers, Answer,
-                          Donor]:
+        if self.model in [UserAddress, UserContactAddress, UserClosePerson, OfferedHelp, EventApplication,
+                          EventApplicationClosePerson, EventApplicationAddress, Answer, Donor]:
             if not obj or obj.has_edit_permission(self.user):
                 return True
 

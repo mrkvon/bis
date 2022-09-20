@@ -1,5 +1,5 @@
 from nested_admin.forms import SortableHiddenMixin
-from nested_admin.nested import NestedTabularInline
+from nested_admin.nested import NestedTabularInline, NestedStackedInline
 
 from bis.admin_permissions import PermissionMixin
 from questionnaire.models import *
@@ -14,20 +14,29 @@ class QuestionAdmin(PermissionMixin, SortableHiddenMixin, NestedTabularInline):
 class AnswerAdmin(PermissionMixin, NestedTabularInline):
     model = Answer
     extra = 0
-    classes = ['collapse']
 
     readonly_fields = 'question', 'answer'
 
 
-class QuestionnaireAnswersAdmin(PermissionMixin, NestedTabularInline):
-    model = QuestionnaireAnswers
-    inlines = AnswerAdmin,
+class EventApplicationClosePersonAdmin(PermissionMixin, NestedStackedInline):
+    model = EventApplicationClosePerson
+
+
+class EventApplicationAddressAdmin(PermissionMixin, NestedStackedInline):
+    model = EventApplicationAddress
+
+
+class EventApplicationAdmin(PermissionMixin, NestedStackedInline):
+    model = EventApplication
+    inlines = EventApplicationClosePersonAdmin, EventApplicationAddressAdmin, AnswerAdmin,
     extra = 0
-    classes = ['collapse']
+    classes = 'collapse',
 
     autocomplete_fields = 'user',
 
 
-class QuestionnaireAdmin(PermissionMixin, NestedTabularInline):
+class QuestionnaireAdmin(PermissionMixin, NestedStackedInline):
     model = Questionnaire
-    inlines = QuestionAdmin, QuestionnaireAnswersAdmin
+    inlines = QuestionAdmin,
+
+    classes = 'collapse',

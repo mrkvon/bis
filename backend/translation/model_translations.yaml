@@ -2,8 +2,6 @@ Location:
   name: 'Lokalita'
   name_plural: 'Lokality'
   fields:
-    name: 'Název'
-    description: 'Popis'
     patron: 'Kontakt v hnutí'
     contact_person: 'Kontakt na lokalitě'
     for_beginners: 'Vhodné pro začínající organizátory?'
@@ -20,88 +18,44 @@ Location:
     address: 'Adresa'
     web: 'Web'
     gps_location: 'GPS lokace'
-    region: 'Kraj'
 
 LocationPhoto:
   name: 'Fotka lokality'
   name_plural: 'Fotky lokalit'
-  fields:
-    location: 'Lokalita'
-    photo: 'Fotka'
-
 LocationContactPerson:
   name: 'Kontakt na lokalitě'
   name_plural: 'Kontakt na lokalitě'
   fields:
-    location: 'Lokalita'
-    first_name: 'Křestní jméno'
-    last_name: 'Příjmení'
-    phone: 'Tel. číslo'
-    email: 'E-mail'
 
 LocationPatron:
   name: 'Kontakt v hnutí'
   name_plural: 'Kontakt v hnutí'
   fields:
-    location: 'Lokalita'
-    first_name: 'Křestní jméno'
-    last_name: 'Příjmení'
-    phone: 'Tel. číslo'
-    email: 'E-mail'
 
 User:
   name: 'Uživatel'
   name_plural: 'Uživatelé'
   fields:
-    first_name: 'Křestní jméno'
-    last_name: 'Příjmení'
-    nickname: 'Přezdívka'
-    phone: 'Tel. číslo'
-    birthday: 'Den narození'
-    email: 'E-mail'
     email_exists: 'Je e-mail skutečný?'
     is_active: 'Může se uživatel přihlásit?'
     date_joined: 'Datum vzniku účtu'
     close_person: 'Rodič / blízká osoba'
     health_insurance_company: 'Pojišťovna'
-    health_issues: 'Alergie a zdravotní omezení'
-    sex: 'Pohlaví'
     roles: 'Role'
 
 UserClosePerson:
   name: 'Rodič / blízká osoba'
   name_plural: 'Rodič / blízká osoba'
-  fields:
-    user: 'Uživatel'
-    first_name: 'Křestní jméno'
-    last_name: 'Příjmení'
-    phone: 'Tel. číslo'
-    email: 'E-mail'
 UserAddress:
   name: 'Adresa uživatele'
   name_plural: 'Adresa uživatele'
-  fields:
-    user: 'Uživatel'
-    city: 'Město'
-    street: 'Ulice'
-    zip_code: 'PSČ'
-    region: 'Kraj'
 UserContactAddress:
   name: 'Kontaktní adresa uživatele'
   name_plural: 'Kontaktní adresa uživatele'
-  fields:
-    user: 'Uživatel'
-    city: 'Město'
-    street: 'Ulice'
-    zip_code: 'PSČ'
-    region: 'Kraj'
 UserEmail:
   name: 'E-mail uživatele'
   name_plural: 'E-maily uživatele'
   fields:
-    email: 'E-mail'
-    order: 'Pořadí'
-    user: 'Uživatel'
 DuplicateUser:
   name: 'Duplicita'
   name_plural: 'Duplicity'
@@ -114,7 +68,6 @@ AdministrationUnit:
   name: 'Organizující jednotka'
   name_plural: 'Organizující jednotky'
   fields:
-    name: 'Název'
     abbreviation: 'Zkratka'
     phone: 'Telefon'
     category: 'Typ'
@@ -122,7 +75,6 @@ AdministrationUnit:
     bank_account_number: 'Číslo účtu'
     chairman: 'Předseda'
     vice_chairman: 'Místopředseda'
-    email: 'E-mail'
     existed_since: 'Datum vzniku'
     existed_till: 'Datum zániku'
     ic: 'IČO'
@@ -135,19 +87,11 @@ AdministrationUnitAddress:
   name_plural: 'Adresa'
   fields:
     administration_unit: 'Organizující jednotka'
-    city: 'Město'
-    street: 'Ulice'
-    zip_code: 'PSČ'
-    region: 'Kraj'
 AdministrationUnitContactAddress:
   name: 'Kontaktní adresa'
   name_plural: 'Kontaktní adresa'
   fields:
     administration_unit: 'Organizující jednotka'
-    city: 'Město'
-    street: 'Ulice'
-    zip_code: 'PSČ'
-    region: 'Kraj'
 
 
 
@@ -182,7 +126,6 @@ Membership:
   name: 'Členství'
   name_plural: 'Členství'
   fields:
-    user: 'Uživatel'
     administration_unit: 'Administrativní jednotka'
     year: 'Členství v roce'
     category: 'Typ'
@@ -191,7 +134,6 @@ Qualification:
   name: 'Kvalifikace'
   name_plural: 'Kvalifikace'
   fields:
-    user: 'Uživatel'
     category: 'Typ kvalifikace'
     valid_till: 'Platnost do'
     valid_since: 'Platnost od'
@@ -201,7 +143,6 @@ Event:
   name: 'Událost'
   name_plural: 'Události'
   fields:
-    name: 'Název'
     group: 'Druh'
     category: 'Typ'
     internal_note: 'Privátní poznámka'
@@ -210,7 +151,6 @@ Event:
     start: 'Začátek akce'
     end: 'Konec akce'
     duration: 'Délka trvání akce'
-    location: 'Lokalita'
     online_link:
       - 'Webová adresa pro připojení'
       - 'Vyplňte, pokud se událost koná online'
@@ -225,7 +165,6 @@ EventFinance:
   name: 'Finance události'
   name_plural: 'Finance události'
   fields:
-    event: 'Událost'
     category: 'Kategorie dle financí'
     grant_category: 'Typ grantu'
     grant_amount: 'Přidělené dotace'
@@ -245,7 +184,6 @@ EventPropagation:
   name: 'Propagace události'
   name_plural: 'Propagace události'
   fields:
-    event: 'Událost'
     is_shown_on_web: 'Je akce zobrazena na webu?'
     vip_propagation: 'Je akce propagována v rámci VIP propagace?'
     minimum_age: 'Minimální věk'
@@ -295,7 +233,6 @@ EventRegistration:
   name: 'Registrace'
   name_plural: 'Registrace'
   fields:
-    event: 'Událost'
     is_registration_required: 'Je požadována registrace?'
     is_event_full: 'Je akce plná?'
     questionnaire: 'Dotazník'
@@ -304,7 +241,6 @@ EventRecord:
   name: 'Záznam z události'
   name_plural: 'Záznam z události'
   fields:
-    event: 'Událost'
     total_hours_worked: 'Odpracováno člověkohodin'
     comment_on_work_done: 'Okomentování vykonané práce'
     attendance_list: 'Prezenční listina'
@@ -328,23 +264,33 @@ EventPropagationImage:
   name_plural: 'Obrázky k propagaci'
   fields:
     propagation: 'Propagace události'
-    order: 'Pořadí'
-    image: 'Obrázek'
 
 EventPhoto:
   name: 'Fotka z akce'
   name_plural: 'Fotky z akce'
   fields:
     record: 'Záznam události'
-    photo: 'Fotka'
 
 # questionnaire
+EventApplication:
+  name: 'Přihláška na akci'
+  name_plural: 'Přihlášky na akci'
+  fields:
+    event_registration: 'Registrace k události'
+EventApplicationClosePerson:
+  name: 'Rodič / blízká osoba'
+  name_plural: 'Rodič / blízká osoba'
+EventApplicationAddress:
+  name: 'Adresa'
+  name_plural: 'Adresa'
+
 Questionnaire:
   name: 'Dotazník'
   name_plural: 'Dotazník'
   fields:
     event_registration: 'Registrace k události'
     introduction: 'Úvodní text dotazníku'
+    after_submit_text: 'Text po zodpovězení dotazníku'
 
 Question:
   name: 'Otázka dotazníku'
@@ -352,22 +298,14 @@ Question:
   fields:
     question: 'Otázka'
     is_required: 'Nutno vyplnit?'
-    order: 'Pořadí'
     questionnaire: 'Dotazník'
-
-QuestionnaireAnswers:
-  name: 'Odpověď dotazníku'
-  name_plural: 'Odpověďi dotazníku'
-  fields:
-    questionnaire: 'Dotazník'
-    user: 'Uživatel'
 
 Answer:
   name: 'Odpověď na otázku'
   name_plural: 'Odpovědi na otázky'
   fields:
     question: 'Otázka'
-    part_of: 'Součást odpovědi na dotazník'
+    application: 'Přihláška na akci'
     answer: 'Odpověď'
 
 
@@ -375,125 +313,68 @@ Answer:
 GrantCategory:
   name: 'Typ grantu'
   name_plural: 'Typy grantů'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 
 PropagationIntendedForCategory:
   name: 'Kategorie zaměření propagace'
   name_plural: 'Kategorie zaměření propagace'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 
 DietCategory:
   name: 'Typ stravy'
   name_plural: 'Typy stravy'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 
 QualificationCategory:
   name: 'Typ kvalifikace'
   name_plural: 'Typy kvalifikací'
   fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
-    description: 'Popis'
     parent: 'Nadřazená kvalifikace'
 
 AdministrationUnitCategory:
   name: 'Typ organizující jednotky'
   name_plural: 'Typy organizujících jednotek'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
-
 MembershipCategory:
   name: 'Členství'
   name_plural: 'Členství'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 EventGroupCategory:
   name: 'Druh akce'
   name_plural: 'Druhy akcí'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 EventCategory:
   name: 'Typ akce'
   name_plural: 'Typy akcí'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 EventProgramCategory:
   name: 'Program akce'
   name_plural: 'Programy akcí'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 DonationSourceCategory:
   name: 'Zdroj dotace'
   name_plural: 'Zdroje dotací'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 OrganizerRoleCategory:
   name: 'Organizátorská role'
   name_plural: 'Organizátorské role'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 TeamRoleCategory:
   name: 'Týmová role'
   name_plural: 'Týmové role'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 OpportunityCategory:
   name: 'Kagegorie příležitosti'
   name_plural: 'Kagegorie příležitostí'
-  fields:
-    name: 'Jméno'
-    description: 'Popis'
-    slug: 'Zkratka'
 LocationProgramCategory:
   name: 'Program lokality'
   name_plural: 'Programy lokalit'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 LocationAccessibilityCategory:
   name: 'Dostupnost lokality'
   name_plural: 'Dostupnosti lokalit'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 RoleCategory:
   name: 'Typ role'
   name_plural: 'Typy rolí'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 HealthInsuranceCompany:
   name: 'Zdravotní pojišťovna'
   name_plural: 'Zdravotní pojišťovny'
-  fields:
-    name: 'Jméno'
-    slug: 'Zkratka'
 SexCategory:
   name: 'Pohlaví'
   name_plural: 'Pohlaví'
-  fields:
-    name: 'Název'
-    slug: 'Zkratka'
 
 Donor:
   name: 'Dárce'
   name_plural: 'Dárci'
   fields:
-    user: 'Uživatel'
     subscribed_to_newsletter: 'Odebírá novinky?'
     is_public:
       - 'Chce zveřejnit?'
@@ -531,21 +412,16 @@ Region:
   name: 'Kraj'
   name_plural: 'Kraje'
   fields:
-    name: 'Název'
     area: 'Oblast'
 ZipCode:
   name: 'PSČ'
   name_plural: 'PSČ'
-  fields:
-    zip_code: 'PSČ'
-    region: 'Kraj'
 
 Opportunity:
   name: 'Příležitost'
   name_plural: 'Příležitosti'
   fields:
     category: 'Kategorie'
-    name: 'Název'
     start: 'Začátek příležitosti'
     end: 'Konec příležitosti'
     on_web_start: 'Zobrazit na webu od'
@@ -567,7 +443,6 @@ Opportunity:
       - 'Požadavky příležitosti'
       - 'Napiš dovednosti, zkušenosti či vybavení potřebné k zapojení do příležitosti'
     contact_person: 'Kontaktní osoba'
-    image: 'Obrázek'
     contact_name:
       - 'Jméno kontaktní osoby'
       - 'Nechte prázdné pokud chcete použít jméno kontaktní osoby'
@@ -582,7 +457,6 @@ OfferedHelp:
   name: 'Nabízená pomoc'
   name_plural: 'Nabízená pomoc'
   fields:
-    user: 'Uživatel'
     programs: 'Programy'
     organizer_roles: 'Organizátorské role'
     additional_organizer_role: 'Jiná organizátorské role'
@@ -594,6 +468,4 @@ Feedback:
   name: 'Zpětná vazba'
   name_plural: 'Zpětné vazby'
   fields:
-    user: 'Uživatel'
     feedback: 'Zpětná vazba'
-    created_at: 'Vytvořeno'

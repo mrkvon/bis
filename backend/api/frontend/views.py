@@ -4,12 +4,13 @@ from rest_framework.viewsets import ModelViewSet
 from api.frontend.filters import EventFilter, LocationFilter, UserFilter
 from api.frontend.permissions import BISPermissions
 from api.frontend.serializers import UserSerializer, EventSerializer, LocationSerializer, OpportunitySerializer, \
-    FinanceReceiptSerializer, EventPhotoSerializer, EventPropagationImageSerializer, QuestionSerializer
+    FinanceReceiptSerializer, EventPhotoSerializer, EventPropagationImageSerializer, QuestionSerializer, \
+    EventApplicationSerializer
 from bis.models import User, Location
 from bis.permissions import Permissions
 from event.models import Event, EventFinanceReceipt, EventPhoto, EventPropagationImage
 from opportunities.models import Opportunity
-from questionnaire.models import Question
+from questionnaire.models import Question, EventApplication
 
 safe_http_methods = [m.lower() for m in SAFE_METHODS]
 
@@ -65,7 +66,7 @@ class RegisteredViewSet(UserViewSet):
     http_method_names = safe_http_methods
 
     def get_queryset(self):
-        return super().get_queryset().filter(filled_questionnaires__questionnaire__event__registration__event=self.kwargs['event_id'])
+        return super().get_queryset().filter(applications__event_registration__event=self.kwargs['event_id'])
 
 
 class OrganizersViewSet(UserViewSet):
@@ -105,7 +106,7 @@ class RegisteredInViewSet(EventViewSet):
     http_method_names = safe_http_methods
 
     def get_queryset(self):
-        return super().get_queryset().filter(registration__questionnaire__answers__user=self.kwargs['user_id'])
+        return super().get_queryset().filter(registration__applications__user=self.kwargs['user_id'])
 
 
 class WhereWasOrganizerViewSet(EventViewSet):
@@ -130,9 +131,7 @@ class LocationViewSet(PermissionViewSetBase):
 
 class OpportunityViewSet(PermissionViewSetBase):
     serializer_class = OpportunitySerializer
-    queryset = Opportunity.objects.select_related(
-        'category',
-    )
+    queryset = Opportunity.objects.select_related('category')
 
     def get_queryset(self):
         return super().get_queryset().filter(contact_person=self.kwargs['user_id'])
@@ -168,3 +167,11 @@ class QuestionViewSet(PermissionViewSetBase):
 
     def get_queryset(self):
         return super().get_queryset().filter(questionnaire__event_registration__event=self.kwargs['event_id'])
+
+
+class EventApplicationViewSet(PermissionViewSetBase):
+    serializer_class = EventApplicationSerializer
+    queryset = EventApplication.objects.select_related('close_person', 'address', 'sex')
+
+    def get_queryset(self):
+        return super().get_queryset().filter(event_registration__event=self.kwargs['event_id'])

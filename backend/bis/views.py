@@ -16,7 +16,7 @@ from translation.translate import _
 
 
 class LoginForm(Form):
-    email = EmailField(label=_('login.email'), widget=TextInput(attrs={'autofocus': 'autofocus'}))
+    email = EmailField(label=_('generic.email'), widget=TextInput(attrs={'autofocus': 'autofocus'}))
 
     def clean_email(self):
         email = self.cleaned_data['email'].lower()

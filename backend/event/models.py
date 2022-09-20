@@ -14,7 +14,7 @@ from administration_units.models import AdministrationUnit
 from bis.helpers import permission_cache, update_roles, filter_queryset_with_multiple_or_queries
 from bis.models import Location, User
 from categories.models import GrantCategory, PropagationIntendedForCategory, DietCategory, \
-    EventCategory, EventProgramCategory, SexCategory, EventGroupCategory
+    EventCategory, EventProgramCategory, EventGroupCategory
 from common.thumbnails import ThumbnailImageField
 from translation.translate import translate_model
 
@@ -90,7 +90,7 @@ class Event(Model):
             # ucast na akci
             Q(record__participants=user),
             # registrace na akci
-            Q(registration__questionnaire__answers__user=user),
+            Q(registration__applications__user=user),
         ]
 
         if user.is_organizer:
@@ -220,19 +220,6 @@ class EventRegistration(Model):
 
     def has_edit_permission(self, user):
         return self.event.has_edit_permission(user)
-
-# @translate_model
-# class EventApplication(Model):
-#     first_name = CharField(max_length=63)
-#     last_name = CharField(max_length=63)
-#     nickname = CharField(max_length=63, blank=True)
-#     phone = PhoneNumberField(blank=True)
-#     email = EmailField(unique=True, blank=True, null=True)
-#     birthday = DateField(blank=True, null=True)
-#     health_issues = TextField(blank=True)
-#     sex = ForeignKey(SexCategory, on_delete=PROTECT, null=True, blank=True, related_name='applications')
-#     # close_person =
-#     # address =
 
 
 @translate_model

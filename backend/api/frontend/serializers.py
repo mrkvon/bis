@@ -17,7 +17,8 @@ from donations.models import Donor, Donation
 from event.models import Event, EventFinance, EventPropagation, EventRegistration, EventRecord, EventFinanceReceipt, \
     EventPropagationImage, EventPhoto, VIPEventPropagation
 from opportunities.models import Opportunity, OfferedHelp
-from questionnaire.models import Questionnaire, Question
+from questionnaire.models import Questionnaire, Question, EventApplication, EventApplicationClosePerson, \
+    EventApplicationAddress
 from regions.serializers import RegionSerializer
 
 
@@ -361,6 +362,7 @@ class QuestionnaireSerializer(ModelSerializer):
         model = Questionnaire
         fields = (
             'introduction',
+            'after_submit_text',
         )
 
 
@@ -565,4 +567,42 @@ class QuestionSerializer(ModelSerializer):
     def create(self, validated_data):
         validated_data['questionnaire'] = \
             Event.objects.get(id=self.context['view'].kwargs['event_id']).registration.questionnaire
+        return super().create(validated_data)
+
+
+class EventApplicationClosePersonSerializer(BaseContactSerializer):
+    class Meta(BaseContactSerializer.Meta):
+        model = EventApplicationClosePerson
+
+
+class EventApplicationAddressSerializer(BaseAddressSerializer):
+    class Meta(BaseAddressSerializer.Meta):
+        model = EventApplicationAddress
+
+
+class EventApplicationSerializer(ModelSerializer):
+    close_person = EventApplicationClosePersonSerializer()
+    address = EventApplicationAddressSerializer()
+
+    sex = SexCategorySerializer()
+
+    class Meta:
+        model = EventApplication
+        fields = (
+            'id',
+            'user',
+            'first_name',
+            'last_name',
+            'nickname',
+            'phone',
+            'email',
+            'birthday',
+            'health_issues',
+            'sex',
+            'created_at',
+        )
+
+    def create(self, validated_data):
+        validated_data['event_registration'] = \
+            Event.objects.get(id=self.context['view'].kwargs['event_id']).registration
         return super().create(validated_data)

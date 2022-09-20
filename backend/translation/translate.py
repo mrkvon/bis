@@ -38,11 +38,16 @@ def translate_model(model):
         if attr_name in ignored_attr_names:
             continue
 
-        if not attr_name in (translations.get('fields', dict()) or {}):
-            warning(f'Model {model_name} has no translation for attribute {attr_name}')
-            continue
+        if attr_name in (translations.get('fields', dict()) or {}):
+            value = translations['fields'][attr_name]
 
-        value = translations['fields'][attr_name]
+        else:
+            try:
+                value = _(f'generic.{attr_name}')
+            except KeyError:
+                warning(f'Model {model_name} has no translation for attribute {attr_name}')
+                continue
+
         if not value:
             continue
 

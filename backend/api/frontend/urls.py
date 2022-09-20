@@ -3,7 +3,7 @@ from rest_framework_nested import routers
 
 from api.frontend.views import UserViewSet, EventViewSet, LocationViewSet, OpportunityViewSet, FinanceReceiptViewSet, \
     EventPropagationImageViewSet, EventPhotoViewSet, QuestionViewSet, ParticipatedInViewSet, RegisteredInViewSet, \
-    WhereWasOrganizerViewSet, ParticipantsViewSet, OrganizersViewSet, RegisteredViewSet
+    WhereWasOrganizerViewSet, ParticipantsViewSet, OrganizersViewSet, RegisteredViewSet, EventApplicationViewSet
 
 router = routers.DefaultRouter()
 
@@ -23,6 +23,7 @@ events_router.register('finance/receipts', FinanceReceiptViewSet)
 events_router.register('propagation/images', EventPropagationImageViewSet)
 events_router.register('record/photos', EventPhotoViewSet)
 events_router.register('registration/questionnaire/questions', QuestionViewSet)
+events_router.register('registration/applications', EventApplicationViewSet)
 
 events_router.register('record/participants', ParticipantsViewSet)
 events_router.register('registered', RegisteredViewSet)
