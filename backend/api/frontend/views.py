@@ -121,7 +121,7 @@ class LocationViewSet(PermissionViewSetBase):
     filterset_class = LocationFilter
     queryset = Location.objects.select_related(
         'patron',
-        'close_person',
+        'contact_person',
         'region',
         'program',
         'accessibility_from_prague',
