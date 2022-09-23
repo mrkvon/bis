@@ -5,7 +5,6 @@ services:
       TEST: 1
       ALLOWED_HOSTS: '*'
       FULL_HOSTNAME: 'http://localhost'
-      EMAIL: 'test@maesty.online'
 
   postgres:
     volumes:

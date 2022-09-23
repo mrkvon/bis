@@ -1,26 +1,30 @@
-from mailjet import mailjet
+from django.conf import settings
+
+from ecomail import ecomail
 from project.settings import EMAIL
 
 SENDER_NAME = 'BIS'
 
 
+def email_password_reset_link(user, login_code):
+    email_text(user.email, 'Link pro (pře)nastavení hesla, platný jednu hodinu',
+               f'{settings.FULL_HOSTNAME}/reset_password'
+               f'?email={user.email}'
+               f'&code={login_code.code}'
+               f'&password_exists={user.has_usable_password()}')
+
+
 def email_login_code(email, code):
-    mailjet.send_email(
-        EMAIL, SENDER_NAME,
-        'Kód pro přihlášení',
-        '3937126',
-        [email],
-        variables={'code': code}
-    )
+    email_text(email, 'Kód pro přihlášení', f'tvůj kód pro přihlášení je {code}.')
 
 
 def email_text(email, subject, text, reply_to=None):
     text = text.replace("\n", "<br>")
-    mailjet.send_email(
+    ecomail.send_email(
         EMAIL, SENDER_NAME,
         subject,
-        '3937114',
+        '111',
         [email],
         reply_to=reply_to,
-        variables={'text': text}
+        variables={'content': text}
     )

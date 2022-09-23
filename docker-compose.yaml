@@ -50,13 +50,14 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
-      EMAIL: 'ondrej@maesty.online'
+      EMAIL: 'bis@brontosaurus.cz'
       FULL_HOSTNAME: 'https://bis.lomic.cz'
       DEBUG: 0
       TEST: 0
       ALLOWED_HOSTS: '*'
       APP_NAME: 'bis'
       API_BASE: 'api/'
+      ECOMAIL_API_KEY: ${ECOMAIL_API_KEY}
       MAILJET_API_KEY: ${MAILJET_API_KEY}
       MAILJET_SECRET: ${MAILJET_SECRET}
       DARUJME_API_KEY: ${DARUJME_API_KEY}

@@ -76,7 +76,7 @@ INSTALLED_APPS = [
     'administration_units',
     'debug_toolbar',
     'login_code',
-    'mailjet',
+    'ecomail',
     'solo',
     'admin_auto_filters',
     'django_filters',
@@ -232,6 +232,7 @@ AUTH_USER_MODEL = 'bis.User'
 
 SKIP_VALIDATION = False
 
+ECOMAIL_API_KEY = environ['ECOMAIL_API_KEY']
 # mailjet
 MAILJET_API_KEY = environ['MAILJET_API_KEY']
 MAILJET_SECRET = environ['MAILJET_SECRET']
