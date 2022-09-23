@@ -13,7 +13,7 @@ class UserFilter(FilterSet):
 
     class Meta:
         model = User
-        fields = []
+        fields = 'first_name', 'last_name', 'birthday'
 
 
 class EventFilter(FilterSet):
