@@ -24,6 +24,7 @@ services:
       APP_NAME: 'bis'
       API_BASE: 'api/'
       DEBUG: 0
+      REACT_APP_SENTRY_DSN: "https://4a585dce608949c7b551ced1d9dd474c@o380102.ingest.sentry.io/6746537"
 
   backend:
     container_name: bis-backend

@@ -27,3 +27,4 @@ services:
       - dev
     environment:
       DEBUG: 1
+      NODE_ENV: 'development'
