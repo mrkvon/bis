@@ -147,6 +147,7 @@ class EventSerializer(ModelSerializer):
             'end',
             'duration',
             'location',
+            'group',
             'category',
             'program',
             'administration_units',
