@@ -252,7 +252,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'plugins': 'autolink,lists,link,image,charmap,preview,searchreplace,'
                'fullscreen,paste,code,help,wordcount,media',
     'toolbar': 'undo redo | formatselect | bold italic | '
-               'bullist numlist | link image media emoticons | fullscreen removeformat | help',
+               'bullist numlist | link emoticons | fullscreen removeformat | help',
     'toolbar_mode': 'wrap',
     'block_formats': 'Paragraph=p; Nadpis=h3',
     'fontsize_formats': "12pt"
