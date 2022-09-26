@@ -147,6 +147,9 @@ Event:
     category: 'Typ'
     internal_note: 'Privátní poznámka'
     program: 'Program'
+    location:
+      - 'Lokalita'
+      - 'Zobrazí se na webu jako místo konání akce'
     is_canceled: 'Zrušena?'
     start: 'Začátek akce'
     end: 'Konec akce'

@@ -30,7 +30,7 @@ from translation.translate import translate_model
 @translate_model
 class Location(Model):
     name = CharField(max_length=63)
-    description = TextField()
+    description = TextField(blank=True)
 
     for_beginners = BooleanField(default=False)
     is_full = BooleanField(default=False)
@@ -41,11 +41,11 @@ class Location(Model):
                                            null=True)
     accessibility_from_brno = ForeignKey(LocationAccessibilityCategory, on_delete=PROTECT, related_name='+', null=True)
 
-    volunteering_work = TextField()
-    volunteering_work_done = TextField()
-    volunteering_work_goals = TextField()
-    options_around = TextField()
-    facilities = TextField()
+    volunteering_work = TextField(blank=True)
+    volunteering_work_done = TextField(blank=True)
+    volunteering_work_goals = TextField(blank=True)
+    options_around = TextField(blank=True)
+    facilities = TextField(blank=True)
 
     web = URLField(blank=True)
     address = CharField(max_length=255, blank=True)
