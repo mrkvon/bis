@@ -1,10 +1,14 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import models
 from django.db import transaction
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from rest_framework.permissions import SAFE_METHODS
-from rest_framework.relations import SlugRelatedField, PrimaryKeyRelatedField, ManyRelatedField
-from rest_framework.serializers import ModelSerializer as _ModelSerializer
+from rest_framework.relations import SlugRelatedField
+from rest_framework.serializers import ModelSerializer as DRFModelSerializer
 from rest_framework.utils import model_meta
 
+from api.helpers import Base64ImageField, Base64FileField
 from bis.models import User, Location, UserAddress, UserContactAddress, Membership, Qualification, UserClosePerson, \
     LocationContactPerson, LocationPatron
 from categories.serializers import DonationSourceCategorySerializer, EventProgramCategorySerializer, \
@@ -22,7 +26,17 @@ from questionnaire.models import Questionnaire, Question, EventApplication, Even
 from regions.serializers import RegionSerializer
 
 
-class ModelSerializer(_ModelSerializer):
+class ModelSerializer(DRFModelSerializer):
+    serializer_field_mapping = DRFModelSerializer.serializer_field_mapping
+    serializer_field_mapping[models.ImageField] = Base64ImageField
+    serializer_field_mapping[models.FileField] = Base64FileField
+
+    def save(self, **kwargs):
+        try:
+            return super().save(**kwargs)
+        except DjangoValidationError as e:
+            raise ValidationError(e.messages)
+
     @property
     def m2m_fields(self):
         info = model_meta.get_field_info(self.Meta.model)
@@ -53,7 +67,7 @@ class ModelSerializer(_ModelSerializer):
 
     @staticmethod
     def is_serializer_with_id(field):
-        return isinstance(field, _ModelSerializer) and 'id' in field.get_fields()
+        return isinstance(field, DRFModelSerializer) and 'id' in field.get_fields()
 
     def get_fields(self):
         fields = super().get_fields()
@@ -77,18 +91,6 @@ class ModelSerializer(_ModelSerializer):
     def extract_fields(data, fields):
         return {field: data.pop(field) for field in fields if field in data}
 
-    @staticmethod
-    def save_nested_serializer(serializer, extra_kwargs):
-        for field_name, field in serializer.get_fields().items():
-            if isinstance(field, PrimaryKeyRelatedField):
-                serializer.initial_data[field_name] = serializer.initial_data[field_name].id
-
-            if isinstance(field, ManyRelatedField) and isinstance(field.child_relation, PrimaryKeyRelatedField):
-                serializer.initial_data[field_name] = [obj.id for obj in serializer.initial_data[field_name]]
-
-        serializer.is_valid(raise_exception=True)
-        serializer.save(**extra_kwargs)
-
     @transaction.atomic
     def create(self, validated_data):
         m2m_fields = self.extract_fields(validated_data, self.m2m_fields)
@@ -101,8 +103,9 @@ class ModelSerializer(_ModelSerializer):
                 continue
 
             serializer_class, reverse_field = self.nested_serializers[field]
-            serializer = serializer_class(data=value, context=self.context)
-            self.save_nested_serializer(serializer, {reverse_field: instance})
+            serializer = serializer_class(data=self.initial_data[field], context=self.context)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(**{reverse_field: instance})
 
         for field, value in m2m_fields.items():
             getattr(instance, field).set(value)
@@ -128,8 +131,9 @@ class ModelSerializer(_ModelSerializer):
                     nested_instance.delete()
                 continue
 
-            serializer = serializer_class(instance=nested_instance, data=value, context=self.context)
-            self.save_nested_serializer(serializer, {reverse_field: instance})
+            serializer = serializer_class(instance=nested_instance, data=self.initial_data[field], context=self.context)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(**{reverse_field: instance})
 
         for attr, value in m2m_fields.items():
             getattr(instance, attr).set(value)
