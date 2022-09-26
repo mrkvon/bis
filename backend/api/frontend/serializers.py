@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.relations import SlugRelatedField
-from rest_framework.serializers import ModelSerializer as DRFModelSerializer
+from rest_framework.serializers import ModelSerializer as DRFModelSerializer, ListSerializer
 from rest_framework.utils import model_meta
 
 from api.helpers import Base64ImageField, Base64FileField
@@ -68,6 +68,7 @@ class ModelSerializer(DRFModelSerializer):
 
     @staticmethod
     def is_serializer_with_id(field):
+        if isinstance(field, ListSerializer): field = field.child
         return isinstance(field, DRFModelSerializer) and 'id' in field.get_fields()
 
     def get_fields(self):
