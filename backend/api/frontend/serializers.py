@@ -55,7 +55,8 @@ class ModelSerializer(DRFModelSerializer):
 
     def _exclude_fields(self, fields):
         for field in self.get_excluded_fields(fields):
-            del fields[field]
+            if field in fields:
+                del fields[field]
 
         return fields
 
