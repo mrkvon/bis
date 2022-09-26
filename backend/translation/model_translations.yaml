@@ -194,6 +194,12 @@ EventPropagation:
     diets: 'Možnosti stravování'
     _contact_url: 'Kontaktní url'
     accommodation: 'Ubytování'
+    working_days:
+      - 'Počet pracovních dní'
+      - 'Pouze pro vícedenní dobrovolnické akce'
+    working_hours:
+      - 'Odpracovaných hodin (denně)'
+      - 'Pouze pro dobrovolnické akce'
     organizers: 'Organizátoři (text do propagace)'
     web_url: 'Web akce'
     invitation_text_introduction: 'Zvací text: Co nás čeká?'
@@ -251,12 +257,6 @@ EventRecord:
     number_of_participants_under_26:
       - 'Počet účastníků pod 26 let'
       - 'Vyplň pouze pokud nejsou vyplnění konkrétní účastníci'
-    working_days:
-      - 'Počet pracovních dní'
-      - 'Pouze pro vícedenní pracovní akce'
-    working_hours:
-      - 'Odpracovaných hodin denně'
-      - 'Pouze pro vícedenní pracovní akce'
 
 
 EventPropagationImage:

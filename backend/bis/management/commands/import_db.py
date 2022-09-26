@@ -534,6 +534,8 @@ class Command(BaseCommand):
                 **get_event_cost(item['poplatek']),
                 intended_for=self.propagation_indented_for_category_map[item['prokoho']],
                 accommodation=item.get('ubytovani') or '',
+                working_hours=item.get('pracovni_doba'),
+                working_days=item.get('pracovni_dny'),
                 organizers=item['org'] or '',
                 web_url=item['web'] or '',
                 _contact_url=item['kontakt_url'] or '',
@@ -570,8 +572,6 @@ class Command(BaseCommand):
                 # has_attendance_list=item['adresar'] == '1',
                 number_of_participants=item['lidi'],
                 number_of_participants_under_26=item['lidi_do26'],
-                working_hours=item.get('pracovni_doba'),
-                working_days=item.get('pracovni_dny'),
             ))
 
             for attachment in attachments:

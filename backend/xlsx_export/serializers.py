@@ -157,6 +157,8 @@ class PropagationExportSerializer(ModelSerializer):
             'discounted_cost',
             'intended_for',
             'diets',
+            'working_hours',
+            'working_days',
         )
 
 
@@ -177,8 +179,6 @@ class RecordExportSerializer(ModelSerializer):
         model = EventRecord
         fields = (
             'total_hours_worked',
-            'working_hours',
-            'working_days',
             'comment_on_work_done',
             'get_participants_count',
             'get_young_percentage',

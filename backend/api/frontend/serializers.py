@@ -354,6 +354,8 @@ class PropagationSerializer(ModelSerializer):
             'discounted_cost',
             'intended_for',
             'accommodation',
+            'working_hours',
+            'working_days',
             'diets',
             'organizers',
             'web_url',
@@ -396,8 +398,6 @@ class RecordSerializer(ModelSerializer):
         model = EventRecord
         fields = (
             'total_hours_worked',
-            'working_hours',
-            'working_days',
             'comment_on_work_done',
             'attendance_list',
             'participants',

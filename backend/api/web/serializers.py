@@ -49,6 +49,8 @@ class EventPropagationSerializer(ModelSerializer):
             'cost',
             'intended_for',
             'accommodation',
+            'working_days',
+            'working_hours',
             'diets',
             'organizers',
             'web_url',

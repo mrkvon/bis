@@ -157,6 +157,8 @@ class EventPropagation(Model):
     discounted_cost = PositiveIntegerField(blank=True, null=True)
     intended_for = ForeignKey(PropagationIntendedForCategory, on_delete=PROTECT, related_name='events')
     accommodation = CharField(max_length=255)
+    working_hours = PositiveSmallIntegerField(null=True, blank=True)
+    working_days = PositiveSmallIntegerField(null=True, blank=True)
     diets = ManyToManyField(DietCategory, related_name='events', blank=True)
     organizers = CharField(max_length=255)
     web_url = URLField(blank=True)
@@ -174,8 +176,16 @@ class EventPropagation(Model):
     contact_email = EmailField(blank=True)
 
     def clean(self):
-        if self.event.is_volunteering() and not self.invitation_text_work_description:
-            raise ValidationError('Popis dobrovolnické pomoci je povinný pro dobrovolnické akce')
+        if self.event.is_volunteering():
+            if not self.invitation_text_work_description:
+                raise ValidationError('Popis dobrovolnické pomoci je povinný pro dobrovolnické akce')
+
+            if not self.working_hours:
+                raise ValidationError('Počet odpracovaných hodin (denně pro vícedenní akce) je povinný pro '
+                                      'dobrovolnické akce')
+
+            if not self.working_days and self.event.group.slug == 'camp':
+                raise ValidationError('Počet pracovních dní je povinný pro dobrovolnické tábory')
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if not settings.SKIP_VALIDATION: self.clean()
@@ -227,8 +237,6 @@ class EventRecord(Model):
     event = OneToOneField(Event, related_name='record', on_delete=CASCADE)
 
     total_hours_worked = PositiveIntegerField(null=True, blank=True)
-    working_hours = PositiveSmallIntegerField(null=True, blank=True)
-    working_days = PositiveSmallIntegerField(null=True, blank=True)
     comment_on_work_done = TextField(blank=True)
     attendance_list = ThumbnailImageField(upload_to='attendance_lists', null=True, blank=True)
     participants = ManyToManyField(User, 'participated_in_events', blank=True)
@@ -241,12 +249,6 @@ class EventRecord(Model):
 
         if self.event.is_volunteering() and not self.total_hours_worked:
             raise ValidationError('Odpracováno člověkohodin nevyplněno')
-
-        if (self.event.duration or 0) > 1 and self.event.is_volunteering():
-            if not self.working_hours:
-                raise ValidationError('Odpracovaných hodin denně nevyplněno')
-            if not self.working_days:
-                raise ValidationError('Počet pracovních dní nevyplněno')
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if not settings.SKIP_VALIDATION: self.clean()
