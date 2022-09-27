@@ -5,12 +5,13 @@ from categories.models import DietCategory, EventIntendedForCategory, Qualificat
     EventCategory, GrantCategory, DonationSourceCategory, OrganizerRoleCategory, TeamRoleCategory, OpportunityCategory, \
     LocationProgramCategory, LocationAccessibilityCategory, RoleCategory, HealthInsuranceCompany, SexCategory, \
     EventGroupCategory
+from translation.translate import _
 
 
 class Command(BaseCommand):
     help = "Creates categories etc."
 
-    def create_event_categories(self, data, translations, prefix='', name_prefix=''):
+    def create_event_categories(self, data, prefix='', name_prefix=''):
         if len(prefix):
             prefix += '__'
         if len(name_prefix):
@@ -18,14 +19,14 @@ class Command(BaseCommand):
 
         for key, value in data.items():
             slug = prefix + key
-            name = name_prefix + translations[slug]
-            if type(value) == str:
+            name = name_prefix + _(f'event_categories.{slug}')
+            if value is None:
                 EventCategory.objects.update_or_create(
                     slug=slug,
                     defaults=dict(name=name)
                 )
             else:
-                self.create_event_categories(value, translations, slug, name)
+                self.create_event_categories(value, slug, name)
 
     def handle(self, *args, **options):
         DietCategory.objects.update_or_create(slug='meat', defaults=dict(name='s masem'))
@@ -41,28 +42,32 @@ class Command(BaseCommand):
         EventIntendedForCategory.objects.update_or_create(slug='for_first_time_participant',
                                                           defaults=dict(name='pro prvoúčastníky'))
 
-        c = QualificationCategory.objects.update_or_create(
-            slug='Konzultant',
-            defaults=dict(name='nejvyšší kvalifikace', parent=None))[0]
-        i = QualificationCategory.objects.update_or_create(
-            slug='Instruktor',
-            defaults=dict(name='OHB + ODHB', parent=c))[0]
-        odhb = QualificationCategory.objects.update_or_create(
-            slug='ODHB',
-            defaults=dict(name='Organizátor dětských akcí HB', parent=i))[0]
+        p = QualificationCategory.objects.update_or_create(
+            slug='consultant',
+            defaults=dict(name='Konzultant', parent=None))[0]
+        p = QualificationCategory.objects.update_or_create(
+            slug='instructor',
+            defaults=dict(name='Instruktor', parent=p))[0]
+        p = QualificationCategory.objects.update_or_create(
+            slug='organizer',
+            defaults=dict(name='Organizátor (OHB)', parent=p))[0]
         QualificationCategory.objects.update_or_create(
-            slug='OpDHB',
-            defaults=dict(name='Praktikant dětských akcí HB', parent=odhb))
-        ohb = QualificationCategory.objects.update_or_create(
-            slug='OHB',
-            defaults=dict(name='Organizátor akcí HB', parent=i))[0]
+            slug='weekend_organizer',
+            defaults=dict(name='Organizátor víkendovek (OvHB)', parent=p))
+
+        p = QualificationCategory.objects.update_or_create(
+            slug='consultant_for_kids',
+            defaults=dict(name='Konzultant Brďo', parent=None))[0]
+        p = QualificationCategory.objects.update_or_create(
+            slug='kids_leader',
+            defaults=dict(name='Vedoucí Brďo', parent=p))[0]
         QualificationCategory.objects.update_or_create(
-            slug='OvHB',
-            defaults=dict(name='Organizátor víkendových akcí HB', parent=ohb))
+            slug='kids_intern',
+            defaults=dict(name='Praktikant Brďo', parent=p))
 
         QualificationCategory.objects.update_or_create(
-            slug='HVDT',
-            defaults=dict(name='Hlavní vedoucí dětských táborů'))
+            slug='main_leader_of_kids_camps',
+            defaults=dict(name='Hlavní vedoucí dětských táborů (HVDT)'))
 
         AdministrationUnitCategory.objects.update_or_create(slug="basic_section", defaults=dict(name='Základní článek'))
         AdministrationUnitCategory.objects.update_or_create(slug="headquarter", defaults=dict(name='Ústředí'))
@@ -91,65 +96,39 @@ class Command(BaseCommand):
         EventProgramCategory.objects.update_or_create(slug='international', defaults=dict(name='Mezinárodní'))
         EventProgramCategory.objects.update_or_create(slug='none', defaults=dict(name='Žádný'))
 
-        translations = {
-            'internal': 'Interní',
-            'internal__general_meeting': 'Valná hromada',
-            'internal__volunteer_meeting': 'Schůzka dobrovolníků, týmovka',
-            'internal__section_meeting': 'Oddílová, družinová schůzka',
-            'public': 'Veřejná',
-            'public__volunteering': 'Dobrovolnická',
-            'public__volunteering__only_volunteering': 'Čistě dobrovolnická',
-            'public__volunteering__with_experience': 'Dobrovolnická se zážitkovým programem',
-            'public__only_experiential': 'Čistě zážitková',
-            'public__sports': 'Sportovní',
-            'public__educational': 'Vzdělávací',
-            'public__educational__lecture': 'Přednáška',
-            'public__educational__course': 'Kurz, školení',
-            'public__educational__ohb': 'OHB',
-            'public__educational__educational': 'Výukový program',
-            'public__educational__educational_with_stay': 'Pobytový výukový program',
-            'public__club': 'Klub',
-            'public__club__lecture': 'Přednáška',
-            'public__club__meeting': 'Setkání',
-            'public__other': 'Ostatní',
-            'public__other__for_public': 'Akce pro veřejnost',
-            'public__other__exhibition': 'Výstava',
-            'public__other__eco_tent': 'Ekostan',
-        }
-
         event_categories = {
             'internal': {
-                'general_meeting': 'Valná hromada',
-                'volunteer_meeting': 'Schůzka dobrovolníků, týmovka',
-                'section_meeting': 'Oddílová, družinová schůzka',
+                'general_meeting': None,
+                'volunteer_meeting': None,
+                'section_meeting': None,
             },
             'public': {
                 'volunteering': {
-                    'only_volunteering': 'Čistě dobrovolnická',
-                    'with_experience': 'Dobrovolnická se zážitkovým programem',
+                    'only_volunteering': None,
+                    'with_experience': None,
                 },
-                'only_experiential': 'Čistě zážitková',
-                'sports': 'Sportovní',
+                'only_experiential': None,
+                'sports': None,
                 'educational': {
-                    'lecture': 'Přednáška',
-                    'course': 'Kurz, školení',
-                    'ohb': 'OHB',
-                    'educational': 'Výukový program',
-                    'educational_with_stay': 'Pobytový výukový program',
+                    'lecture': None,
+                    'course': None,
+                    'ohb': None,
+                    'educational': None,
+                    'educational_with_stay': None,
                 },
                 'club': {
-                    'lecture': 'Přednáška',
-                    'meeting': 'Setkání',
+                    'lecture': None,
+                    'meeting': None,
                 },
                 'other': {
-                    'for_public': 'Akce pro veřejnost',
-                    'exhibition': 'Výstava',
-                    'eco_tent': 'Ekostan',
+                    'for_public': None,
+                    'exhibition': None,
+                    'eco_tent': None,
                 }
             }
         }
 
-        self.create_event_categories(event_categories, translations)
+        self.create_event_categories(event_categories)
 
         GrantCategory.objects.update_or_create(slug='msmt', defaults=dict(name='mšmt'))
         GrantCategory.objects.update_or_create(slug='other', defaults=dict(name='z jiných projektů'))

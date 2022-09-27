@@ -145,14 +145,14 @@ class Command(BaseCommand):
     }
 
     qualification_category_map = {
-        "1": QualificationCategory.objects.get(slug="OHB"),
-        "4": QualificationCategory.objects.get(slug="HVDT"),
-        "5": QualificationCategory.objects.get(slug="ODHB"),
+        "1": QualificationCategory.objects.get(slug="organizer"),
+        "4": QualificationCategory.objects.get(slug="main_leader_of_kids_camps"),
+        "5": QualificationCategory.objects.get(slug="kids_leader"),
         "6": None,  # VP
-        "7": QualificationCategory.objects.get(slug="OpDHB"),
-        "9": QualificationCategory.objects.get(slug="OvHB"),
-        "Konzultant": QualificationCategory.objects.get(slug="Konzultant"),
-        "Instruktor": QualificationCategory.objects.get(slug="Instruktor"),
+        "7": QualificationCategory.objects.get(slug="kids_intern"),
+        "9": QualificationCategory.objects.get(slug="weekend_organizer"),
+        "Konzultant": QualificationCategory.objects.get(slug="consultant"),
+        "Instruktor": QualificationCategory.objects.get(slug="instructor"),
     }
 
     administration_unit_category_map = {

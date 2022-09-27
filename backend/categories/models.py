@@ -50,7 +50,7 @@ class QualificationCategory(Model):
         ordering = 'id',
 
     def __str__(self):
-        return self.slug
+        return self.name
 
 
 @translate_model

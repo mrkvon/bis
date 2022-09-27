@@ -339,7 +339,7 @@ class User(AbstractBaseUser):
 
     @admin.display(description='Aktivní kvalifikace')
     def get_qualifications(self):
-        return [q for q in self.qualifications.all() if q.valid_till >= timezone.now().date()]
+        return [q for q in self.qualifications.all() if q.valid_since <= timezone.now().date() <= q.valid_till]
 
     @admin.display(description='Aktivní členství')
     def get_memberships(self):
@@ -489,3 +489,67 @@ class Qualification(Model):
 
     def __str__(self):
         return f'{self.category} (od {self.valid_since} do {self.valid_till})'
+
+    @classmethod
+    def user_has_required_qualification(cls, user, required_one_of):
+        qualifications = user.get_qualifications()
+        for qualification in qualifications:
+            category = qualification.category
+            while category is not None:
+                if category.slug in required_one_of:
+                    return True
+                category = category.parent
+
+    @classmethod
+    def validate_main_organizer(cls, event, main_organizer: User):
+        age = main_organizer.age
+        intended_for = event.intended_for.slug
+        group = event.group.slug
+        category = event.category.slug
+
+        qualification_required_for_categories = {'internal__general_meeting', 'internal__section_meeting',
+                                                 'public__volunteering__only_volunteering',
+                                                 'public__volunteering__with_experience', 'public__only_experiential',
+                                                 'public__sports', 'public__educational__course',
+                                                 'public__educational__ohb', 'public__other__for_public', }
+        if not age:
+            ValidationError('Není znám věk hlavního organizátora')
+
+        if age < 18:
+            ValidationError('Hlavní organizátor musí mít aspoň 18 let')
+
+        if category not in qualification_required_for_categories:
+            return
+
+        if intended_for == 'for_kids' and category == 'internal__section_meeting':
+            return
+
+        required_one_of = set()
+
+        if intended_for == 'for_kids':
+            if group == 'camp':
+                required_one_of = {'kids_leader'}
+            else:
+                required_one_of = {'kids_intern'}
+
+        if intended_for == 'for_parents_with_kids':
+            if group == 'camp':
+                required_one_of = {'kids_leader', 'organizer'}
+            if group == 'weekend_event':
+                required_one_of = {'kids_intern', 'weekend_organizer'}
+
+        if intended_for in {'for_all', 'for_young_and_adult', 'for_first_time_participant'}:
+            if group == 'camp':
+                required_one_of = {'organizer'}
+            if group == 'weekend_event':
+                required_one_of = {'weekend_organizer'}
+
+        if category == 'public__educational__ohb':
+            required_one_of = {'instructor'}
+
+        if required_one_of:
+            if not cls.user_has_required_qualification(main_organizer, required_one_of):
+                categories = [str(QualificationCategory.objects.get(slug=slug)) for slug in required_one_of]
+                raise ValidationError(f'Hlavní organizátor {main_organizer} musí mít kvalifikaci '
+                                      f'{" nebo ".join(categories)} nebo kvalifikaci nadřazenou.')
+

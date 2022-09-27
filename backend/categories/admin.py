@@ -21,7 +21,7 @@ class DietCategoryAdmin(PermissionMixin, admin.ModelAdmin):
 
 @admin.register(QualificationCategory)
 class QualificationCategoryAdmin(PermissionMixin, admin.ModelAdmin):
-    list_display = 'slug', 'name', 'parent'
+    list_display = 'name', 'parent'
 
 
 @admin.register(AdministrationUnitCategory)

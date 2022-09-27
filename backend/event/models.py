@@ -12,7 +12,7 @@ from tinymce.models import HTMLField
 
 from administration_units.models import AdministrationUnit
 from bis.helpers import permission_cache, update_roles, filter_queryset_with_multiple_or_queries
-from bis.models import Location, User
+from bis.models import Location, User, Qualification
 from categories.models import GrantCategory, EventIntendedForCategory, DietCategory, \
     EventCategory, EventProgramCategory, EventGroupCategory
 from common.thumbnails import ThumbnailImageField
@@ -56,6 +56,9 @@ class Event(Model):
     def clean(self):
         if not self.location and not self.online_link:
             raise ValidationError('Musí být vyplněná lokace nebo online link pro připojení')
+
+        if self.main_organizer:
+            Qualification.validate_main_organizer(self, self.main_organizer)
 
     @update_roles('main_organizer')
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
