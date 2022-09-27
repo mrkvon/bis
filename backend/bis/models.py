@@ -513,10 +513,10 @@ class Qualification(Model):
                                                  'public__sports', 'public__educational__course',
                                                  'public__educational__ohb', 'public__other__for_public', }
         if not age:
-            ValidationError('Není znám věk hlavního organizátora')
+            raise ValidationError('Není znám věk hlavního organizátora')
 
         if age < 18:
-            ValidationError('Hlavní organizátor musí mít aspoň 18 let')
+            raise ValidationError('Hlavní organizátor musí mít aspoň 18 let')
 
         if category not in qualification_required_for_categories:
             return
