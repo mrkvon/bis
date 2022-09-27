@@ -9,9 +9,9 @@ class GrantCategorySerializer(ModelSerializer):
         exclude = ()
 
 
-class PropagationIntendedForCategorySerializer(ModelSerializer):
+class EventIntendedForCategorySerializer(ModelSerializer):
     class Meta:
-        model = PropagationIntendedForCategory
+        model = EventIntendedForCategory
         exclude = ()
 
 

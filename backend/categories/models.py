@@ -16,7 +16,7 @@ class GrantCategory(Model):
 
 
 @translate_model
-class PropagationIntendedForCategory(Model):
+class EventIntendedForCategory(Model):
     name = CharField(max_length=63)
     slug = SlugField(unique=True)
 

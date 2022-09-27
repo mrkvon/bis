@@ -9,7 +9,7 @@ from administration_units.models import AdministrationUnit
 from bis.models import User, Location
 from categories.serializers import OpportunityCategorySerializer, EventCategorySerializer, \
     EventProgramCategorySerializer, AdministrationUnitCategorySerializer, LocationAccessibilityCategorySerializer, \
-    PropagationIntendedForCategorySerializer, DietCategorySerializer, EventGroupCategorySerializer
+    EventIntendedForCategorySerializer, DietCategorySerializer, EventGroupCategorySerializer
 from common.thumbnails import ThumbnailImageFieldFile
 from event.models import Event, EventPropagation, EventRegistration
 from opportunities.models import Opportunity
@@ -33,7 +33,6 @@ class UserSerializer(ModelSerializer):
 
 
 class EventPropagationSerializer(ModelSerializer):
-    intended_for = PropagationIntendedForCategorySerializer()
     diets = DietCategorySerializer(many=True)
     images = SerializerMethodField()
     contact_name = SerializerMethodField()
@@ -47,7 +46,6 @@ class EventPropagationSerializer(ModelSerializer):
             'minimum_age',
             'maximum_age',
             'cost',
-            'intended_for',
             'accommodation',
             'working_days',
             'working_hours',
@@ -137,6 +135,7 @@ class EventSerializer(ModelSerializer):
     group = EventGroupCategorySerializer()
     category = EventCategorySerializer()
     program = EventProgramCategorySerializer()
+    intended_for = EventIntendedForCategorySerializer()
     administration_units = SlugRelatedField(slug_field='abbreviation', read_only=True, many=True)
 
     class Meta:
@@ -152,6 +151,7 @@ class EventSerializer(ModelSerializer):
             'group',
             'category',
             'program',
+            'intended_for',
             'administration_units',
             'propagation',
             'registration',

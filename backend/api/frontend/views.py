@@ -94,7 +94,7 @@ class EventViewSet(PermissionViewSetBase):
         'finance',
         'finance__grant_category',
         'propagation',
-        'propagation__intended_for',
+        'intended_for',
         'propagation__vip_propagation',
         'registration',
         'registration__questionnaire',

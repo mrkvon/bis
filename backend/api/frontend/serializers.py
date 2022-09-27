@@ -14,7 +14,7 @@ from bis.models import User, Location, UserAddress, UserContactAddress, Membersh
 from categories.serializers import DonationSourceCategorySerializer, EventProgramCategorySerializer, \
     OrganizerRoleCategorySerializer, TeamRoleCategorySerializer, MembershipCategorySerializer, \
     QualificationCategorySerializer, HealthInsuranceCompanySerializer, SexCategorySerializer, RoleCategorySerializer, \
-    GrantCategorySerializer, PropagationIntendedForCategorySerializer, DietCategorySerializer, EventCategorySerializer, \
+    GrantCategorySerializer, EventIntendedForCategorySerializer, DietCategorySerializer, EventCategorySerializer, \
     LocationProgramCategorySerializer, LocationAccessibilityCategorySerializer, OpportunityCategorySerializer, \
     EventGroupCategorySerializer
 from donations.models import Donor, Donation
@@ -342,7 +342,6 @@ class VIPPropagationSerializer(ModelSerializer):
 class PropagationSerializer(ModelSerializer):
     vip_propagation = VIPPropagationSerializer(allow_null=True)
 
-    intended_for = PropagationIntendedForCategorySerializer()
     diets = DietCategorySerializer(many=True)
 
     class Meta:
@@ -353,7 +352,6 @@ class PropagationSerializer(ModelSerializer):
             'maximum_age',
             'cost',
             'discounted_cost',
-            'intended_for',
             'accommodation',
             'working_hours',
             'working_days',
@@ -416,6 +414,7 @@ class EventSerializer(ModelSerializer):
     group = EventGroupCategorySerializer()
     category = EventCategorySerializer()
     program = EventProgramCategorySerializer()
+    intended_for = EventIntendedForCategorySerializer()
 
     class Meta:
         model = Event
@@ -431,6 +430,7 @@ class EventSerializer(ModelSerializer):
             'group',
             'category',
             'program',
+            'intended_for',
             'administration_units',
             'main_organizer',
             'other_organizers',

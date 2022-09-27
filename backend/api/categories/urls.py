@@ -20,7 +20,7 @@ def register(viewset):
 
 
 register(GrantCategoryViewSet)
-register(PropagationIntendedForCategoryViewSet)
+register(EventIntendedForCategoryViewSet)
 register(DietCategoryViewSet)
 register(QualificationCategoryViewSet)
 register(AdministrationUnitCategoryViewSet)

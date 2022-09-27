@@ -13,7 +13,7 @@ from tinymce.models import HTMLField
 from administration_units.models import AdministrationUnit
 from bis.helpers import permission_cache, update_roles, filter_queryset_with_multiple_or_queries
 from bis.models import Location, User
-from categories.models import GrantCategory, PropagationIntendedForCategory, DietCategory, \
+from categories.models import GrantCategory, EventIntendedForCategory, DietCategory, \
     EventCategory, EventProgramCategory, EventGroupCategory
 from common.thumbnails import ThumbnailImageField
 from translation.translate import translate_model
@@ -33,6 +33,7 @@ class Event(Model):
     group = ForeignKey(EventGroupCategory, on_delete=PROTECT, related_name='events')
     category = ForeignKey(EventCategory, on_delete=PROTECT, related_name='events')
     program = ForeignKey(EventProgramCategory, on_delete=PROTECT, related_name='events')
+    intended_for = ForeignKey(EventIntendedForCategory, on_delete=PROTECT, related_name='events')
 
     administration_units = ManyToManyField(AdministrationUnit, related_name='events')
     main_organizer = ForeignKey(User, on_delete=PROTECT, related_name='events_where_was_as_main_organizer', null=True)
@@ -63,6 +64,9 @@ class Event(Model):
 
     def is_volunteering(self):
         return self.category.slug.startswith('public__volunteering')
+
+    def is_for_kids(self):
+        return self.intended_for.slug in ['for_kids', 'for_parents_with_kids']
 
     @admin.display(description='Termín akce')
     def get_date(self):
@@ -155,7 +159,6 @@ class EventPropagation(Model):
     maximum_age = PositiveIntegerField(null=True, blank=True)
     cost = PositiveIntegerField()
     discounted_cost = PositiveIntegerField(blank=True, null=True)
-    intended_for = ForeignKey(PropagationIntendedForCategory, on_delete=PROTECT, related_name='events')
     accommodation = CharField(max_length=255)
     working_hours = PositiveSmallIntegerField(null=True, blank=True)
     working_days = PositiveSmallIntegerField(null=True, blank=True)

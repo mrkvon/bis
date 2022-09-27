@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from categories.models import DietCategory, PropagationIntendedForCategory, QualificationCategory, \
+from categories.models import DietCategory, EventIntendedForCategory, QualificationCategory, \
     AdministrationUnitCategory, MembershipCategory, EventProgramCategory, \
     EventCategory, GrantCategory, DonationSourceCategory, OrganizerRoleCategory, TeamRoleCategory, OpportunityCategory, \
     LocationProgramCategory, LocationAccessibilityCategory, RoleCategory, HealthInsuranceCompany, SexCategory, \
@@ -32,14 +32,14 @@ class Command(BaseCommand):
         DietCategory.objects.update_or_create(slug='vege', defaults=dict(name='vegetariánská'))
         DietCategory.objects.update_or_create(slug='vegan', defaults=dict(name='veganská'))
 
-        PropagationIntendedForCategory.objects.update_or_create(slug='for_all', defaults=dict(name='pro všechny'))
-        PropagationIntendedForCategory.objects.update_or_create(slug='for_young_and_adult',
-                                                                defaults=dict(name='pro mládež a dospělé'))
-        PropagationIntendedForCategory.objects.update_or_create(slug='for_kids', defaults=dict(name='pro děti'))
-        PropagationIntendedForCategory.objects.update_or_create(slug='for_parents_with_kids',
-                                                                defaults=dict(name='pro rodiče s dětmi'))
-        PropagationIntendedForCategory.objects.update_or_create(slug='for_first_time_participant',
-                                                                defaults=dict(name='pro prvoúčastníky'))
+        EventIntendedForCategory.objects.update_or_create(slug='for_all', defaults=dict(name='pro všechny'))
+        EventIntendedForCategory.objects.update_or_create(slug='for_young_and_adult',
+                                                          defaults=dict(name='pro mládež a dospělé'))
+        EventIntendedForCategory.objects.update_or_create(slug='for_kids', defaults=dict(name='pro děti'))
+        EventIntendedForCategory.objects.update_or_create(slug='for_parents_with_kids',
+                                                          defaults=dict(name='pro rodiče s dětmi'))
+        EventIntendedForCategory.objects.update_or_create(slug='for_first_time_participant',
+                                                          defaults=dict(name='pro prvoúčastníky'))
 
         c = QualificationCategory.objects.update_or_create(
             slug='Konzultant',

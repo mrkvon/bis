@@ -17,7 +17,7 @@ from bis.models import User, UserAddress, Qualification, Location, Membership, U
     LocationPatron
 from bis.signals import with_paused_user_str_signal
 from categories.models import MembershipCategory, EventCategory, EventProgramCategory, QualificationCategory, \
-    AdministrationUnitCategory, PropagationIntendedForCategory, DietCategory, GrantCategory, EventGroupCategory
+    AdministrationUnitCategory, EventIntendedForCategory, DietCategory, GrantCategory, EventGroupCategory
 from donations.models import Donor, VariableSymbol
 from event.models import Event, EventPropagation, EventRegistration, EventRecord, EventFinance, VIPEventPropagation, \
     EventPropagationImage
@@ -162,12 +162,12 @@ class Command(BaseCommand):
         "4": AdministrationUnitCategory.objects.get(slug='headquarter'),
     }
 
-    propagation_indented_for_category_map = {
-        "1": PropagationIntendedForCategory.objects.get(slug='for_all'),
-        "2": PropagationIntendedForCategory.objects.get(slug='for_young_and_adult'),
-        "3": PropagationIntendedForCategory.objects.get(slug='for_kids'),
-        "4": PropagationIntendedForCategory.objects.get(slug='for_parents_with_kids'),
-        "5": PropagationIntendedForCategory.objects.get(slug='for_first_time_participant'),
+    event_intended_for_category_map = {
+        "1": EventIntendedForCategory.objects.get(slug='for_all'),
+        "2": EventIntendedForCategory.objects.get(slug='for_young_and_adult'),
+        "3": EventIntendedForCategory.objects.get(slug='for_kids'),
+        "4": EventIntendedForCategory.objects.get(slug='for_parents_with_kids'),
+        "5": EventIntendedForCategory.objects.get(slug='for_first_time_participant'),
     }
 
     diet_category_map = {
@@ -512,6 +512,7 @@ class Command(BaseCommand):
                 group=self.event_group_category_map[group],
                 category=self.event_category_map[item['typ']],
                 program=self.event_program_category_map[item['program']],
+                intended_for=self.event_intended_for_category_map[item['prokoho']],
                 main_organizer=self.user_map.get(item.get('odpovedna')),
                 is_internal=item['zamereno_na_cleny'] == '1',
                 number_of_sub_events=item['pocet'],
@@ -532,7 +533,6 @@ class Command(BaseCommand):
                 minimum_age=parse_int(item['vek_od']),
                 maximum_age=parse_int(item['vek_do']),
                 **get_event_cost(item['poplatek']),
-                intended_for=self.propagation_indented_for_category_map[item['prokoho']],
                 accommodation=item.get('ubytovani') or '',
                 working_hours=item.get('pracovni_doba'),
                 working_days=item.get('pracovni_dny'),

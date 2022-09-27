@@ -8,9 +8,9 @@ class GrantCategoryViewSet(ReadOnlyModelViewSet):
     queryset = GrantCategory.objects.all()
 
 
-class PropagationIntendedForCategoryViewSet(ReadOnlyModelViewSet):
-    serializer_class = PropagationIntendedForCategorySerializer
-    queryset = PropagationIntendedForCategory.objects.all()
+class EventIntendedForCategoryViewSet(ReadOnlyModelViewSet):
+    serializer_class = EventIntendedForCategorySerializer
+    queryset = EventIntendedForCategory.objects.all()
 
 
 class DietCategoryViewSet(ReadOnlyModelViewSet):

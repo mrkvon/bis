@@ -22,7 +22,7 @@ class EventViewSet(ReadOnlyModelViewSet):
             'category',
             'program',
             'propagation',
-            'propagation__intended_for',
+            'intended_for',
             'registration',
         ).prefetch_related(
             'propagation__images',

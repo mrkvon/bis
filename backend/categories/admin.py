@@ -9,8 +9,8 @@ class GrantCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 
-@admin.register(PropagationIntendedForCategory)
-class PropagationIntendedForCategoryAdmin(PermissionMixin, admin.ModelAdmin):
+@admin.register(EventIntendedForCategory)
+class EventIntendedForCategoryAdmin(PermissionMixin, admin.ModelAdmin):
     pass
 
 

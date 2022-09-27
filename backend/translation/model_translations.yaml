@@ -147,6 +147,7 @@ Event:
     category: 'Typ'
     internal_note: 'Privátní poznámka'
     program: 'Program'
+    intended_for: 'Pro koho?'
     location:
       - 'Lokalita'
       - 'Zobrazí se na webu jako místo konání akce'
@@ -193,7 +194,6 @@ EventPropagation:
     maximum_age: 'Maximální věk'
     cost: 'Účastnický poplatek'
     discounted_cost: 'Zlevněný účastnický poplatek'
-    intended_for: 'Pro koho?'
     diets: 'Možnosti stravování'
     _contact_url: 'Kontaktní url'
     accommodation: 'Ubytování'
@@ -317,7 +317,7 @@ GrantCategory:
   name: 'Typ grantu'
   name_plural: 'Typy grantů'
 
-PropagationIntendedForCategory:
+EventIntendedForCategory:
   name: 'Kategorie zaměření propagace'
   name_plural: 'Kategorie zaměření propagace'
 

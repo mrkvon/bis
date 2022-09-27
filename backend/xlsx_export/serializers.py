@@ -144,7 +144,6 @@ class FinanceExportSerializer(ModelSerializer):
 
 
 class PropagationExportSerializer(ModelSerializer):
-    intended_for = StringRelatedField(label='Pro koho')
     diets = StringRelatedField(label='Diety', many=True)
 
     class Meta:
@@ -155,7 +154,6 @@ class PropagationExportSerializer(ModelSerializer):
             'maximum_age',
             'cost',
             'discounted_cost',
-            'intended_for',
             'diets',
             'working_hours',
             'working_days',
@@ -188,6 +186,7 @@ class RecordExportSerializer(ModelSerializer):
 class EventExportSerializer(ModelSerializer):
     category = StringRelatedField(label='Typ akce')
     program = StringRelatedField(label='Program')
+    intended_for = StringRelatedField(label='Pro koho')
     administration_units = StringRelatedField(label='Organizováno', many=True)
     main_organizer = StringRelatedField(label='Hlavní org')
     other_organizers = StringRelatedField(label='Orgové', many=True)
@@ -214,7 +213,7 @@ class EventExportSerializer(ModelSerializer):
             'finance',
             'finance__grant_category',
             'propagation',
-            'propagation__intended_for',
+            'intended_for',
             'registration',
             'record',
         ).prefetch_related(
@@ -239,6 +238,7 @@ class EventExportSerializer(ModelSerializer):
             'category',
             'is_volunteering',
             'program',
+            'intended_for',
             'administration_units',
             'main_organizer',
             'other_organizers',
