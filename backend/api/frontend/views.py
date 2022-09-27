@@ -1,7 +1,6 @@
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
-from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_429_TOO_MANY_REQUESTS
@@ -25,7 +24,6 @@ safe_http_methods = [m.lower() for m in SAFE_METHODS]
 
 class PermissionViewSetBase(ModelViewSet):
     lookup_field = 'id'
-    filter_backends = [SearchFilter]
     permission_classes = [IsAuthenticated, BISPermissions]
 
     def get_queryset(self):

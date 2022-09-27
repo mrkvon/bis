@@ -96,7 +96,7 @@ def reset_password(request, data):
     return login_and_return_token(request, user)
 
 
-@extend_schema(responses={HTTP_204_NO_CONTENT: None})
+@extend_schema(request=None, responses={HTTP_204_NO_CONTENT: None})
 @api_view(['post'])
 def logout(request):
     django_logout(request)

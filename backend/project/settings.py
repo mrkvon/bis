@@ -173,7 +173,7 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = DATA_UPLOAD_MAX_MEMORY_SIZE
 #
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
-        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
         'django_filters.rest_framework.DjangoFilterBackend'
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -182,7 +182,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'api.helpers.Pagination',
     'PAGE_SIZE': 20,
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
