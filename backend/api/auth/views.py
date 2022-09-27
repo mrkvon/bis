@@ -7,7 +7,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import AuthenticationFailed, NotFound, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND, HTTP_429_TOO_MANY_REQUESTS, HTTP_200_OK, \
+    HTTP_401_UNAUTHORIZED
 
 from api.auth.serializers import LoginRequestSerializer, SendVerificationLinkRequestSerializer, \
     ResetPasswordRequestSerializer, TokenResponse, UserIdResponse
@@ -31,9 +32,9 @@ def whoami(request):
 
 @extend_schema(request=LoginRequestSerializer,
                responses={
-                   200: TokenResponse,
-                   401: OpenApiResponse(description='E-mail or password incorrect'),
-                   429: OpenApiResponse(description='Too many requests'),
+                   HTTP_200_OK: TokenResponse,
+                   HTTP_401_UNAUTHORIZED: OpenApiResponse(description='E-mail or password incorrect'),
+                   HTTP_429_TOO_MANY_REQUESTS: OpenApiResponse(description='Too many requests'),
                })
 @api_view(['post'])
 @parse_request_data(LoginRequestSerializer)
@@ -53,8 +54,8 @@ def login(request, data):
 @extend_schema(request=SendVerificationLinkRequestSerializer,
                responses={
                    HTTP_204_NO_CONTENT: None,
-                   404: OpenApiResponse(description='User with email not found'),
-                   429: OpenApiResponse(description='Too many requests'),
+                   HTTP_404_NOT_FOUND: OpenApiResponse(description='User with email not found'),
+                   HTTP_429_TOO_MANY_REQUESTS: OpenApiResponse(description='Too many requests'),
                })
 @api_view(['post'])
 @parse_request_data(SendVerificationLinkRequestSerializer)
@@ -73,9 +74,9 @@ def send_verification_link(request, data):
 
 @extend_schema(request=ResetPasswordRequestSerializer,
                responses={
-                   200: TokenResponse,
-                   404: OpenApiResponse(description='User with email not found'),
-                   429: OpenApiResponse(description='Too many requests'),
+                   HTTP_200_OK: TokenResponse,
+                   HTTP_404_NOT_FOUND: OpenApiResponse(description='User with email not found'),
+                   HTTP_429_TOO_MANY_REQUESTS: OpenApiResponse(description='Too many requests'),
                })
 @api_view(['post'])
 @parse_request_data(ResetPasswordRequestSerializer)

@@ -1,14 +1,22 @@
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import NotFound
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
+from rest_framework.response import Response
+from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_429_TOO_MANY_REQUESTS
 from rest_framework.viewsets import ModelViewSet
 
 from api.frontend.filters import EventFilter, LocationFilter, UserFilter
 from api.frontend.permissions import BISPermissions
 from api.frontend.serializers import UserSerializer, EventSerializer, LocationSerializer, OpportunitySerializer, \
     FinanceReceiptSerializer, EventPhotoSerializer, EventPropagationImageSerializer, QuestionSerializer, \
-    EventApplicationSerializer
+    EventApplicationSerializer, GetUnknownUserRequestSerializer
+from api.helpers import parse_request_data
 from bis.models import User, Location
 from bis.permissions import Permissions
 from event.models import Event, EventFinanceReceipt, EventPhoto, EventPropagationImage
+from login_code.models import ThrottleLog
 from opportunities.models import Opportunity
 from questionnaire.models import Question, EventApplication
 
@@ -17,6 +25,7 @@ safe_http_methods = [m.lower() for m in SAFE_METHODS]
 
 class PermissionViewSetBase(ModelViewSet):
     lookup_field = 'id'
+    filter_backends = [SearchFilter]
     permission_classes = [IsAuthenticated, BISPermissions]
 
     def get_queryset(self):
@@ -26,6 +35,7 @@ class PermissionViewSetBase(ModelViewSet):
 
 
 class UserViewSet(PermissionViewSetBase):
+    search_fields = 'all_emails__email', 'phone', 'first_name', 'last_name', 'nickname'
     serializer_class = UserSerializer
     filterset_class = UserFilter
     queryset = User.objects.select_related(
@@ -77,6 +87,7 @@ class OrganizersViewSet(UserViewSet):
 
 
 class EventViewSet(PermissionViewSetBase):
+    search_fields = 'name',
     serializer_class = EventSerializer
     filterset_class = EventFilter
     queryset = Event.objects.select_related(
@@ -117,6 +128,7 @@ class WhereWasOrganizerViewSet(EventViewSet):
 
 
 class LocationViewSet(PermissionViewSetBase):
+    search_fields = 'name', 'description'
     serializer_class = LocationSerializer
     filterset_class = LocationFilter
     queryset = Location.objects.select_related(
@@ -130,6 +142,7 @@ class LocationViewSet(PermissionViewSetBase):
 
 
 class OpportunityViewSet(PermissionViewSetBase):
+    search_fields = 'name', 'introduction'
     serializer_class = OpportunitySerializer
     queryset = Opportunity.objects.select_related('category')
 
@@ -175,3 +188,24 @@ class EventApplicationViewSet(PermissionViewSetBase):
 
     def get_queryset(self):
         return super().get_queryset().filter(event_registration__event=self.kwargs['event_id'])
+
+
+@extend_schema(request=GetUnknownUserRequestSerializer,
+               responses={
+                   HTTP_200_OK: UserSerializer,
+                   HTTP_404_NOT_FOUND: OpenApiResponse(description='Not found'),
+                   HTTP_429_TOO_MANY_REQUESTS: OpenApiResponse(description='Too many requests for first_name + '
+                                                                           'last_name, try again in one day'),
+               })
+@api_view(['post'])
+@permission_classes([IsAuthenticated])
+@parse_request_data(GetUnknownUserRequestSerializer)
+def get_unknown_user(request, data):
+    key = f"{data['first_name']}_{data['last_name']}_{request.user.id}"
+    ThrottleLog.check_throttled('get_unknown_user', key, 3, 24)
+    user = User.objects.filter(**data).first()
+
+    if not user:
+        raise NotFound()
+
+    return Response(UserSerializer(instance=user, context={'request': request}).data)

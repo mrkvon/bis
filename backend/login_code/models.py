@@ -20,6 +20,15 @@ class ThrottleLog(models.Model):
     key = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now=True)
 
+    @classmethod
+    def check_throttled(cls, prefix, key, max_count, timedelta_hours):
+        key = f'{prefix}_{key}'
+
+        if cls.objects.filter(key=key, created__gte=now() - timedelta(hours=timedelta_hours)).count() > max_count:
+            raise Throttled(timedelta_hours * 3600)
+
+        cls.objects.create(key=key)
+
 
 class LoginCode(models.Model):
     code = models.CharField(max_length=4, default=get_code)
@@ -28,12 +37,7 @@ class LoginCode(models.Model):
 
     @classmethod
     def check_throttled(cls, user):
-        if ThrottleLog.objects \
-                .filter(key=user.email, created__gte=now() - timedelta(hours=1)) \
-                .count() > 10:
-            raise Throttled(3600)
-
-        ThrottleLog.objects.create(key=user.email)
+        ThrottleLog.check_throttled('login_code', user.email, 10, 1)
 
     @classmethod
     def make(cls, user):
@@ -41,7 +45,7 @@ class LoginCode(models.Model):
         return cls.objects.create(user=user)
 
     @classmethod
-    def is_valid(cls, user, code, raise_exception=True):
+    def is_valid(cls, user, code):
         cls.check_throttled(user)
 
         code = str(code)
@@ -50,7 +54,5 @@ class LoginCode(models.Model):
 
         login_code = cls.objects.filter(user=user, code=code, valid_till__gte=now()).first()
 
-        if login_code is None and raise_exception:
+        if login_code is None:
             raise AuthenticationFailed()
-
-        return login_code is not None

@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework_nested import routers
 
+from api import frontend
 from api.frontend.views import UserViewSet, EventViewSet, LocationViewSet, OpportunityViewSet, FinanceReceiptViewSet, \
     EventPropagationImageViewSet, EventPhotoViewSet, QuestionViewSet, ParticipatedInViewSet, RegisteredInViewSet, \
     WhereWasOrganizerViewSet, ParticipantsViewSet, OrganizersViewSet, RegisteredViewSet, EventApplicationViewSet
@@ -33,4 +34,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('', include(users_router.urls)),
     path('', include(events_router.urls)),
+    path('get_unknown_user/', frontend.views.get_unknown_user),
 ]

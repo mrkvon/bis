@@ -2,10 +2,10 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import models
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import SerializerMethodField
+from rest_framework.fields import SerializerMethodField, CharField, DateField
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.relations import SlugRelatedField
-from rest_framework.serializers import ModelSerializer as DRFModelSerializer, ListSerializer
+from rest_framework.serializers import ModelSerializer as DRFModelSerializer, ListSerializer, Serializer
 from rest_framework.utils import model_meta
 
 from api.helpers import Base64ImageField, Base64FileField
@@ -622,3 +622,9 @@ class EventApplicationSerializer(ModelSerializer):
         validated_data['event_registration'] = \
             Event.objects.get(id=self.context['view'].kwargs['event_id']).registration
         return super().create(validated_data)
+
+
+class GetUnknownUserRequestSerializer(Serializer):
+    first_name = CharField()
+    last_name = CharField()
+    birthday = DateField()

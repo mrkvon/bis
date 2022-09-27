@@ -40,7 +40,7 @@ class LocationPatronAdmin(PermissionMixin, NestedTabularInline):
 @admin.register(Location)
 class LocationAdmin(PermissionMixin, OSMGeoAdmin):
     inlines = LocationContactPersonAdmin, LocationPatronAdmin, LocationPhotosAdmin,
-    search_fields = 'name',
+    search_fields = 'name', 'description'
     exclude = '_import_id',
 
     list_filter = 'program', 'for_beginners', 'is_full', 'is_unexplored', \
