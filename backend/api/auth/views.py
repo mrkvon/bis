@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth import login as _login
+from django.contrib.auth import login as django_login, logout as django_logout
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from drf_spectacular.utils import extend_schema, OpenApiResponse
@@ -19,7 +19,7 @@ from login_code.models import LoginCode
 
 
 def login_and_return_token(request, user):
-    _login(request._request, user)
+    django_login(request._request, user)
     return Response({'token': user.auth_token.key})
 
 
@@ -94,3 +94,10 @@ def reset_password(request, data):
     user.save()
 
     return login_and_return_token(request, user)
+
+
+@extend_schema(responses={HTTP_204_NO_CONTENT: None})
+@api_view(['post'])
+def logout(request):
+    django_logout(request)
+    return Response(status=HTTP_204_NO_CONTENT)
