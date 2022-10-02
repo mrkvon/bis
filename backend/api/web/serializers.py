@@ -1,17 +1,14 @@
-from typing import Optional
-
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework.fields import SerializerMethodField
 from rest_framework.relations import SlugRelatedField, StringRelatedField
 from rest_framework.serializers import ModelSerializer
 
 from administration_units.models import AdministrationUnit
-from bis.models import User, Location
+from bis.models import User, Location, LocationPhoto
 from categories.serializers import OpportunityCategorySerializer, EventCategorySerializer, \
     EventProgramCategorySerializer, AdministrationUnitCategorySerializer, LocationAccessibilityCategorySerializer, \
     EventIntendedForCategorySerializer, DietCategorySerializer, EventGroupCategorySerializer
-from common.thumbnails import ThumbnailImageFieldFile
-from event.models import Event, EventPropagation, EventRegistration
+from event.models import Event, EventPropagation, EventRegistration, EventPropagationImage
 from opportunities.models import Opportunity
 
 
@@ -32,9 +29,17 @@ class UserSerializer(ModelSerializer):
         return instance.get_name()
 
 
+class EventPropagationImageSerializer(ModelSerializer):
+    class Meta:
+        model = EventPropagationImage
+        fields = (
+            'image',
+        )
+
+
 class EventPropagationSerializer(ModelSerializer):
     diets = DietCategorySerializer(many=True)
-    images = SerializerMethodField()
+    images = EventPropagationImageSerializer(many=True)
     contact_name = SerializerMethodField()
     contact_phone = SerializerMethodField()
     contact_email = SerializerMethodField()
@@ -70,9 +75,6 @@ class EventPropagationSerializer(ModelSerializer):
     def get_contact_email(self, instance) -> str:
         return instance.contact_email or instance.contact_person and instance.contact_person.email
 
-    def get_images(self, instance) -> list[ThumbnailImageFieldFile.UrlsType]:
-        return [image.image.urls for image in instance.images.all()]
-
 
 class EventRegistrationSerializer(ModelSerializer):
     class Meta:
@@ -84,13 +86,19 @@ class EventRegistrationSerializer(ModelSerializer):
         )
 
 
+class LocationPhotoSerializer(ModelSerializer):
+    class Meta:
+        model = LocationPhoto
+        fields = 'photo',
+
+
 class LocationSerializer(ModelSerializer):
     patron = UserSerializer()
     program = EventProgramCategorySerializer()
     accessibility_from_prague = LocationAccessibilityCategorySerializer()
     accessibility_from_brno = LocationAccessibilityCategorySerializer()
     region = StringRelatedField()
-    photos = SerializerMethodField()
+    photos = LocationPhotoSerializer(many=True)
 
     class Meta:
         model = Location
@@ -112,9 +120,6 @@ class LocationSerializer(ModelSerializer):
             'region',
             'photos',
         )
-
-    def get_photos(self, instance) -> list[ThumbnailImageFieldFile.UrlsType]:
-        return [photo.photo.urls for photo in instance.photos.all()]
 
 
 class EventSerializer(ModelSerializer):

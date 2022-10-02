@@ -243,7 +243,7 @@ class EventRecord(Model):
 
     total_hours_worked = PositiveIntegerField(null=True, blank=True)
     comment_on_work_done = TextField(blank=True)
-    attendance_list = ThumbnailImageField(upload_to='attendance_lists', null=True, blank=True)
+    attendance_list = ImageField(upload_to='attendance_lists', null=True, blank=True)
     participants = ManyToManyField(User, 'participated_in_events', blank=True)
     number_of_participants = PositiveIntegerField(null=True, blank=True)
     number_of_participants_under_26 = PositiveIntegerField(null=True, blank=True)

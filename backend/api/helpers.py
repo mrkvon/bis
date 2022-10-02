@@ -1,11 +1,17 @@
 import base64
 import binascii
 import re
+from typing import TypedDict
 
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import models
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import FileField, ImageField
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.serializers import ModelSerializer
+
+from common.thumbnails import get_thumbnail_path, ThumbnailImageField
 
 
 class Pagination(PageNumberPagination):
@@ -65,5 +71,36 @@ class Base64ImageField(Base64FieldMixin, ImageField):
     pass
 
 
+class ThumbnailedBase64ImageField(Base64ImageField):
+    UrlsType = TypedDict('UrlsType', {size: str for size in list(settings.THUMBNAIL_SIZES.keys()) + ['original']})
+
+    def to_representation(self, value) -> UrlsType:
+        if not value:
+            return None
+
+        try:
+            url = value.url
+            name = value.name
+        except AttributeError:
+            return None
+
+        urls = {
+            size: '/media/' + get_thumbnail_path(name, size) for size in settings.THUMBNAIL_SIZES
+        }
+        urls['original'] = url
+
+        request = self.context.get('request', None)
+        if request:
+            for key, value in urls.items():
+                urls[key] = request.build_absolute_uri(value)
+
+        return urls
+
+
 class Base64FileField(Base64FieldMixin, FileField):
     pass
+
+
+ModelSerializer.serializer_field_mapping[models.ImageField] = Base64ImageField
+ModelSerializer.serializer_field_mapping[ThumbnailImageField] = ThumbnailedBase64ImageField
+ModelSerializer.serializer_field_mapping[models.FileField] = Base64FileField

@@ -1,12 +1,10 @@
 from os import symlink, makedirs
 from os.path import splitext, join, exists
-from typing import TypedDict
 
 from PIL import Image, UnidentifiedImageError
 from django.conf import settings
 from django.db.models import ImageField
 from django.db.models import signals
-from django.db.models.fields.files import ImageFieldFile
 
 
 def get_thumbnail_path(file_name, size_name):
@@ -14,24 +12,7 @@ def get_thumbnail_path(file_name, size_name):
     return join('thumbnails', f"{file_name}_{size_name}{file_extension}")
 
 
-class ThumbnailImageFieldFile(ImageFieldFile):
-    UrlsType = TypedDict('UrlsType', {size: str for size in list(settings.THUMBNAIL_SIZES.keys()) + ['original']})
-
-    @property
-    def urls(self) -> UrlsType:
-        urls = {
-            size: '/media/' + get_thumbnail_path(self.name, size) for size in settings.THUMBNAIL_SIZES
-        }
-        urls['original'] = self.url
-        for key, value in urls.items():
-            urls[key] = settings.FULL_HOSTNAME + value
-
-        return urls
-
-
 class ThumbnailImageField(ImageField):
-    attr_class = ThumbnailImageFieldFile
-
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, **kwargs)
         if not cls._meta.abstract:

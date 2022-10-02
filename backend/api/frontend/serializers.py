@@ -1,5 +1,4 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.db import models
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField, CharField, DateField
@@ -8,7 +7,6 @@ from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer as DRFModelSerializer, ListSerializer, Serializer
 from rest_framework.utils import model_meta
 
-from api.helpers import Base64ImageField, Base64FileField
 from bis.models import User, Location, UserAddress, UserContactAddress, Membership, Qualification, UserClosePerson, \
     LocationContactPerson, LocationPatron
 from categories.serializers import DonationSourceCategorySerializer, EventProgramCategorySerializer, \
@@ -27,10 +25,6 @@ from regions.serializers import RegionSerializer
 
 
 class ModelSerializer(DRFModelSerializer):
-    serializer_field_mapping = DRFModelSerializer.serializer_field_mapping
-    serializer_field_mapping[models.ImageField] = Base64ImageField
-    serializer_field_mapping[models.FileField] = Base64FileField
-
     def save(self, **kwargs):
         try:
             return super().save(**kwargs)
