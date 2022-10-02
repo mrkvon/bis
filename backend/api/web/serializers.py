@@ -38,7 +38,6 @@ class EventPropagationSerializer(ModelSerializer):
     contact_name = SerializerMethodField()
     contact_phone = SerializerMethodField()
     contact_email = SerializerMethodField()
-    cost = SerializerMethodField()
 
     class Meta:
         model = EventPropagation
@@ -70,15 +69,6 @@ class EventPropagationSerializer(ModelSerializer):
 
     def get_contact_email(self, instance) -> str:
         return instance.contact_email or instance.contact_person and instance.contact_person.email
-
-    def get_cost(self, instance) -> Optional[str]:
-        if not instance.cost:
-            return None
-        cost = f"{instance.cost} Kč"
-        if instance.discounted_cost is not None:
-            cost = f"{instance.discounted_cost}/{cost}"
-
-        return cost
 
     def get_images(self, instance) -> list[ThumbnailImageFieldFile.UrlsType]:
         return [image.image.urls for image in instance.images.all()]

@@ -160,8 +160,7 @@ class EventPropagation(Model):
 
     minimum_age = PositiveIntegerField(null=True, blank=True)
     maximum_age = PositiveIntegerField(null=True, blank=True)
-    cost = PositiveIntegerField()
-    discounted_cost = PositiveIntegerField(blank=True, null=True)
+    cost = CharField(max_length=12)
     accommodation = CharField(max_length=255)
     working_hours = PositiveSmallIntegerField(null=True, blank=True)
     working_days = PositiveSmallIntegerField(null=True, blank=True)

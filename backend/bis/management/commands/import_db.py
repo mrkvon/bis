@@ -1,5 +1,4 @@
 import json
-import re
 from datetime import timedelta
 from os import mkdir
 from os.path import join, exists
@@ -74,22 +73,6 @@ def get_event_start(item):
         if start:
             start = datetime(year=start.year, month=start.month, day=start.day, tzinfo=ZoneInfo(key='Europe/Prague'))
     return start
-
-
-def get_event_cost(cost):
-    cost = cost or ''
-    cost = cost.replace('; 26+', '')
-    cost = cost.replace('.', '')
-    cost = re.sub(r"\s+", '', cost)
-    cost = re.split(r'\D+', cost)
-    cost = [c for c in cost if len(c)] or list('0')
-    cost = [int(c) for c in cost]
-    cost.sort()
-    assert 1 <= len(cost) <= 2
-    res = {'cost': cost[-1]}
-    if len(cost) == 2:
-        res['discounted_cost'] = cost[0]
-    return res
 
 
 class Command(BaseCommand):
@@ -532,7 +515,7 @@ class Command(BaseCommand):
                 is_shown_on_web=item['zverejnit'] == '1',
                 minimum_age=parse_int(item['vek_od']),
                 maximum_age=parse_int(item['vek_do']),
-                **get_event_cost(item['poplatek']),
+                cost=item['poplatek'] or '',
                 accommodation=item.get('ubytovani') or '',
                 working_hours=item.get('pracovni_doba'),
                 working_days=item.get('pracovni_dny'),

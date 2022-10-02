@@ -351,7 +351,6 @@ class PropagationSerializer(ModelSerializer):
             'minimum_age',
             'maximum_age',
             'cost',
-            'discounted_cost',
             'accommodation',
             'working_hours',
             'working_days',

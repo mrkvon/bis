@@ -153,7 +153,6 @@ class PropagationExportSerializer(ModelSerializer):
             'minimum_age',
             'maximum_age',
             'cost',
-            'discounted_cost',
             'diets',
             'working_hours',
             'working_days',

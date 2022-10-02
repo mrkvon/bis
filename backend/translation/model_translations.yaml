@@ -192,8 +192,9 @@ EventPropagation:
     vip_propagation: 'Je akce propagována v rámci VIP propagace?'
     minimum_age: 'Minimální věk'
     maximum_age: 'Maximální věk'
-    cost: 'Účastnický poplatek'
-    discounted_cost: 'Zlevněný účastnický poplatek'
+    cost:
+      - 'Účastnický poplatek'
+      - 'Max. 12 znaků, "Kč" je doplněno automaticky, nechte prázdné pokud je akce bez poplatku'
     diets: 'Možnosti stravování'
     _contact_url: 'Kontaktní url'
     accommodation: 'Ubytování'
