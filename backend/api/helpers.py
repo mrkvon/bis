@@ -34,10 +34,6 @@ class Base64FieldMixin:
     EMPTY_VALUES = None, "", [], (), {}
 
     def to_internal_value(self, base64_data):
-        # Check if this is a base64 string
-        if base64_data in self.EMPTY_VALUES:
-            return None
-
         try:
             assert isinstance(base64_data, str), 'Expects base64 string'
             assert ";base64," in base64_data, '";base64," not in data'
@@ -54,7 +50,6 @@ class Base64FieldMixin:
         try:
             decoded_file = base64.b64decode(base64_data)
         except (TypeError, binascii.Error, ValueError) as e:
-
             raise ValidationError(e)
 
         complete_file_name = filename + "." + extension
