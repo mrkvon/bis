@@ -10,11 +10,11 @@ from api.frontend.filters import EventFilter, LocationFilter, UserFilter
 from api.frontend.permissions import BISPermissions
 from api.frontend.serializers import UserSerializer, EventSerializer, LocationSerializer, OpportunitySerializer, \
     FinanceReceiptSerializer, EventPhotoSerializer, EventPropagationImageSerializer, QuestionSerializer, \
-    EventApplicationSerializer, GetUnknownUserRequestSerializer
+    EventApplicationSerializer, GetUnknownUserRequestSerializer, EventDraftSerializer
 from api.helpers import parse_request_data
 from bis.models import User, Location
 from bis.permissions import Permissions
-from event.models import Event, EventFinanceReceipt, EventPhoto, EventPropagationImage
+from event.models import Event, EventFinanceReceipt, EventPhoto, EventPropagationImage, EventDraft
 from login_code.models import ThrottleLog
 from opportunities.models import Opportunity
 from questionnaire.models import Question, EventApplication
@@ -123,6 +123,11 @@ class WhereWasOrganizerViewSet(EventViewSet):
 
     def get_queryset(self):
         return super().get_queryset().filter(other_organizers=self.kwargs['user_id'])
+
+
+class EventDraftViewSet(PermissionViewSetBase):
+    serializer_class = EventDraftSerializer
+    queryset = EventDraft.objects.all()
 
 
 class LocationViewSet(PermissionViewSetBase):

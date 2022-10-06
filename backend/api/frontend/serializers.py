@@ -17,7 +17,7 @@ from categories.serializers import DonationSourceCategorySerializer, EventProgra
     EventGroupCategorySerializer
 from donations.models import Donor, Donation
 from event.models import Event, EventFinance, EventPropagation, EventRegistration, EventRecord, EventFinanceReceipt, \
-    EventPropagationImage, EventPhoto, VIPEventPropagation
+    EventPropagationImage, EventPhoto, VIPEventPropagation, EventDraft
 from opportunities.models import Opportunity, OfferedHelp
 from questionnaire.models import Questionnaire, Question, EventApplication, EventApplicationClosePerson, \
     EventApplicationAddress
@@ -615,6 +615,16 @@ class EventApplicationSerializer(ModelSerializer):
     def create(self, validated_data):
         validated_data['event_registration'] = \
             Event.objects.get(id=self.context['view'].kwargs['event_id']).registration
+        return super().create(validated_data)
+
+
+class EventDraftSerializer(ModelSerializer):
+    class Meta:
+        model = EventDraft
+        fields = 'id', 'data',
+
+    def create(self, validated_data):
+        validated_data['owner'] = self.context['request'].user
         return super().create(validated_data)
 
 

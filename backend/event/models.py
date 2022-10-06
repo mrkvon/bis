@@ -19,6 +19,19 @@ from common.thumbnails import ThumbnailImageField
 from translation.translate import translate_model
 
 
+class EventDraft(Model):
+    owner = ForeignKey(User, related_name='event_drafts', on_delete=CASCADE)
+    data = JSONField()
+
+    @permission_cache
+    def has_edit_permission(self, user):
+        return user == self.owner
+
+    @classmethod
+    def filter_queryset(cls, queryset, user):
+        return queryset.filter(owner=user)
+
+
 @translate_model
 class Event(Model):
     # general
