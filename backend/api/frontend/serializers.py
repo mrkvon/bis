@@ -415,6 +415,7 @@ class EventSerializer(ModelSerializer):
             'id',
             'name',
             'is_canceled',
+            'is_closed',
             'start',
             'end',
             'number_of_sub_events',

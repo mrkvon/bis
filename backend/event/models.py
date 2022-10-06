@@ -24,6 +24,7 @@ class Event(Model):
     # general
     name = CharField(max_length=63)
     is_canceled = BooleanField(default=False)
+    is_closed = BooleanField(default=False)
     start = DateTimeField()
     end = DateField()
     number_of_sub_events = PositiveIntegerField(default=1)
@@ -115,6 +116,7 @@ class Event(Model):
 
     @permission_cache
     def has_edit_permission(self, user):
+        if self.is_closed: return False
         return user in self.other_organizers.all() or \
                self.administration_units.filter(board_members=user).exists()
 

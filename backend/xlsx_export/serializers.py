@@ -227,6 +227,7 @@ class EventExportSerializer(ModelSerializer):
         fields = (
             'name',
             'is_canceled',
+            'is_closed',
             'start',
             'end',
             'get_date',
