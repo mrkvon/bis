@@ -491,6 +491,7 @@ class Command(BaseCommand):
                 start=start,
                 end=end,
                 is_canceled=is_canceled,
+                is_closed=start.year <= 2021,
                 location=location,
                 group=self.event_group_category_map[group],
                 category=self.event_category_map[item['typ']],

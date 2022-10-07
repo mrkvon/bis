@@ -186,6 +186,7 @@ class Command(BaseCommand):
         RoleCategory.objects.update_or_create(slug='board_member', defaults=dict(name='Člen představenstva'))
         RoleCategory.objects.update_or_create(slug='main_organizer', defaults=dict(name='Hlavní organizátor'))
         RoleCategory.objects.update_or_create(slug='organizer', defaults=dict(name='Organizátor'))
+        RoleCategory.objects.update_or_create(slug='any', defaults=dict(name='Kdokoli'))
 
         HealthInsuranceCompany.objects.update_or_create(slug='VZP', defaults=dict(
             name='Všeobecná zdravotní pojišťovna České republiky'))

@@ -1,6 +1,10 @@
+from datetime import timedelta
+
+from dateutil.utils import today
 from django.contrib.gis.db.models import *
 
 from bis.models import User
+from categories.models import RoleCategory
 from translation.translate import translate_model
 
 
@@ -52,3 +56,56 @@ class Feedback(Model):
 
     class Meta:
         ordering = 'id',
+
+
+@translate_model
+class DashboardItem(Model):
+    date = DateField()
+    name = CharField(max_length=63)
+    description = TextField(blank=True)
+    repeats_every_year = BooleanField(default=False)
+
+    for_roles = ManyToManyField(RoleCategory, related_name='dashboard_items')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = '-date',
+
+    @classmethod
+    def get_items_for_user(cls, user):
+        dashboard_items = list(
+            DashboardItem.objects.filter(for_roles__in=user.roles.all(), date__gte=today().date()).distinct()
+        )
+
+        for application in user.applications.filter(
+                event_registration__event__start__gte=today(),
+                event_registration__event__is_canceled=False):
+            event = application.event_registration.event
+            dashboard_items.append(
+                DashboardItem(
+                    date=event.start.date(),
+                    name=f'Začíná ti akce {event.name}'
+                )
+            )
+
+        for event in user.events_where_was_organizer.filter(start__gte=today(), is_canceled=False):
+            dashboard_items.append(
+                DashboardItem(
+                    date=event.start.date(),
+                    name=f'Organizuješ akci {event.name}'
+                )
+            )
+
+        for event in user.events_where_was_organizer.filter(is_canceled=False, is_closed=False):
+            dashboard_items.append(
+                DashboardItem(
+                    date=event.start.date() + timedelta(days=20),
+                    name=f'Deadline pro uzavření akce {event.name}'
+                )
+            )
+
+        dashboard_items.sort(key=lambda obj: obj.date)
+
+        return dashboard_items

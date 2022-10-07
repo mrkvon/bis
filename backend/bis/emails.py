@@ -14,6 +14,10 @@ def email_password_reset_link(user, login_code):
                f'&password_exists={user.has_usable_password()}')
 
 
+def email_event_closed(event, auto=False):
+    return
+
+
 def email_login_code(email, code):
     email_text(email, 'Kód pro přihlášení', f'tvůj kód pro přihlášení je {code}.')
 

@@ -5,7 +5,7 @@ from api import frontend
 from api.frontend.views import UserViewSet, EventViewSet, LocationViewSet, OpportunityViewSet, FinanceReceiptViewSet, \
     EventPropagationImageViewSet, EventPhotoViewSet, QuestionViewSet, ParticipatedInViewSet, RegisteredInViewSet, \
     WhereWasOrganizerViewSet, ParticipantsViewSet, OrganizersViewSet, RegisteredViewSet, EventApplicationViewSet, \
-    EventDraftViewSet
+    EventDraftViewSet, DashboardItemViewSet
 
 router = routers.DefaultRouter()
 
@@ -13,6 +13,7 @@ router.register('users', UserViewSet, 'users')
 router.register('events', EventViewSet, 'events')
 router.register('locations', LocationViewSet, 'locations')
 router.register('event_drafts', EventDraftViewSet, 'event_drafts')
+router.register('dashboard_items', DashboardItemViewSet, 'dashboard_items')
 
 users_router = routers.NestedDefaultRouter(router, 'users', lookup='user')
 users_router.register('opportunities', OpportunityViewSet)

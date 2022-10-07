@@ -10,13 +10,14 @@ from api.frontend.filters import EventFilter, LocationFilter, UserFilter
 from api.frontend.permissions import BISPermissions
 from api.frontend.serializers import UserSerializer, EventSerializer, LocationSerializer, OpportunitySerializer, \
     FinanceReceiptSerializer, EventPhotoSerializer, EventPropagationImageSerializer, QuestionSerializer, \
-    EventApplicationSerializer, GetUnknownUserRequestSerializer, EventDraftSerializer
+    EventApplicationSerializer, GetUnknownUserRequestSerializer, EventDraftSerializer, DashboardItemSerializer
 from api.helpers import parse_request_data
 from bis.models import User, Location
 from bis.permissions import Permissions
 from event.models import Event, EventFinanceReceipt, EventPhoto, EventPropagationImage, EventDraft
 from login_code.models import ThrottleLog
 from opportunities.models import Opportunity
+from other.models import DashboardItem
 from questionnaire.models import Question, EventApplication
 
 safe_http_methods = [m.lower() for m in SAFE_METHODS]
@@ -128,6 +129,14 @@ class WhereWasOrganizerViewSet(EventViewSet):
 class EventDraftViewSet(PermissionViewSetBase):
     serializer_class = EventDraftSerializer
     queryset = EventDraft.objects.all()
+
+
+class DashboardItemViewSet(PermissionViewSetBase):
+    serializer_class = DashboardItemSerializer
+    http_method_names = safe_http_methods
+
+    def get_queryset(self):
+        return DashboardItem.get_items_for_user(self.request.user)
 
 
 class LocationViewSet(PermissionViewSetBase):

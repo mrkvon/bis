@@ -5,7 +5,7 @@ from bis.models import Qualification, User, UserAddress, UserContactAddress, Use
 from donations.models import Donation, UploadBankRecords, VariableSymbol, Donor
 from event.models import Event, EventDraft
 from opportunities.models import OfferedHelp, Opportunity
-from other.models import Feedback, DuplicateUser
+from other.models import Feedback, DuplicateUser, DashboardItem
 from questionnaire.models import Answer, Questionnaire, Question, EventApplication, EventApplicationClosePerson, \
     EventApplicationAddress
 
@@ -43,7 +43,7 @@ class Permissions:
     def has_view_permission(self, obj=None):
         # individual objects are filtered using get_queryset,
         # this is used only for disabling whole admin model
-        if self.model in [UploadBankRecords] or (not obj and self.model in [DuplicateUser]):
+        if self.model in [UploadBankRecords, DashboardItem] or (not obj and self.model in [DuplicateUser]):
             return self.user.is_superuser or self.user.is_office_worker
 
         if self.can_view_all_objs() or self.user.is_board_member:

@@ -22,6 +22,7 @@ generic:
   health_issues: 'Alergie a zdravotní omezení'
   application: 'Přihláška'
   created_at: 'Vytvořeno'
+  date: 'Datum'
 
 
 login:

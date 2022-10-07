@@ -19,6 +19,7 @@ from donations.models import Donor, Donation
 from event.models import Event, EventFinance, EventPropagation, EventRegistration, EventRecord, EventFinanceReceipt, \
     EventPropagationImage, EventPhoto, VIPEventPropagation, EventDraft
 from opportunities.models import Opportunity, OfferedHelp
+from other.models import DashboardItem
 from questionnaire.models import Questionnaire, Question, EventApplication, EventApplicationClosePerson, \
     EventApplicationAddress
 from regions.serializers import RegionSerializer
@@ -626,6 +627,12 @@ class EventDraftSerializer(ModelSerializer):
     def create(self, validated_data):
         validated_data['owner'] = self.context['request'].user
         return super().create(validated_data)
+
+
+class DashboardItemSerializer(ModelSerializer):
+    class Meta:
+        model = DashboardItem
+        fields = 'date', 'name', 'description'
 
 
 class GetUnknownUserRequestSerializer(Serializer):

@@ -4,7 +4,7 @@ from nested_admin.nested import NestedModelAdmin
 
 from bis.admin_permissions import PermissionMixin
 from event.models import *
-from other.models import DuplicateUser, Feedback
+from other.models import DuplicateUser, Feedback, DashboardItem
 
 
 @admin.register(DuplicateUser)
@@ -69,3 +69,18 @@ class FeedbackAdmin(PermissionMixin, NestedModelAdmin):
                 return _self.cleaned_data
 
         return F1
+
+
+@admin.register(DashboardItem)
+class DashboardItemAdmin(PermissionMixin, NestedModelAdmin):
+    list_display = 'name', 'date', 'repeats_every_year', 'description', 'get_roles'
+
+    save_as = True
+
+    @admin.display(description='Pro role')
+    def get_roles(self, obj):
+        return mark_safe('<br>'.join(str(role) for role in obj.for_roles.all()))
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('for_roles')
+

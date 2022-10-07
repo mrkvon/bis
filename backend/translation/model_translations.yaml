@@ -474,3 +474,10 @@ Feedback:
   name_plural: 'Zpětné vazby'
   fields:
     feedback: 'Zpětná vazba'
+
+DashboardItem:
+  name: 'Termín'
+  name_plural: 'Termíny'
+  fields:
+    for_roles: 'Pro role'
+    repeats_every_year: 'Opakuje se každý rok?'

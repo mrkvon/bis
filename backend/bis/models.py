@@ -178,7 +178,7 @@ class User(AbstractBaseUser):
 
     @cached_property
     def is_member_only(self):
-        return not self.roles.exists()
+        return self.roles.exclude(slug='any').exists()
 
     @cached_property
     def can_see_all(self):
@@ -396,32 +396,35 @@ class User(AbstractBaseUser):
                 return True
 
     def update_roles(self):
-        roles = []
+        roles = ['any']
 
-        if BrontosaurusMovement.get().director == self or BrontosaurusMovement.get().finance_director == self:
-            roles.append(RoleCategory.objects.get(slug='director'))
-        if self in BrontosaurusMovement.get().bis_administrators.all():
-            roles.append(RoleCategory.objects.get(slug='admin'))
-        if self in BrontosaurusMovement.get().office_workers.all():
-            roles.append(RoleCategory.objects.get(slug='office_worker'))
-        if self in BrontosaurusMovement.get().audit_committee.all():
-            roles.append(RoleCategory.objects.get(slug='auditor'))
-        if self in BrontosaurusMovement.get().executive_committee.all():
-            roles.append(RoleCategory.objects.get(slug='executive'))
-        if self in BrontosaurusMovement.get().education_members.all():
-            roles.append(RoleCategory.objects.get(slug='education_member'))
-        if AdministrationUnit.objects.filter(chairman=self).exists():
-            roles.append(RoleCategory.objects.get(slug='chairman'))
-        if AdministrationUnit.objects.filter(vice_chairman=self).exists():
-            roles.append(RoleCategory.objects.get(slug='vice_chairman'))
-        if AdministrationUnit.objects.filter(manager=self).exists():
-            roles.append(RoleCategory.objects.get(slug='manager'))
-        if AdministrationUnit.objects.filter(board_members=self).exists():
-            roles.append(RoleCategory.objects.get(slug='board_member'))
-        if apps.get_model('bis', 'Event').objects.filter(main_organizer=self).exists():
-            roles.append(RoleCategory.objects.get(slug='main_organizer'))
-        if apps.get_model('bis', 'Event').objects.filter(other_organizers=self).exists():
-            roles.append(RoleCategory.objects.get(slug='organizer'))
+        brontosaurus_movement = BrontosaurusMovement.get()
+        if self in [brontosaurus_movement.director, brontosaurus_movement.finance_director]:
+            roles += ['director']
+        if self in brontosaurus_movement.bis_administrators.all():
+            roles += ['admin']
+        if self in brontosaurus_movement.office_workers.all():
+            roles += ['office_worker']
+        if self in brontosaurus_movement.audit_committee.all():
+            roles += ['auditor']
+        if self in brontosaurus_movement.executive_committee.all():
+            roles += ['executive']
+        if self in brontosaurus_movement.education_members.all():
+            roles += ['education_member']
+        if self.chairman_of.exists():
+            roles += ['chairman']
+        if self.vice_chairman_of.exists():
+            roles += ['vice_chairman']
+        if self.manager_of.exists():
+            roles += ['manager']
+        if self.administration_units.exists():
+            roles += ['board_member']
+        if self.events_where_was_as_main_organizer.exists():
+            roles += ['main_organizer']
+        if self.events_where_was_organizer.exists():
+            roles += ['organizer']
+
+        roles = [RoleCategory.objects.get(slug=role) for role in roles]
 
         self.roles.set(roles)
 

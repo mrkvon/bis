@@ -1,0 +1,12 @@
+{% extends "admin/index.html" %}
+{% load bis_tags %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module">
+        <h2>Nejbližší termíny</h2>
+
+        {% user_dashboard user %}
+    </div>
+</div>
+{% endblock %}

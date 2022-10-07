@@ -7,6 +7,7 @@ from bis.admin_filters import EventStatsDateFilter, UserStatsDateFilter
 from bis.helpers import AgeStats
 from bis.models import User
 from event.models import Event
+from other.models import DashboardItem
 
 register = template.Library()
 
@@ -37,3 +38,14 @@ def user_stats(context, changelist):
         age_stats.append(AgeStats('unikátních zorganizování akce', user_queryset, to_date))
 
     return mark_safe(''.join([stat.as_table() for stat in age_stats]))
+
+
+@register.simple_tag(takes_context=True)
+def user_dashboard(context, user):
+    items = DashboardItem.get_items_for_user(user)
+
+    result = ''
+    for item in items:
+        result += f'<li>{item.date}: {item.name}<br><span class="mini quiet">{item.description}</span></li>'
+
+    return mark_safe(f'<ul>{result}</ul>')
