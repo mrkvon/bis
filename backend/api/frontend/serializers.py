@@ -458,8 +458,8 @@ class LocationPatronSerializer(BaseContactSerializer):
 
 
 class LocationSerializer(ModelSerializer):
-    patron = LocationPatronSerializer()
-    contact_person = LocationContactPersonSerializer()
+    patron = LocationPatronSerializer(allow_null=True)
+    contact_person = LocationContactPersonSerializer(allow_null=True)
 
     program = LocationProgramCategorySerializer()
     accessibility_from_prague = LocationAccessibilityCategorySerializer()
