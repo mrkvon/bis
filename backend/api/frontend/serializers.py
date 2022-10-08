@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import SerializerMethodField, CharField, DateField
+from rest_framework.fields import SerializerMethodField, CharField, DateField, IntegerField
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer as DRFModelSerializer, ListSerializer, Serializer
@@ -639,3 +639,11 @@ class GetUnknownUserRequestSerializer(Serializer):
     first_name = CharField()
     last_name = CharField()
     birthday = DateField()
+
+
+class EventRouterKwargsSerializer(Serializer):
+    event_id = IntegerField()
+
+
+class UserRouterKwargsSerializer(Serializer):
+    user_id = IntegerField()

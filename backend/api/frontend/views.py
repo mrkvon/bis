@@ -10,7 +10,8 @@ from api.frontend.filters import EventFilter, LocationFilter, UserFilter
 from api.frontend.permissions import BISPermissions
 from api.frontend.serializers import UserSerializer, EventSerializer, LocationSerializer, OpportunitySerializer, \
     FinanceReceiptSerializer, EventPhotoSerializer, EventPropagationImageSerializer, QuestionSerializer, \
-    EventApplicationSerializer, GetUnknownUserRequestSerializer, EventDraftSerializer, DashboardItemSerializer
+    EventApplicationSerializer, GetUnknownUserRequestSerializer, EventDraftSerializer, DashboardItemSerializer, \
+    EventRouterKwargsSerializer, UserRouterKwargsSerializer
 from api.helpers import parse_request_data
 from bis.models import User, Location
 from bis.permissions import Permissions
@@ -26,6 +27,12 @@ safe_http_methods = [m.lower() for m in SAFE_METHODS]
 class PermissionViewSetBase(ModelViewSet):
     lookup_field = 'id'
     permission_classes = [IsAuthenticated, BISPermissions]
+    kwargs_serializer_class = None
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        if self.kwargs_serializer_class:
+            self.kwargs_serializer_class(data=self.kwargs).is_valid(raise_exception=True)
 
     def get_queryset(self):
         queryset = super(PermissionViewSetBase, self).get_queryset()
@@ -66,6 +73,7 @@ class UserViewSet(PermissionViewSetBase):
 
 class ParticipantsViewSet(UserViewSet):
     http_method_names = safe_http_methods
+    kwargs_serializer_class = EventRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(participated_in_events__event=self.kwargs['event_id'])
@@ -73,6 +81,7 @@ class ParticipantsViewSet(UserViewSet):
 
 class RegisteredViewSet(UserViewSet):
     http_method_names = safe_http_methods
+    kwargs_serializer_class = EventRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(applications__event_registration__event=self.kwargs['event_id'])
@@ -80,6 +89,7 @@ class RegisteredViewSet(UserViewSet):
 
 class OrganizersViewSet(UserViewSet):
     http_method_names = safe_http_methods
+    kwargs_serializer_class = EventRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(events_where_was_organizer=self.kwargs['event_id'])
@@ -107,6 +117,7 @@ class EventViewSet(PermissionViewSetBase):
 
 class ParticipatedInViewSet(EventViewSet):
     http_method_names = safe_http_methods
+    kwargs_serializer_class = UserRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(record__participants=self.kwargs['user_id'])
@@ -114,6 +125,7 @@ class ParticipatedInViewSet(EventViewSet):
 
 class RegisteredInViewSet(EventViewSet):
     http_method_names = safe_http_methods
+    kwargs_serializer_class = UserRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(registration__applications__user=self.kwargs['user_id'])
@@ -121,6 +133,7 @@ class RegisteredInViewSet(EventViewSet):
 
 class WhereWasOrganizerViewSet(EventViewSet):
     http_method_names = safe_http_methods
+    kwargs_serializer_class = UserRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(other_organizers=self.kwargs['user_id'])
@@ -157,6 +170,7 @@ class OpportunityViewSet(PermissionViewSetBase):
     search_fields = 'name', 'introduction'
     serializer_class = OpportunitySerializer
     queryset = Opportunity.objects.select_related('category')
+    kwargs_serializer_class = UserRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(contact_person=self.kwargs['user_id'])
@@ -165,6 +179,7 @@ class OpportunityViewSet(PermissionViewSetBase):
 class FinanceReceiptViewSet(PermissionViewSetBase):
     serializer_class = FinanceReceiptSerializer
     queryset = EventFinanceReceipt.objects.all()
+    kwargs_serializer_class = EventRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(finance__event=self.kwargs['event_id'])
@@ -173,6 +188,7 @@ class FinanceReceiptViewSet(PermissionViewSetBase):
 class EventPropagationImageViewSet(PermissionViewSetBase):
     serializer_class = EventPropagationImageSerializer
     queryset = EventPropagationImage.objects.all()
+    kwargs_serializer_class = EventRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(propagation__event=self.kwargs['event_id'])
@@ -181,6 +197,7 @@ class EventPropagationImageViewSet(PermissionViewSetBase):
 class EventPhotoViewSet(PermissionViewSetBase):
     serializer_class = EventPhotoSerializer
     queryset = EventPhoto.objects.all()
+    kwargs_serializer_class = EventRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(record__event=self.kwargs['event_id'])
@@ -189,6 +206,7 @@ class EventPhotoViewSet(PermissionViewSetBase):
 class QuestionViewSet(PermissionViewSetBase):
     serializer_class = QuestionSerializer
     queryset = Question.objects.all()
+    kwargs_serializer_class = EventRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(questionnaire__event_registration__event=self.kwargs['event_id'])
@@ -197,6 +215,7 @@ class QuestionViewSet(PermissionViewSetBase):
 class EventApplicationViewSet(PermissionViewSetBase):
     serializer_class = EventApplicationSerializer
     queryset = EventApplication.objects.select_related('close_person', 'address', 'sex')
+    kwargs_serializer_class = EventRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(event_registration__event=self.kwargs['event_id'])
