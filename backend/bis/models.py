@@ -38,8 +38,9 @@ class Location(Model):
 
     program = ForeignKey(LocationProgramCategory, on_delete=PROTECT, null=True, blank=True)
     accessibility_from_prague = ForeignKey(LocationAccessibilityCategory, on_delete=PROTECT, related_name='+',
-                                           null=True)
-    accessibility_from_brno = ForeignKey(LocationAccessibilityCategory, on_delete=PROTECT, related_name='+', null=True)
+                                           null=True, blank=True)
+    accessibility_from_brno = ForeignKey(LocationAccessibilityCategory, on_delete=PROTECT, related_name='+', null=True,
+                                         blank=True)
 
     volunteering_work = TextField(blank=True)
     volunteering_work_done = TextField(blank=True)
