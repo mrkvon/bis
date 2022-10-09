@@ -231,6 +231,7 @@ EMAIL = environ['EMAIL']
 AUTH_USER_MODEL = 'bis.User'
 
 SKIP_VALIDATION = False
+EMAILS_PAUSED = False
 
 ECOMAIL_API_KEY = environ['ECOMAIL_API_KEY']
 # mailjet

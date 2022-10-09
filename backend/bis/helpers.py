@@ -92,6 +92,25 @@ def with_paused_validation(f):
     return wrapper
 
 
+class paused_emails:
+    def __enter__(self):
+        self.emails_paused = not settings.EMAILS_PAUSED
+        if self.emails_paused:
+            settings.EMAILS_PAUSED = True
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.emails_paused:
+            settings.EMAILS_PAUSED = False
+
+
+def with_paused_emails(f):
+    def wrapper(*args, **kwargs):
+        with paused_emails():
+            return f(*args, **kwargs)
+
+    return wrapper
+
+
 class AgeStats:
     def __init__(self, header, queryset, date):
         self.date = date

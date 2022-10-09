@@ -19,3 +19,8 @@ def compute_duration_of_event(instance: Event, **kwargs):
     new_value = max((instance.end - instance.start.date()).days + 1, 0)
     if instance.duration != new_value:
         instance.duration = new_value
+
+# @receiver(post_save, sender=Event, dispatch_uid='send_event_created_email')
+# def send_event_created_email(instance: Event, created, **kwargs):
+#     email_text()
+#     if instance.main_organizer: instance.other_organizers.add(instance.main_organizer)

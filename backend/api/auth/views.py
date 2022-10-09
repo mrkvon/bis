@@ -12,7 +12,7 @@ from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND, HTTP_
 from api.auth.serializers import LoginRequestSerializer, SendVerificationLinkRequestSerializer, \
     ResetPasswordRequestSerializer, TokenResponse, UserIdResponse
 from api.helpers import parse_request_data
-from bis.emails import email_password_reset_link
+from bis import emails
 from bis.models import User
 from login_code.models import LoginCode
 
@@ -62,7 +62,7 @@ def send_verification_link(request, data):
     user = User.objects.filter(all_emails__email=data['email']).first()
     if not user: raise NotFound()
     login_code = LoginCode.make(user)
-    email_password_reset_link(user, login_code)
+    emails.password_reset_link(user, login_code)
 
     return Response(status=HTTP_204_NO_CONTENT)
 

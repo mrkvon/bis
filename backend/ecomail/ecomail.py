@@ -65,6 +65,7 @@ from ecomail.serializers import SendEmailSerializer
 def send_email(from_email, from_name, subject, template_id, recipients, *, reply_to=None, variables=None,
                attachments=None):
     if settings.TEST: return
+    if settings.EMAILS_PAUSED: return
     if attachments is None: attachments = []
     if variables is None: variables = {}
     if reply_to is None: reply_to = [from_email]

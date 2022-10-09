@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.views.generic import FormView
 from rest_framework.exceptions import Throttled, AuthenticationFailed
 
-from bis.emails import email_login_code
+from bis import emails
 from bis.models import User
 from login_code.models import LoginCode
 from translation.translate import _
@@ -29,7 +29,7 @@ class LoginForm(Form):
         except Throttled:
             raise ValidationError(_('login.too_many_retries'))
 
-        email_login_code(email, login_code.code)
+        emails.login_code(email, login_code.code)
 
         return email
 
