@@ -26,6 +26,25 @@ from regions.serializers import RegionSerializer
 
 
 class ModelSerializer(DRFModelSerializer):
+    @staticmethod
+    def only_null_doesnt_mean_it_is_not_required(model_field, field_kwargs):
+        if model_field.null and not model_field.blank:
+            print(model_field, field_kwargs)
+            field_kwargs.pop('allow_null', None)
+            if not model_field.has_default():
+                field_kwargs.pop('required', None)
+
+    def build_standard_field(self, field_name, model_field):
+        field_class, field_kwargs = super().build_standard_field(field_name, model_field)
+        self.only_null_doesnt_mean_it_is_not_required(model_field, field_kwargs)
+        return field_class, field_kwargs
+
+    def build_relational_field(self, field_name, relation_info):
+        field_class, field_kwargs = super().build_relational_field(field_name, relation_info)
+        model_field, related_model, to_many, to_field, has_through_model, reverse = relation_info
+        self.only_null_doesnt_mean_it_is_not_required(model_field, field_kwargs)
+        return field_class, field_kwargs
+
     def save(self, **kwargs):
         try:
             return super().save(**kwargs)
@@ -319,7 +338,6 @@ class FinanceSerializer(ModelSerializer):
             'grant_amount',
             'total_event_cost',
             'budget',
-            'receipts',
         )
 
 

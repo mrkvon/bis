@@ -50,7 +50,7 @@ class Location(Model):
     web = URLField(blank=True)
     address = CharField(max_length=255, blank=True)
     gps_location = PointField(null=True)
-    region = ForeignKey('regions.Region', related_name='locations', on_delete=PROTECT, null=True, blank=True)
+    region = ForeignKey('regions.Region', related_name='locations', on_delete=PROTECT, null=True, editable=False)
 
     _import_id = CharField(max_length=15, default='')
 
