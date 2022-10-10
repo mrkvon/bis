@@ -3,7 +3,7 @@ from datetime import timedelta
 from dateutil.utils import today
 from django.core.management.base import BaseCommand
 
-from bis.emails import email_event_closed
+from bis import emails
 from bis.helpers import with_paused_validation
 from event.models import Event
 
@@ -15,4 +15,4 @@ class Command(BaseCommand):
             event.is_closed = True
             event.save()
 
-            email_event_closed(event, True)
+            emails.event_closed(event, True)
