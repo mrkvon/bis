@@ -389,7 +389,7 @@ class User(AbstractBaseUser):
     def has_edit_permission(self, user):
         if self == user: return True
         events = []
-        events += apps.get_model('event', 'Event').objects.filter(registration__applications__user=self)
+        events += apps.get_model('bis', 'Event').objects.filter(registration__applications__user=self)
         events += self.participated_in_events.all()
         events += self.events_where_was_organizer.all()
         for event in events:
