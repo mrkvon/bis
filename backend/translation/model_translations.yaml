@@ -83,6 +83,8 @@ AdministrationUnit:
     www: 'Webové stránky'
     custom_statues: 'Vlastní stanovy'
     data_box: 'Datová schránka'
+    facebook: 'Facebook'
+    instagram: 'Instagram'
 
 AdministrationUnitAddress:
   name: 'Adresa'

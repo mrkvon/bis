@@ -20,6 +20,8 @@ class AdministrationUnit(Model):
     phone = PhoneNumberField()
     email = EmailField()
     www = URLField(blank=True)
+    facebook = URLField(blank=True)
+    instagram = URLField(blank=True)
     ic = CharField(max_length=15, blank=True)
     bank_account_number = CharField(max_length=63, blank=True)
     data_box = CharField(max_length=63, blank=True)
