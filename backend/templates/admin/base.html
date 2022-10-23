@@ -53,6 +53,21 @@
             white-space: unset;
         }
 
+        .required label, label.required {
+            font-weight: normal;
+            color: var(--body-fg);
+        }
+
+        label {
+            font-weight: normal;
+            color: var(--body-fg);
+        }
+
+        .required label:before, label.required:before {
+            content: '* ';
+            color: var(--error-fg);
+        }
+
     </style>
     <link rel="icon" href="{% static 'favicon.png' %}" sizes="32x32"/>
 {% endblock %}
