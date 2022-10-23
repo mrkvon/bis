@@ -82,6 +82,7 @@ AdministrationUnit:
     manager: 'Hospodář'
     www: 'Webové stránky'
     custom_statues: 'Vlastní stanovy'
+    data_box: 'Datová schránka'
 
 AdministrationUnitAddress:
   name: 'Adresa'
