@@ -340,6 +340,7 @@ class User(AbstractBaseUser):
 
     @admin.display(description='Aktivní kvalifikace')
     def get_qualifications(self):
+        if (self.age or 0) < 15: return []
         return [q for q in self.qualifications.all() if q.valid_since <= timezone.now().date() <= q.valid_till]
 
     @admin.display(description='Aktivní členství')
