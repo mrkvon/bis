@@ -11,7 +11,7 @@ from event.models import Event
 class Command(BaseCommand):
     @with_paused_validation
     def handle(self, *args, **options):
-        for event in Event.objects.filter(end__lt=today().date() - timedelta(days=20), is_closed=False):
+        for event in Event.objects.filter(end=today().date() - timedelta(days=20), is_closed=False):
             event.is_closed = True
             event.save()
 
