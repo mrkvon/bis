@@ -81,6 +81,7 @@ AdministrationUnit:
     is_for_kids: 'BRĎO?'
     manager: 'Hospodář'
     www: 'Webové stránky'
+    custom_statues: 'Vlastní stanovy'
 
 AdministrationUnitAddress:
   name: 'Adresa'

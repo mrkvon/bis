@@ -22,6 +22,7 @@ class AdministrationUnit(Model):
     www = URLField(blank=True)
     ic = CharField(max_length=15, blank=True)
     bank_account_number = CharField(max_length=63, blank=True)
+    custom_statues = FileField(upload_to='custom_statues', blank=True)
 
     existed_since = DateField(null=True)
     existed_till = DateField(null=True, blank=True)
