@@ -96,6 +96,11 @@ AdministrationUnitContactAddress:
   name_plural: 'Kontaktní adresa'
   fields:
     administration_unit: 'Organizující jednotka'
+GeneralMeeting:
+  name: 'Valná hromada'
+  name_plural: 'Valné hromady'
+  fields:
+    administration_unit: 'Organizující jednotka'
 
 
 

@@ -5,7 +5,7 @@ from nested_admin.nested import NestedModelAdmin, NestedTabularInline
 from solo.admin import SingletonModelAdmin
 
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, AdministrationUnitAddress, \
-    AdministrationUnitContactAddress
+    AdministrationUnitContactAddress, GeneralMeeting
 from bis.admin_filters import IsAdministrationUnitActiveFilter
 from bis.admin_permissions import PermissionMixin
 from common.history import show_history
@@ -17,6 +17,11 @@ class AdministrationUnitAddressAdmin(PermissionMixin, NestedTabularInline):
 
 class AdministrationUnitContactAddressAdmin(PermissionMixin, NestedTabularInline):
     model = AdministrationUnitContactAddress
+
+
+class GeneralMeetingAdmin(PermissionMixin, NestedTabularInline):
+    model = GeneralMeeting
+    extra = 1
 
 
 @admin.register(AdministrationUnit)
@@ -32,7 +37,7 @@ class AdministrationUnitAdmin(PermissionMixin, NestedModelAdmin):
     list_select_related = 'address', 'chairman', 'category'
     readonly_fields = 'history',
 
-    inlines = AdministrationUnitAddressAdmin, AdministrationUnitContactAddressAdmin
+    inlines = AdministrationUnitAddressAdmin, AdministrationUnitContactAddressAdmin, GeneralMeetingAdmin
 
     @admin.display(description='Je aktivní', boolean=True)
     def is_active(self, obj):

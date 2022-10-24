@@ -1,5 +1,5 @@
 from administration_units.models import BrontosaurusMovement, AdministrationUnit, AdministrationUnitAddress, \
-    AdministrationUnitContactAddress
+    AdministrationUnitContactAddress, GeneralMeeting
 from bis.models import Qualification, User, UserAddress, UserContactAddress, UserEmail, Location, LocationPhoto, \
     Membership, LocationContactPerson, UserClosePerson, LocationPatron
 from donations.models import Donation, UploadBankRecords, VariableSymbol, Donor
@@ -23,7 +23,8 @@ class Permissions:
                self.model._meta.app_label in ['categories', 'regions'] or \
                self.model in [BrontosaurusMovement,
                               Location, LocationPhoto, LocationContactPerson, LocationPatron,
-                              AdministrationUnit, AdministrationUnitAddress, AdministrationUnitContactAddress]
+                              AdministrationUnit, AdministrationUnitAddress, AdministrationUnitContactAddress,
+                              GeneralMeeting]
 
     def is_readonly(self):
         return self.model._meta.app_label in ['categories', 'regions'] or \
@@ -90,7 +91,7 @@ class Permissions:
                     return True
 
         if self.user.is_board_member:
-            if self.model in [DuplicateUser, Membership, AdministrationUnitAddress, AdministrationUnitContactAddress]:
+            if self.model in [DuplicateUser, Membership, AdministrationUnitAddress, AdministrationUnitContactAddress, GeneralMeeting]:
                 if not obj or obj.has_edit_permission(self.user):
                     return True
 
@@ -126,7 +127,7 @@ class Permissions:
 
         if self.user.is_board_member:
             if self.model in [DuplicateUser, Membership, AdministrationUnit, AdministrationUnitAddress,
-                              AdministrationUnitContactAddress]:
+                              AdministrationUnitContactAddress, GeneralMeeting]:
                 if not obj or obj.has_edit_permission(self.user):
                     return True
 
@@ -159,7 +160,7 @@ class Permissions:
                     return True
 
         if self.user.is_board_member:
-            if self.model in [DuplicateUser, Membership, AdministrationUnitContactAddress]:
+            if self.model in [DuplicateUser, Membership, AdministrationUnitContactAddress, GeneralMeeting]:
                 if not obj or obj.has_edit_permission(self.user):
                     return True
 

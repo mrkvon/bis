@@ -23,6 +23,7 @@ generic:
   application: 'Přihláška'
   created_at: 'Vytvořeno'
   date: 'Datum'
+  place: 'Místo'
 
 
 login:

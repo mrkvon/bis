@@ -4,9 +4,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 from solo.models import SingletonModel
 
 from bis.helpers import permission_cache, update_roles
+from categories.models import AdministrationUnitCategory
 from common.abstract_models import BaseAddress
 from common.history import record_history
-from categories.models import AdministrationUnitCategory
 from translation.translate import translate_model
 
 
@@ -73,6 +73,20 @@ class AdministrationUnitAddress(BaseAddress):
 @translate_model
 class AdministrationUnitContactAddress(BaseAddress):
     administration_unit = OneToOneField(AdministrationUnit, on_delete=CASCADE, related_name='contact_address')
+
+
+@translate_model
+class GeneralMeeting(Model):
+    administration_unit = ForeignKey(AdministrationUnit, related_name='general_meetings', on_delete=CASCADE)
+
+    date = DateField()
+    place = CharField(max_length=63)
+
+    def __str__(self):
+        return f"Valná hromada {self.place} - {self.date}"
+
+    class Meta:
+        ordering = 'date',
 
 
 @translate_model
