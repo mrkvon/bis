@@ -170,12 +170,14 @@ def get_add_members_actions():
     except ProgrammingError:
         return []
 
+
 @action(description='Vypiš e-maily')
 def export_emails(view, request, queryset):
     emails = queryset.values_list('email', flat=True)
     emails = [email for email in emails if email]
 
     return HttpResponse('<br>'.join(emails))
+
 
 @admin.register(User)
 class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin):

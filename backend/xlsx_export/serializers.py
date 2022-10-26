@@ -3,7 +3,7 @@ from rest_framework.relations import StringRelatedField
 from rest_framework.serializers import ModelSerializer
 
 from bis.models import User, Location
-from donations.models import Donor
+from donations.models import Donor, Donation
 from event.models import Event, EventFinance, EventPropagation, EventRegistration, EventRecord
 from opportunities.models import OfferedHelp
 
@@ -249,4 +249,38 @@ class EventExportSerializer(ModelSerializer):
             'propagation',
             'registration',
             'record',
+        )
+
+
+class DonationExportSerializer(ModelSerializer):
+    donor = DonorExportSerializer()
+    donation_source = StringRelatedField()
+
+    @staticmethod
+    def get_related(queryset):
+        return queryset.select_related(
+            'donation_source',
+            'donor__user__address',
+            'donor__user__contact_address',
+            'donor__regional_center_support',
+            'donor__basic_section_support',
+            'donor__user__offers',
+            'donor__user__health_insurance_company',
+            'donor__user__sex',
+        ).prefetch_related(
+            'donor__user__roles',
+            'donor__variable_symbols',
+            'donor__user__offers__programs',
+            'donor__user__offers__organizer_roles',
+            'donor__user__offers__team_roles',
+        )
+
+    class Meta:
+        model = Donation
+        fields = (
+            'donated_at',
+            'amount',
+            'donation_source',
+            'info',
+            'donor',
         )

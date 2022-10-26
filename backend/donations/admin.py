@@ -19,6 +19,7 @@ from xlsx_export.export import export_to_xlsx
 
 @admin.register(Donation)
 class DonationAdmin(PermissionMixin, NestedModelAdmin):
+    actions = [export_to_xlsx]
     autocomplete_fields = 'donor',
     list_display = '__str__', 'donor', 'donated_at', 'donation_source', 'info'
     list_filter = ('amount', RangeNumericFilter), ('donated_at', DateRangeFilter), HasDonorFilter, \
