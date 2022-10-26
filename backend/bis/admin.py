@@ -1,8 +1,10 @@
 from admin_numeric_filter.admin import NumericFilterModelAdmin
 from dateutil.utils import today
+from django.contrib.admin import action
 from django.contrib.auth.models import Group
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db import ProgrammingError
+from django.http import HttpResponse
 from more_admin_filters import MultiSelectRelatedDropdownFilter
 from nested_admin.forms import SortableHiddenMixin
 from nested_admin.nested import NestedTabularInline, NestedStackedInline, NestedModelAdminMixin
@@ -168,10 +170,16 @@ def get_add_members_actions():
     except ProgrammingError:
         return []
 
+@action(description='Vypiš e-maily')
+def export_emails(view, request, queryset):
+    emails = queryset.values_list('email', flat=True)
+    emails = [email for email in emails if email]
+
+    return HttpResponse('<br>'.join(emails))
 
 @admin.register(User)
 class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin):
-    actions = [export_to_xlsx, mark_as_woman, mark_as_man] + get_add_members_actions()
+    actions = [export_to_xlsx, export_emails, mark_as_woman, mark_as_man] + get_add_members_actions()
 
     def get_actions(self, request):
         actions = super().get_actions(request)
@@ -203,8 +211,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
         })
     )
 
-    list_display = 'get_name', 'birthday', 'address', 'get_email', 'phone', 'get_qualifications', 'get_memberships', \
-                   'get_programs', 'get_organizer_roles', 'get_team_roles',
+    list_display = 'get_name', 'birthday', 'address', 'get_email', 'phone', 'get_qualifications', 'get_memberships'
 
     list_filter = [
         AgeFilter,
@@ -268,18 +275,5 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related(
             'memberships__administration_unit', 'qualifications__category',
-            'events_where_was_organizer', 'participated_in_events__event',
-            'offers__programs', 'offers__organizer_roles', 'offers__team_roles'
+            'events_where_was_organizer', 'participated_in_events__event', 'memberships__category'
         )
-
-    @admin.display(description='Nabízené programy')
-    def get_programs(self, obj):
-        return mark_safe('<br>'.join([str(item) for item in obj.offers.programs.all()]))
-
-    @admin.display(description='Nabízené organizátorské role')
-    def get_organizer_roles(self, obj):
-        return mark_safe('<br>'.join([str(item) for item in obj.offers.organizer_roles.all()]))
-
-    @admin.display(description='Nabízené týmové role')
-    def get_team_roles(self, obj):
-        return mark_safe('<br>'.join([str(item) for item in obj.offers.team_roles.all()]))

@@ -113,7 +113,7 @@ class User(AbstractBaseUser):
     nickname = CharField(max_length=63, blank=True)
     phone = PhoneNumberField(blank=True)
     email = EmailField(unique=True, blank=True, null=True)
-    birthday = DateField(blank=True, null=True)
+    birthday = DateField(null=True)
 
     health_insurance_company = ForeignKey(HealthInsuranceCompany, related_name='users', on_delete=PROTECT, null=True,
                                           blank=True)
@@ -476,7 +476,7 @@ class Membership(Model):
         ordering = 'id',
 
     def __str__(self):
-        return f'Člen {self.administration_unit} (rok {self.year})'
+        return f'Člen {self.administration_unit} {self.category}, {self.year}'
 
 
 @translate_model
