@@ -65,6 +65,10 @@ class Location(Model):
     def has_edit_permission(self, user):
         return not user.is_member_only
 
+    @admin.display(description='Akce na lokalitě')
+    def get_events(self):
+        return mark_safe(', '.join(get_admin_edit_url(e) for e in self.events.all()))
+
 
 @translate_model
 class LocationPhoto(Model):

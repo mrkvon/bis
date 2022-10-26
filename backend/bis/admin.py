@@ -50,6 +50,8 @@ class LocationAdmin(PermissionMixin, OSMGeoAdmin):
                   ('accessibility_from_brno', MultiSelectRelatedDropdownFilter), \
                   ('region', MultiSelectRelatedDropdownFilter)
 
+    readonly_fields = 'get_events',
+
 
 class AllMembershipAdmin(PermissionMixin, NestedTabularInline):
     verbose_name_plural = 'Všechna členství'
