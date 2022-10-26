@@ -7,7 +7,9 @@ from solo.admin import SingletonModelAdmin
 from administration_units.models import AdministrationUnit, BrontosaurusMovement, AdministrationUnitAddress, \
     AdministrationUnitContactAddress, GeneralMeeting
 from bis.admin_filters import IsAdministrationUnitActiveFilter
+from bis.admin_helpers import get_admin_list_url
 from bis.admin_permissions import PermissionMixin
+from bis.models import User
 from common.history import show_history
 
 
@@ -35,7 +37,7 @@ class AdministrationUnitAdmin(PermissionMixin, NestedModelAdmin):
 
     exclude = '_import_id', '_history'
     list_select_related = 'address', 'chairman', 'category'
-    readonly_fields = 'history',
+    readonly_fields = 'history', 'get_members'
 
     inlines = AdministrationUnitAddressAdmin, AdministrationUnitContactAddressAdmin, GeneralMeetingAdmin
 
@@ -52,6 +54,14 @@ class AdministrationUnitAdmin(PermissionMixin, NestedModelAdmin):
         if not obj.email: return None
         name, host = obj.email.split('@')
         return mark_safe(f'{name}<br>@{host}')
+
+    @admin.display(description='Aktuální členové')
+    def get_members(self, obj):
+        return get_admin_list_url(User, 'link', {
+            'memberships__administration_unit': obj.id,
+            'memberships__year_from': 2022,
+            'memberships__year_to': 2022,
+        })
 
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)

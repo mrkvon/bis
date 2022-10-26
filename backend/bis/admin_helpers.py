@@ -8,6 +8,7 @@ from django.contrib.admin import ListFilter
 from django.contrib.admin.widgets import AdminDateWidget
 from django.urls import reverse
 from rangefilter.filters import DateRangeFilter
+from urllib.parse import urlencode
 
 from bis.models import *
 
@@ -15,6 +16,13 @@ from bis.models import *
 def get_admin_edit_url(obj):
     url = reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.id])
     return mark_safe(f'<a href="{url}">{obj}</a>')
+
+
+def get_admin_list_url(klass, text, params=None):
+    url = reverse(f'admin:{klass._meta.app_label}_{klass._meta.model_name}_changelist')
+    if params:
+        url += '?' + urlencode(params)
+    return mark_safe(f'<a href="{url}">{text}</a>')
 
 
 class YesNoFilter(admin.SimpleListFilter):
