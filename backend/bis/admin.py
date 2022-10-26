@@ -200,20 +200,32 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
     exclude = 'groups', 'user_permissions', 'password', 'is_superuser', '_str'
 
     fieldsets = (
-        (None, {
-            'fields': ('first_name', 'last_name', 'nickname', 'get_all_emails', 'phone', 'birthday', 'sex')
-        }),
+        [None, {
+            'fields': ['first_name', 'last_name', 'nickname', 'get_all_emails', 'phone', 'birthday', 'sex']
+        }],
         ('Osobní informace', {
             'fields': ('health_insurance_company', 'health_issues')
         }),
         ('Události', {
             'fields': ('get_events_where_was_organizer', 'get_participated_in_events')
         }),
-        ('Interní data', {
-            'fields': ('roles', 'is_active', 'last_login', 'date_joined'),
+        ['Interní data', {
+            'fields': ['roles', 'is_active', 'last_login', 'date_joined'],
             'classes': ('collapse',)
-        })
+        }]
     )
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if request.user.is_superuser or request.user.is_office_worker:
+            for header, data in fieldsets:
+                if header == 'Interní data':
+                    data['fields'].append('internal_note')
+                    break
+            else:
+                raise RuntimeError('Interní data not found in fieldsets')
+
+        return fieldsets
 
     list_display = 'get_name', 'birthday', 'address', 'get_email', 'phone', 'get_qualifications', 'get_memberships'
 

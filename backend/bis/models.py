@@ -126,6 +126,7 @@ class User(AbstractBaseUser):
 
     is_active = BooleanField(default=True)
     date_joined = DateField(default=datetime.date.today)
+    internal_note = TextField(blank=True)
 
     _import_id = CharField(max_length=255, default='')
     _str = CharField(max_length=255)

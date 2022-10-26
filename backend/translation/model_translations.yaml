@@ -42,6 +42,7 @@ User:
     close_person: 'Rodič / blízká osoba'
     health_insurance_company: 'Pojišťovna'
     roles: 'Role'
+    internal_note: 'Poznámka kanclu'
 
 UserClosePerson:
   name: 'Rodič / blízká osoba'
