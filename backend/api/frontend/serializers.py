@@ -414,6 +414,7 @@ class RecordSerializer(ModelSerializer):
             'participants',
             'number_of_participants',
             'number_of_participants_under_26',
+            'note',
         )
 
 

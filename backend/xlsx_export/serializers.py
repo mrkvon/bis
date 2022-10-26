@@ -179,6 +179,7 @@ class RecordExportSerializer(ModelSerializer):
             'comment_on_work_done',
             'get_participants_count',
             'get_young_percentage',
+            'note',
         )
 
 

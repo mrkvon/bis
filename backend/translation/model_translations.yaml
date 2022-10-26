@@ -266,6 +266,7 @@ EventRecord:
     comment_on_work_done: 'Okomentování vykonané práce'
     attendance_list: 'Prezenční listina'
     participants: 'Účastníci'
+    note: 'Poznámka k akci'
     number_of_participants:
       - 'Počet účastníků'
       - 'Vyplň pouze pokud nejsou vyplnění konkrétní účastníci'

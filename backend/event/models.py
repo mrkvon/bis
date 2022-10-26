@@ -263,6 +263,8 @@ class EventRecord(Model):
     number_of_participants = PositiveIntegerField(null=True, blank=True)
     number_of_participants_under_26 = PositiveIntegerField(null=True, blank=True)
 
+    note = TextField(blank=True)
+
     def clean(self):
         if self.event.is_attendance_list_required and not self.attendance_list:
             raise ValidationError('Prezenční listina není vyplněna')
