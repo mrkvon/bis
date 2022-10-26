@@ -21,9 +21,10 @@ def set_unique_str(instance: User, **kwargs):
     f1 = lambda user: user.get_name()
 
     def f2(user):
-        name = user.get_name()
-        if user.age is not None: name += f' ({user.age})'
-        return name
+        _str = [user.get_name()]
+        if hasattr(user, 'address'): _str.append(user.address.city)
+        if user.age is not None: _str.append(f'{user.age} let')
+        return ', '.join(_str)
 
     for f in [f1, f2]:
         for key, value in data.items():
