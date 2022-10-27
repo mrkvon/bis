@@ -17,7 +17,7 @@ class EventApplication(Model):
     last_name = CharField(max_length=63)
     nickname = CharField(max_length=63, blank=True)
     phone = PhoneNumberField(blank=True)
-    email = EmailField(unique=True, blank=True, null=True)
+    email = EmailField(blank=True, null=True)
     birthday = DateField(blank=True, null=True)
     health_issues = TextField(blank=True)
     sex = ForeignKey(SexCategory, on_delete=PROTECT, null=True, blank=True, related_name='applications')
