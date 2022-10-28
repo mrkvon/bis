@@ -196,12 +196,13 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
 
     readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_all_emails', \
                       'get_events_where_was_organizer', 'get_participated_in_events', \
-                      'roles'
+                      'roles', 'get_donor'
     exclude = 'groups', 'user_permissions', 'password', 'is_superuser', '_str'
 
     fieldsets = (
         [None, {
-            'fields': ['first_name', 'last_name', 'birth_name', 'nickname', 'get_all_emails', 'phone', 'birthday', 'sex']
+            'fields': ['get_donor', 'first_name', 'last_name', 'birth_name', 'nickname', 'birthday', 'sex', 'phone',
+                       'get_all_emails']
         }],
         ('Osobní informace', {
             'fields': ('health_insurance_company', 'health_issues')
@@ -272,8 +273,8 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
     def get_inlines(self, request, obj):
         inlines = [UserAddressAdmin, UserContactAddressAdmin,
                    ClosePersonAdmin,
-                   UserOfferedHelpAdmin,
                    QualificationAdmin, AllMembershipAdmin, MembershipAdmin,
+                   UserOfferedHelpAdmin,
                    DuplicateUserAdminInline]
         if request.user.is_superuser:
             inlines.append(UserEmailAdmin)

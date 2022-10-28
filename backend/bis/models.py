@@ -361,6 +361,12 @@ class User(AbstractBaseUser):
     def get_participated_in_events(self):
         return mark_safe(', '.join(get_admin_edit_url(e.event) for e in self.participated_in_events.all()))
 
+    @admin.display(description='Profil dárce (pokud existuje)')
+    def get_donor(self):
+        if not hasattr(self, 'donor'):
+            return 'Neexistuje'
+        return get_admin_edit_url(getattr(self, 'donor'))
+
     @classmethod
     def filter_queryset(cls, queryset, user):
         if user.is_education_member:
