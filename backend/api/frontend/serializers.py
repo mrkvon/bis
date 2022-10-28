@@ -296,6 +296,7 @@ class UserSerializer(ModelSerializer):
             'first_name',
             'last_name',
             'nickname',
+            'birth_name',
             'display_name',
             'phone',
             'email',

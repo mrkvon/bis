@@ -115,6 +115,7 @@ class User(AbstractBaseUser):
     first_name = CharField(max_length=63)
     last_name = CharField(max_length=63)
     nickname = CharField(max_length=63, blank=True)
+    birth_name = CharField(max_length=63, blank=True)
     phone = PhoneNumberField(blank=True)
     email = EmailField(unique=True, blank=True, null=True)
     birthday = DateField(null=True)
@@ -267,7 +268,7 @@ class User(AbstractBaseUser):
                     if getattr(other, field.name) < getattr(self, field.name):
                         setattr(self, field.name, getattr(other, field.name))
 
-                elif field.name in ['first_name', 'last_name', 'nickname', 'phone',
+                elif field.name in ['first_name', 'last_name', 'nickname', 'birth_name', 'phone',
                                     'birthday', 'close_person', 'health_insurance_company', 'health_issues', 'sex']:
                     if not getattr(self, field.name) and getattr(other, field.name):
                         setattr(self, field.name, getattr(other, field.name))

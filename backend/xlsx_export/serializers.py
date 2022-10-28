@@ -57,6 +57,7 @@ class UserExportSerializer(ModelSerializer):
             'first_name',
             'last_name',
             'nickname',
+            'birth_name',
             'email',
             'phone',
             'birthday',

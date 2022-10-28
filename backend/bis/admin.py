@@ -201,7 +201,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
 
     fieldsets = (
         [None, {
-            'fields': ['first_name', 'last_name', 'nickname', 'get_all_emails', 'phone', 'birthday', 'sex']
+            'fields': ['first_name', 'last_name', 'birth_name', 'nickname', 'get_all_emails', 'phone', 'birthday', 'sex']
         }],
         ('Osobní informace', {
             'fields': ('health_insurance_company', 'health_issues')
@@ -266,7 +266,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
         ('chairman_of__existed_since', UserStatsDateFilter),
     ]
 
-    search_fields = 'all_emails__email', 'phone', 'first_name', 'last_name', 'nickname'
+    search_fields = 'all_emails__email', 'phone', 'first_name', 'last_name', 'nickname', 'birth_name'
     list_select_related = 'address', 'contact_address'
 
     def get_inlines(self, request, obj):

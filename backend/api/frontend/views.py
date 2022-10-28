@@ -41,7 +41,7 @@ class PermissionViewSetBase(ModelViewSet):
 
 
 class UserViewSet(PermissionViewSetBase):
-    search_fields = 'all_emails__email', 'phone', 'first_name', 'last_name', 'nickname'
+    search_fields = 'all_emails__email', 'phone', 'first_name', 'last_name', 'nickname', 'birth_name'
     serializer_class = UserSerializer
     filterset_class = UserFilter
     queryset = User.objects.select_related(

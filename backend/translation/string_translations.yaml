@@ -13,6 +13,7 @@ generic:
   first_name: 'Křestní jméno'
   last_name: 'Příjmení'
   nickname: 'Přezdívka'
+  birth_name: 'Rodné příjmení'
   phone: 'Tel. číslo'
   birthday: 'Datum narození'
   order: 'Pořadí'
