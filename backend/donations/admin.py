@@ -49,16 +49,19 @@ class DonorAdmin(PermissionMixin, NestedModelAdmin):
 
     list_select_related = 'user', 'regional_center_support', 'basic_section_support'
     inlines = VariableSymbolInline, DonationAdminInline,
-    search_fields = 'user__all_emails__email', 'user__phone', 'user__first_name', 'user__last_name', 'user__nickname','user__birth_name'
-    list_filter = 'subscribed_to_newsletter', 'is_public', 'has_recurrent_donation', \
-                  ('date_joined', DateRangeFilter), \
-                  AutocompleteFilterFactory('Podporující RC', 'regional_center_support'), \
-                  AutocompleteFilterFactory('Podporující ZČ', 'basic_section_support'), \
-                  ('donations__donated_at', FirstDonorsDonationFilter), \
-                  ('donations__donated_at', LastDonorsDonationFilter), \
-                  ('donations__donated_at', DonationSumRangeFilter), \
-                  ('donations__amount', DonationSumAmountFilter), \
-                  RecurringDonorWhoStoppedFilter
+    search_fields = 'user__all_emails__email', 'user__phone', 'user__first_name', 'user__last_name', 'user__nickname', 'user__birth_name'
+    list_filter = (
+        'user__sex', 'subscribed_to_newsletter', 'is_public', 'has_recurrent_donation',
+        ('date_joined', DateRangeFilter),
+        AutocompleteFilterFactory('Podporující RC', 'regional_center_support'),
+        AutocompleteFilterFactory('Podporující ZČ', 'basic_section_support'),
+        ('donations__donation_source', MultiSelectRelatedDropdownFilter),
+        ('donations__donated_at', FirstDonorsDonationFilter),
+        ('donations__donated_at', LastDonorsDonationFilter),
+        ('donations__donated_at', DonationSumRangeFilter),
+        ('donations__amount', DonationSumAmountFilter),
+        RecurringDonorWhoStoppedFilter
+    )
 
     autocomplete_fields = 'regional_center_support', 'basic_section_support', 'user'
 
