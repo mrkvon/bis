@@ -27,6 +27,8 @@ class DonationAdmin(PermissionMixin, NestedModelAdmin):
     exclude = '_import_id', '_variable_symbol'
 
     list_select_related = 'donor__user', 'donation_source'
+    search_fields = 'donor__user__all_emails__email', 'donor__user__phone', 'donor__user__first_name', \
+                    'donor__user__last_name', 'donor__user__nickname', 'donor__user__birth_name'
 
 
 class DonationAdminInline(PermissionMixin, NestedTabularInline):
