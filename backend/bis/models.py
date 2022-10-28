@@ -185,7 +185,7 @@ class User(AbstractBaseUser):
 
     @cached_property
     def is_member_only(self):
-        return self.roles.exclude(slug='any').exists()
+        return not self.roles.exclude(slug='any').exists()
 
     @cached_property
     def can_see_all(self):
