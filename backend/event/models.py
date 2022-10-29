@@ -313,6 +313,11 @@ class EventPropagationImage(Model):
     def __str__(self):
         return basename(self.image.name)
 
+    @classmethod
+    def filter_queryset(cls, queryset, user):
+        events = Event.filter_queryset(Event.objects.all(), user)
+        return queryset.filter(propagation__event__in=events)
+
 
 @translate_model
 class EventPhoto(Model):
@@ -328,3 +333,8 @@ class EventPhoto(Model):
 
     def __str__(self):
         return basename(self.photo.name)
+
+    @classmethod
+    def filter_queryset(cls, queryset, user):
+        events = Event.filter_queryset(Event.objects.all(), user)
+        return queryset.filter(record__event__in=events)
