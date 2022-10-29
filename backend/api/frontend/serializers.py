@@ -29,7 +29,6 @@ class ModelSerializer(DRFModelSerializer):
     @staticmethod
     def only_null_doesnt_mean_it_is_not_required(model_field, field_kwargs):
         if model_field.null and not model_field.blank:
-            print(model_field, field_kwargs)
             field_kwargs.pop('allow_null', None)
             if not model_field.has_default():
                 field_kwargs.pop('required', None)
@@ -153,6 +152,8 @@ class ModelSerializer(DRFModelSerializer):
 
         for attr, value in m2m_fields.items():
             getattr(instance, attr).set(value)
+
+        instance.save()
 
         return instance
 
