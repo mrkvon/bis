@@ -173,7 +173,7 @@ class EventFinanceReceipt(Model):
 
     @permission_cache
     def has_edit_permission(self, user):
-        return self.finance.has_edit_permissions(user)
+        return self.finance.has_edit_permission(user)
 
 
 @translate_model
@@ -327,9 +327,8 @@ class EventPropagationImage(Model):
         events = Event.filter_queryset(Event.objects.all(), user)
         return queryset.filter(propagation__event__in=events)
 
-    @permission_cache
     def has_edit_permission(self, user):
-        return self.record.has_edit_permissions(user)
+        return self.propagation.has_edit_permission(user)
 
 
 @translate_model
@@ -352,6 +351,5 @@ class EventPhoto(Model):
         events = Event.filter_queryset(Event.objects.all(), user)
         return queryset.filter(record__event__in=events)
 
-    @permission_cache
     def has_edit_permission(self, user):
-        return self.record.has_edit_permissions(user)
+        return self.record.has_edit_permission(user)
