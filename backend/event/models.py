@@ -166,6 +166,15 @@ class EventFinanceReceipt(Model):
     def __str__(self):
         return basename(self.receipt.name)
 
+    @classmethod
+    def filter_queryset(cls, queryset, user):
+        events = Event.filter_queryset(Event.objects.all(), user)
+        return queryset.filter(finance__event__in=events)
+
+    @permission_cache
+    def has_edit_permission(self, user):
+        return self.finance.has_edit_permissions(user)
+
 
 @translate_model
 class EventPropagation(Model):
@@ -318,6 +327,10 @@ class EventPropagationImage(Model):
         events = Event.filter_queryset(Event.objects.all(), user)
         return queryset.filter(propagation__event__in=events)
 
+    @permission_cache
+    def has_edit_permission(self, user):
+        return self.record.has_edit_permissions(user)
+
 
 @translate_model
 class EventPhoto(Model):
@@ -338,3 +351,7 @@ class EventPhoto(Model):
     def filter_queryset(cls, queryset, user):
         events = Event.filter_queryset(Event.objects.all(), user)
         return queryset.filter(record__event__in=events)
+
+    @permission_cache
+    def has_edit_permission(self, user):
+        return self.record.has_edit_permissions(user)
