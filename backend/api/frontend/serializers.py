@@ -7,6 +7,7 @@ from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer as DRFModelSerializer, ListSerializer, Serializer
 from rest_framework.utils import model_meta
 
+from api.helpers import catch_related_object_does_not_exist
 from bis.models import User, Location, UserAddress, UserContactAddress, Membership, Qualification, UserClosePerson, \
     LocationContactPerson, LocationPatron
 from categories.serializers import DonationSourceCategorySerializer, EventProgramCategorySerializer, \
@@ -552,6 +553,7 @@ class FinanceReceiptSerializer(ModelSerializer):
             'receipt',
         )
 
+    @catch_related_object_does_not_exist
     def create(self, validated_data):
         validated_data['finance'] = Event.objects.get(id=self.context['view'].kwargs['event_id']).finance
         return super().create(validated_data)
@@ -566,6 +568,7 @@ class EventPropagationImageSerializer(ModelSerializer):
             'image',
         )
 
+    @catch_related_object_does_not_exist
     def create(self, validated_data):
         validated_data['propagation'] = Event.objects.get(id=self.context['view'].kwargs['event_id']).propagation
         return super().create(validated_data)
@@ -579,6 +582,7 @@ class EventPhotoSerializer(ModelSerializer):
             'photo',
         )
 
+    @catch_related_object_does_not_exist
     def create(self, validated_data):
         validated_data['record'] = Event.objects.get(id=self.context['view'].kwargs['event_id']).record
         return super().create(validated_data)
@@ -594,6 +598,7 @@ class QuestionSerializer(ModelSerializer):
             'order',
         )
 
+    @catch_related_object_does_not_exist
     def create(self, validated_data):
         validated_data['questionnaire'] = \
             Event.objects.get(id=self.context['view'].kwargs['event_id']).registration.questionnaire
@@ -634,6 +639,7 @@ class EventApplicationSerializer(ModelSerializer):
             'address',
         )
 
+    @catch_related_object_does_not_exist
     def create(self, validated_data):
         validated_data['event_registration'] = \
             Event.objects.get(id=self.context['view'].kwargs['event_id']).registration

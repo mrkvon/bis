@@ -30,6 +30,16 @@ def parse_request_data(serializer_class):
     return decorator
 
 
+def catch_related_object_does_not_exist(fn):
+    def wrapper(*args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        except AttributeError as e:
+            raise ValidationError(str(e))
+
+    return wrapper
+
+
 class Base64FieldMixin:
     EMPTY_VALUES = None, "", [], (), {}
 
