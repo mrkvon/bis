@@ -52,6 +52,8 @@ class Opportunity(Model):
         visible_users = User.filter_queryset(User.objects.all(), user)
         return queryset.filter(contact_person__in=visible_users)
 
+    def has_edit_permission(self, user):
+        return self.contact_person == user
 
 @translate_model
 class OfferedHelp(Model):
