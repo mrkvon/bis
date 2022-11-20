@@ -1,7 +1,7 @@
 version: '3'
 services:
   backend:
-    command: 'dev'
+    command: ["sh", "docker-entrypoint.sh", "dev"]
     ports:
       - 8000:8000
     profiles:
@@ -18,7 +18,7 @@ services:
 
   frontend:
     restart: always
-    command: 'dev'
+    command: ["sh", "docker-entrypoint.sh", "dev"]
     ports:
       - 3000:3000
     profiles:

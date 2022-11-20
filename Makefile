@@ -109,10 +109,10 @@ startup_testing_backend:
 test: node_modules/cypress/bin/cypress prepare_test_env
 	$(call compose_with_trap,                                                              \
 		-f docker-compose/dev_test.yaml                                                    \
-		-f docker-compose/dev_test_$$OS.yaml run backend test)
+		-f docker-compose/dev_test_$$OS.yaml run backend sh docker-entrypoint.sh test)
 	$(call compose_with_trap,                                                              \
 		-f docker-compose/dev_test.yaml                                                    \
-		-f docker-compose/dev_test_$$OS.yaml run frontend test)
+		-f docker-compose/dev_test_$$OS.yaml run frontend sh docker-entrypoint.sh test)
 
 	make prepare_test_env
 	make startup_testing_backend
