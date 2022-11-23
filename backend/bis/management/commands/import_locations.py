@@ -148,7 +148,7 @@ class Command(BaseCommand):
                 file_path = join(dir_path, file_name)
                 if not exists(file_path):
                     try:
-                        urlretrieve(f"https://media.mapotic.com{path}", file_path)
+                        urlretrieve(path, file_path)
                     except HTTPError:
                         pass
                 if exists(file_path):
