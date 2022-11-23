@@ -666,6 +666,20 @@ class AnswerSerializer(ModelSerializer):
         return super().create(validated_data)
 
 
+class UserSearchSerializer(ModelSerializer):
+    display_name = SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            '_search_id',
+            'display_name',
+        )
+
+    def get_display_name(self, instance) -> str:
+        return str(instance)
+
+
 class EventDraftSerializer(ModelSerializer):
     class Meta:
         model = EventDraft

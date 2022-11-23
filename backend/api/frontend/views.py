@@ -1,17 +1,19 @@
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
+from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_429_TOO_MANY_REQUESTS
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from api.frontend.filters import EventFilter, LocationFilter, UserFilter
 from api.frontend.permissions import BISPermissions
 from api.frontend.serializers import UserSerializer, EventSerializer, LocationSerializer, OpportunitySerializer, \
     FinanceReceiptSerializer, EventPhotoSerializer, EventPropagationImageSerializer, QuestionSerializer, \
     EventApplicationSerializer, GetUnknownUserRequestSerializer, EventDraftSerializer, DashboardItemSerializer, \
-    EventRouterKwargsSerializer, UserRouterKwargsSerializer, ApplicationRouterKwargsSerializer, AnswerSerializer
+    EventRouterKwargsSerializer, UserRouterKwargsSerializer, ApplicationRouterKwargsSerializer, AnswerSerializer, \
+    UserSearchSerializer
 from api.helpers import parse_request_data
 from bis.models import User, Location
 from bis.permissions import Permissions
@@ -228,6 +230,16 @@ class AnswerViewSet(PermissionViewSetBase):
 
     def get_queryset(self):
         return super().get_queryset().filter(questionnaire__event_registration__event=self.kwargs['event_id'])
+
+
+class UserSearchViewSet(ListModelMixin, GenericViewSet):
+    lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
+    search_fields = 'all_emails__email', 'phone', 'first_name', 'last_name', 'nickname', 'birth_name'
+    serializer_class = UserSearchSerializer
+    queryset = User.objects.select_related(
+        'address',
+    )
 
 
 @extend_schema(request=GetUnknownUserRequestSerializer,
