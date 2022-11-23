@@ -674,6 +674,8 @@ class UserSearchSerializer(ModelSerializer):
         fields = (
             '_search_id',
             'display_name',
+            'first_name',
+            'last_name',
         )
 
     def get_display_name(self, instance) -> str:
