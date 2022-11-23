@@ -13,7 +13,7 @@ with open(join(BASE_DIR, 'translation', 'model_translations.yaml'), 'r') as f:
 with open(join(BASE_DIR, 'translation', 'string_translations.yaml'), 'r') as f:
     string_translations = yaml.safe_load(f)
 
-ignored_attr_names = ['id', 'pk', 'is_superuser', 'last_login', 'password', '_import', '_str', '_history']
+ignored_attr_names = ['id', 'pk', 'is_superuser', 'last_login', 'password', '_import', '_str', '_history', '_search']
 
 
 def translate_model(model):

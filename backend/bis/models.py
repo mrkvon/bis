@@ -1,6 +1,7 @@
 import datetime
 from functools import cached_property
 from os.path import basename
+from uuid import uuid4
 
 from dateutil.relativedelta import relativedelta
 from django.apps import apps
@@ -111,6 +112,9 @@ class LocationPatron(BaseContact):
 @translate_model
 class User(AbstractBaseUser):
     USERNAME_FIELD = 'email'
+
+    id = UUIDField(primary_key=True, verbose_name='ID', default=uuid4, auto_created=True, editable=False)
+    _search_id = UUIDField(default=uuid4, auto_created=True, editable=False)
 
     first_name = CharField(max_length=63)
     last_name = CharField(max_length=63)

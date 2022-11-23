@@ -8,8 +8,13 @@ class NumberInFilter(BaseInFilter, NumberFilter):
     pass
 
 
+class UUIDInFilter(BaseInFilter, UUIDFilter):
+    pass
+
+
 class UserFilter(FilterSet):
-    id = NumberInFilter()
+    id = UUIDInFilter()
+    _search_id = UUIDInFilter()
 
     class Meta:
         model = User
