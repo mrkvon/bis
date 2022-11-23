@@ -35,6 +35,9 @@ class EventApplication(Model):
         events = Event.filter_queryset(Event.objects.all(), user)
         return queryset.filter(event_registration__event__in=events)
 
+    def has_edit_permission(self, user):
+        return self.event_registration.has_edit_permission(user)
+
 
 @translate_model
 class EventApplicationClosePerson(BaseContact):
@@ -82,6 +85,9 @@ class Question(Model):
         events = Event.filter_queryset(Event.objects.all(), user)
         return queryset.filter(questionnaire__event_registration__event__in=events)
 
+    def has_edit_permission(self, user):
+        return self.questionnaire.has_edit_permission(user)
+
 
 @translate_model
 class Answer(Model):
@@ -95,3 +101,11 @@ class Answer(Model):
 
     def __str__(self):
         return f'Odpověď na otázku {self.question}'
+
+    def has_edit_permission(self, user):
+        return False
+
+    @classmethod
+    def filter_queryset(cls, queryset, user):
+        events = Event.filter_queryset(Event.objects.all(), user)
+        return queryset.filter(application__event_registration__event__in=events)

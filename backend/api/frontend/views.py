@@ -11,7 +11,7 @@ from api.frontend.permissions import BISPermissions
 from api.frontend.serializers import UserSerializer, EventSerializer, LocationSerializer, OpportunitySerializer, \
     FinanceReceiptSerializer, EventPhotoSerializer, EventPropagationImageSerializer, QuestionSerializer, \
     EventApplicationSerializer, GetUnknownUserRequestSerializer, EventDraftSerializer, DashboardItemSerializer, \
-    EventRouterKwargsSerializer, UserRouterKwargsSerializer
+    EventRouterKwargsSerializer, UserRouterKwargsSerializer, ApplicationRouterKwargsSerializer, AnswerSerializer
 from api.helpers import parse_request_data
 from bis.models import User, Location
 from bis.permissions import Permissions
@@ -19,7 +19,7 @@ from event.models import Event, EventFinanceReceipt, EventPhoto, EventPropagatio
 from login_code.models import ThrottleLog
 from opportunities.models import Opportunity
 from other.models import DashboardItem
-from questionnaire.models import Question, EventApplication
+from questionnaire.models import Question, EventApplication, Answer
 
 safe_http_methods = [m.lower() for m in SAFE_METHODS]
 
@@ -219,6 +219,15 @@ class EventApplicationViewSet(PermissionViewSetBase):
 
     def get_queryset(self):
         return super().get_queryset().filter(event_registration__event=self.kwargs['event_id'])
+
+
+class AnswerViewSet(PermissionViewSetBase):
+    serializer_class = AnswerSerializer
+    queryset = Answer.objects.all()
+    kwargs_serializer_class = ApplicationRouterKwargsSerializer
+
+    def get_queryset(self):
+        return super().get_queryset().filter(questionnaire__event_registration__event=self.kwargs['event_id'])
 
 
 @extend_schema(request=GetUnknownUserRequestSerializer,

@@ -22,7 +22,7 @@ from event.models import Event, EventFinance, EventPropagation, EventRegistratio
 from opportunities.models import Opportunity, OfferedHelp
 from other.models import DashboardItem
 from questionnaire.models import Questionnaire, Question, EventApplication, EventApplicationClosePerson, \
-    EventApplicationAddress
+    EventApplicationAddress, Answer
 from regions.serializers import RegionSerializer
 
 
@@ -646,6 +646,26 @@ class EventApplicationSerializer(ModelSerializer):
         return super().create(validated_data)
 
 
+class AnswerSerializer(ModelSerializer):
+    question = QuestionSerializer()
+
+    class Meta:
+        model = Answer
+        fields = (
+            'id',
+            'question',
+            'answer',
+        )
+
+    @catch_related_object_does_not_exist
+    def create(self, validated_data):
+        registration = Event.objects.get(id=self.context['view'].kwargs['event_id']).registration
+        validated_data['application'] = \
+            registration.applications.filter(id=self.context['view'].kwargs['application_id'])
+
+        return super().create(validated_data)
+
+
 class EventDraftSerializer(ModelSerializer):
     class Meta:
         model = EventDraft
@@ -670,6 +690,11 @@ class GetUnknownUserRequestSerializer(Serializer):
 
 class EventRouterKwargsSerializer(Serializer):
     event_id = IntegerField()
+
+
+class ApplicationRouterKwargsSerializer(Serializer):
+    event_id = IntegerField()
+    application_id = IntegerField()
 
 
 class UserRouterKwargsSerializer(Serializer):
