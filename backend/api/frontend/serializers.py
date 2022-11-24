@@ -58,11 +58,12 @@ class ModelSerializer(DRFModelSerializer):
 
     @property
     def nested_serializers(self):
-        return {
-            field_name: (type(field), self.Meta.model._meta.get_field(field_name).remote_field.name)
-            for field_name, field in self.fields.items()
-            if isinstance(field, ModelSerializer)
-        }
+        result = {}
+        for field_name, field in self.fields.items():
+            if isinstance(field, ListSerializer): field = field.child
+            if isinstance(field, ModelSerializer):
+                result[field_name] = type(field), self.Meta.model._meta.get_field(field_name).remote_field.name
+        return result
 
     def get_excluded_fields(self, fields):
         return []
@@ -109,8 +110,8 @@ class ModelSerializer(DRFModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        m2m_fields = self.extract_fields(validated_data, self.m2m_fields)
         nested_serializers = self.extract_fields(validated_data, self.nested_serializers.keys())
+        m2m_fields = self.extract_fields(validated_data, self.m2m_fields)
 
         instance = self.Meta.model.objects.create(**validated_data)
 
@@ -119,7 +120,7 @@ class ModelSerializer(DRFModelSerializer):
                 continue
 
             serializer_class, reverse_field = self.nested_serializers[field]
-            serializer = serializer_class(data=self.initial_data[field], context=self.context)
+            serializer = serializer_class(data=self.initial_data[field], context=self.context, many=type(value) == list)
             serializer.is_valid(raise_exception=True)
             serializer.save(**{reverse_field: instance})
 
@@ -147,7 +148,8 @@ class ModelSerializer(DRFModelSerializer):
                     nested_instance.delete()
                 continue
 
-            serializer = serializer_class(instance=nested_instance, data=self.initial_data[field], context=self.context)
+            serializer = serializer_class(instance=nested_instance, data=self.initial_data[field],
+                                          context=self.context, many=type(value) == list)
             serializer.is_valid(raise_exception=True)
             serializer.save(**{reverse_field: instance})
 
@@ -615,9 +617,21 @@ class EventApplicationAddressSerializer(BaseAddressSerializer):
         model = EventApplicationAddress
 
 
+class AnswerSerializer(ModelSerializer):
+    question = QuestionSerializer()
+
+    class Meta:
+        model = Answer
+        fields = (
+            'question',
+            'answer',
+        )
+
+
 class EventApplicationSerializer(ModelSerializer):
     close_person = EventApplicationClosePersonSerializer()
     address = EventApplicationAddressSerializer()
+    answers = AnswerSerializer(many=True)
 
     sex = SexCategorySerializer()
 
@@ -637,32 +651,14 @@ class EventApplicationSerializer(ModelSerializer):
             'created_at',
             'close_person',
             'address',
+            'answers',
         )
+        read_only_fields = 'user',
 
     @catch_related_object_does_not_exist
     def create(self, validated_data):
         validated_data['event_registration'] = \
             Event.objects.get(id=self.context['view'].kwargs['event_id']).registration
-        return super().create(validated_data)
-
-
-class AnswerSerializer(ModelSerializer):
-    question = QuestionSerializer()
-
-    class Meta:
-        model = Answer
-        fields = (
-            'id',
-            'question',
-            'answer',
-        )
-
-    @catch_related_object_does_not_exist
-    def create(self, validated_data):
-        registration = Event.objects.get(id=self.context['view'].kwargs['event_id']).registration
-        validated_data['application'] = \
-            registration.applications.filter(id=self.context['view'].kwargs['application_id'])
-
         return super().create(validated_data)
 
 

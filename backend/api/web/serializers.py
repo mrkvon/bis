@@ -10,6 +10,7 @@ from categories.serializers import OpportunityCategorySerializer, EventCategoryS
     EventIntendedForCategorySerializer, DietCategorySerializer, EventGroupCategorySerializer
 from event.models import Event, EventPropagation, EventRegistration, EventPropagationImage
 from opportunities.models import Opportunity
+from questionnaire.models import Questionnaire, Question
 
 
 class UserSerializer(ModelSerializer):
@@ -18,12 +19,7 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = (
-            'id',
-            'name',
-            'email',
-            'phone',
-        )
+        fields = 'id', 'name', 'email', 'phone'
 
     def get_name(self, instance) -> str:
         return instance.get_name()
@@ -32,9 +28,7 @@ class UserSerializer(ModelSerializer):
 class EventPropagationImageSerializer(ModelSerializer):
     class Meta:
         model = EventPropagationImage
-        fields = (
-            'image',
-        )
+        fields = 'image',
 
 
 class EventPropagationSerializer(ModelSerializer):
@@ -76,14 +70,26 @@ class EventPropagationSerializer(ModelSerializer):
         return instance.contact_email or instance.contact_person and instance.contact_person.email
 
 
+class QuestionSerializer(ModelSerializer):
+    class Meta:
+        model = Question
+        fields = 'id', 'question', 'is_required', 'order'
+
+
+class QuestionnaireSerializer(ModelSerializer):
+    questions = QuestionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Questionnaire
+        fields = 'introduction', 'after_submit_text', 'questions'
+
+
 class EventRegistrationSerializer(ModelSerializer):
+    questionnaire = QuestionnaireSerializer(read_only=True)
+
     class Meta:
         model = EventRegistration
-
-        fields = (
-            'is_registration_required',
-            'is_event_full',
-        )
+        fields = 'is_registration_required', 'is_event_full', 'questionnaire'
 
 
 class LocationPhotoSerializer(ModelSerializer):

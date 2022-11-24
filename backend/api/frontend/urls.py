@@ -5,7 +5,7 @@ from api import frontend
 from api.frontend.views import UserViewSet, EventViewSet, LocationViewSet, OpportunityViewSet, FinanceReceiptViewSet, \
     EventPropagationImageViewSet, EventPhotoViewSet, QuestionViewSet, ParticipatedInViewSet, RegisteredInViewSet, \
     WhereWasOrganizerViewSet, ParticipantsViewSet, OrganizersViewSet, RegisteredViewSet, EventApplicationViewSet, \
-    EventDraftViewSet, DashboardItemViewSet, AnswerViewSet, UserSearchViewSet
+    EventDraftViewSet, DashboardItemViewSet, UserSearchViewSet
 
 router = routers.DefaultRouter()
 
@@ -30,9 +30,6 @@ events_router.register('record/photos', EventPhotoViewSet)
 events_router.register('registration/questionnaire/questions', QuestionViewSet)
 events_router.register('registration/applications', EventApplicationViewSet)
 
-applications_router = routers.NestedDefaultRouter(events_router, 'registration/applications', lookup='application')
-applications_router.register('answers', AnswerViewSet)
-
 events_router.register('record/participants', ParticipantsViewSet)
 events_router.register('registered', RegisteredViewSet)
 events_router.register('organizers', OrganizersViewSet)
@@ -41,6 +38,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('', include(users_router.urls)),
     path('', include(events_router.urls)),
-    path('', include(applications_router.urls)),
     path('get_unknown_user/', frontend.views.get_unknown_user),
 ]

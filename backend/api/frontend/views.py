@@ -12,8 +12,7 @@ from api.frontend.permissions import BISPermissions
 from api.frontend.serializers import UserSerializer, EventSerializer, LocationSerializer, OpportunitySerializer, \
     FinanceReceiptSerializer, EventPhotoSerializer, EventPropagationImageSerializer, QuestionSerializer, \
     EventApplicationSerializer, GetUnknownUserRequestSerializer, EventDraftSerializer, DashboardItemSerializer, \
-    EventRouterKwargsSerializer, UserRouterKwargsSerializer, ApplicationRouterKwargsSerializer, AnswerSerializer, \
-    UserSearchSerializer
+    EventRouterKwargsSerializer, UserRouterKwargsSerializer, UserSearchSerializer
 from api.helpers import parse_request_data
 from bis.models import User, Location
 from bis.permissions import Permissions
@@ -21,7 +20,7 @@ from event.models import Event, EventFinanceReceipt, EventPhoto, EventPropagatio
 from login_code.models import ThrottleLog
 from opportunities.models import Opportunity
 from other.models import DashboardItem
-from questionnaire.models import Question, EventApplication, Answer
+from questionnaire.models import Question, EventApplication
 
 safe_http_methods = [m.lower() for m in SAFE_METHODS]
 
@@ -216,20 +215,18 @@ class QuestionViewSet(PermissionViewSetBase):
 
 class EventApplicationViewSet(PermissionViewSetBase):
     serializer_class = EventApplicationSerializer
-    queryset = EventApplication.objects.select_related('close_person', 'address', 'sex')
+    queryset = EventApplication.objects \
+        .select_related('close_person', 'address', 'sex') \
+        .prefetch_related('answers', 'answers__question')
     kwargs_serializer_class = EventRouterKwargsSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(event_registration__event=self.kwargs['event_id'])
 
-
-class AnswerViewSet(PermissionViewSetBase):
-    serializer_class = AnswerSerializer
-    queryset = Answer.objects.all()
-    kwargs_serializer_class = ApplicationRouterKwargsSerializer
-
-    def get_queryset(self):
-        return super().get_queryset().filter(questionnaire__event_registration__event=self.kwargs['event_id'])
+    def get_permissions(self):
+        if self.action == 'create':
+            return []
+        return super().get_permissions()
 
 
 class UserSearchViewSet(ListModelMixin, GenericViewSet):
