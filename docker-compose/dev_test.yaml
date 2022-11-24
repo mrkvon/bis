@@ -4,7 +4,6 @@ services:
     environment:
       TEST: 1
       ALLOWED_HOSTS: '*'
-      FULL_HOSTNAME: 'http://localhost'
 
   postgres:
     volumes:
