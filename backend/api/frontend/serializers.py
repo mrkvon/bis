@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import SerializerMethodField, CharField, DateField, IntegerField
+from rest_framework.fields import SerializerMethodField, CharField, DateField, IntegerField, UUIDField
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer as DRFModelSerializer, ListSerializer, Serializer
@@ -710,4 +710,4 @@ class ApplicationRouterKwargsSerializer(Serializer):
 
 
 class UserRouterKwargsSerializer(Serializer):
-    user_id = IntegerField()
+    user_id = UUIDField()
