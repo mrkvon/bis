@@ -629,8 +629,8 @@ class AnswerSerializer(ModelSerializer):
 
 
 class EventApplicationSerializer(ModelSerializer):
-    close_person = EventApplicationClosePersonSerializer()
-    address = EventApplicationAddressSerializer()
+    close_person = EventApplicationClosePersonSerializer(allow_null=True)
+    address = EventApplicationAddressSerializer(allow_null=True)
     answers = AnswerSerializer(many=True)
 
     sex = SexCategorySerializer()
