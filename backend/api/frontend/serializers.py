@@ -652,6 +652,7 @@ class EventApplicationSerializer(ModelSerializer):
             'close_person',
             'address',
             'answers',
+            'note',
         )
         read_only_fields = 'user',
 

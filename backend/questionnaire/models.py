@@ -23,6 +23,7 @@ class EventApplication(Model):
     sex = ForeignKey(SexCategory, on_delete=PROTECT, null=True, blank=True, related_name='applications')
 
     created_at = DateTimeField(auto_now=True)
+    note = TextField(blank=True)
 
     class Meta:
         ordering = 'id',

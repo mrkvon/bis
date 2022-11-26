@@ -25,6 +25,7 @@ generic:
   created_at: 'Vytvořeno'
   date: 'Datum'
   place: 'Místo'
+  note: 'Poznámka'
 
 
 login:
