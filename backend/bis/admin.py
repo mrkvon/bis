@@ -221,7 +221,8 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
         if request.user.is_superuser or request.user.is_office_worker:
             for header, data in fieldsets:
                 if header == 'Interní data':
-                    data['fields'].append('internal_note')
+                    if 'internal_note' not in data['fields']:
+                        data['fields'].append('internal_note')
                     break
             else:
                 raise RuntimeError('Interní data not found in fieldsets')
