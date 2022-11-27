@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 
+from bis.models import Location
 from categories.models import DietCategory, EventIntendedForCategory, QualificationCategory, \
     AdministrationUnitCategory, MembershipCategory, EventProgramCategory, \
     EventCategory, GrantCategory, DonationSourceCategory, OrganizerRoleCategory, TeamRoleCategory, OpportunityCategory, \
@@ -202,3 +203,9 @@ class Command(BaseCommand):
         SexCategory.objects.update_or_create(slug='woman', defaults=dict(name='Žena'))
         SexCategory.objects.update_or_create(slug='man', defaults=dict(name='Muž'))
         SexCategory.objects.update_or_create(slug='other', defaults=dict(name='Jiné'))
+
+        Location.objects.update_or_create(name='Online', defaults=dict(
+            for_beginners=True,
+            accessibility_from_prague=LocationAccessibilityCategory.objects.get(slug='good'),
+            accessibility_from_brno=LocationAccessibilityCategory.objects.get(slug='good'),
+        ))

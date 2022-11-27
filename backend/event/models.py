@@ -42,7 +42,7 @@ class Event(Model):
     start_time = TimeField(blank=True, null=True)
     end = DateField()
     number_of_sub_events = PositiveIntegerField(default=1)
-    location = ForeignKey(Location, on_delete=PROTECT, related_name='events', null=True, blank=True)
+    location = ForeignKey(Location, on_delete=PROTECT, related_name='events')
     online_link = URLField(blank=True)
 
     group = ForeignKey(EventGroupCategory, on_delete=PROTECT, related_name='events')
@@ -69,9 +69,6 @@ class Event(Model):
         return self.name
 
     def clean(self):
-        if not self.location and not self.online_link:
-            raise ValidationError('Musí být vyplněná lokace nebo online link pro připojení')
-
         if self.main_organizer:
             Qualification.validate_main_organizer(self, self.main_organizer)
 
