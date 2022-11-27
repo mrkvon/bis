@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.contrib.gis.db.models import *
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from phonenumber_field.modelfields import PhoneNumberField
 from solo.models import SingletonModel
 
@@ -33,14 +35,19 @@ class AdministrationUnit(Model):
     category = ForeignKey(AdministrationUnitCategory, related_name='administration_units', on_delete=PROTECT)
     chairman = ForeignKey('bis.User', related_name='chairman_of', on_delete=PROTECT, null=True)
     vice_chairman = ForeignKey('bis.User', related_name='vice_chairman_of', on_delete=PROTECT, null=True, blank=True)
-    manager = ForeignKey('bis.User', related_name='manager_of', on_delete=PROTECT, null=True)
+    manager = ForeignKey('bis.User', related_name='manager_of', on_delete=PROTECT, null=True, blank=True)
     board_members = ManyToManyField('bis.User', related_name='administration_units', blank=True)
 
     _import_id = CharField(max_length=15, default='')
     _history = JSONField(default=dict)
 
+    def clean(self):
+        if not self.manager and not self.category.slug == "club":
+            raise ValidationError('Hospodář není povinný pouze pro kluby')
+
     @update_roles('chairman', 'vice_chairman', 'manager')
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if not settings.SKIP_VALIDATION: self.clean()
         self.email = self.email.lower()
         super().save(force_insert, force_update, using, update_fields)
 
