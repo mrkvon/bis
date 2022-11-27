@@ -78,7 +78,7 @@ class Permissions:
 
         # for any user
         if self.model in [UserAddress, UserContactAddress, UserClosePerson, OfferedHelp, EventApplication,
-                          EventApplicationClosePerson, EventApplicationAddress, Answer, Donor, EventDraft]:
+                          EventApplicationClosePerson, EventApplicationAddress, Answer, EventDraft]:
             if not obj or obj.has_edit_permission(self.user):
                 return True
 
@@ -91,7 +91,7 @@ class Permissions:
                     return True
 
         if self.user.is_board_member:
-            if self.model in [DuplicateUser, Membership, AdministrationUnitAddress, AdministrationUnitContactAddress, GeneralMeeting]:
+            if self.model in [Donor, DuplicateUser, Membership, AdministrationUnitAddress, AdministrationUnitContactAddress, GeneralMeeting]:
                 if not obj or obj.has_edit_permission(self.user):
                     return True
 
