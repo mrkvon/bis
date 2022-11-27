@@ -99,7 +99,7 @@ class Command(BaseCommand):
     }
 
     event_category_map = {
-        "1": EventCategory.objects.get(slug="public__volunteering__with_experience"),
+        "1": EventCategory.objects.get(slug="public__volunteering"),
         "2": EventCategory.objects.get(slug="public__only_experiential"),
         "6": EventCategory.objects.get(slug="public__educational__course"),
         "7": EventCategory.objects.get(slug="internal__general_meeting"),
@@ -109,7 +109,7 @@ class Command(BaseCommand):
         "17": EventCategory.objects.get(slug="internal__volunteer_meeting"),
         "18": EventCategory.objects.get(slug="public__educational__lecture"),
         "19": EventCategory.objects.get(slug="public__club__meeting"),
-        "5": EventCategory.objects.get(slug="public__sports"),
+        "5": EventCategory.objects.get(slug="public__club__meeting"),
         "21": EventCategory.objects.get(slug="public__educational__ohb"),
         "20": EventCategory.objects.get(slug="internal__section_meeting"),
         "22": EventCategory.objects.get(slug="public__other__eco_tent"),

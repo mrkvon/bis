@@ -103,12 +103,8 @@ class Command(BaseCommand):
                 'section_meeting': None,
             },
             'public': {
-                'volunteering': {
-                    'only_volunteering': None,
-                    'with_experience': None,
-                },
+                'volunteering': None,
                 'only_experiential': None,
-                'sports': None,
                 'educational': {
                     'lecture': None,
                     'course': None,

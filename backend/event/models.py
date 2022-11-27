@@ -81,7 +81,7 @@ class Event(Model):
         super().save(force_insert, force_update, using, update_fields)
 
     def is_volunteering(self):
-        return self.category.slug.startswith('public__volunteering')
+        return self.category.slug == 'public__volunteering'
 
     def is_for_kids(self):
         return self.intended_for.slug in ['for_kids', 'for_parents_with_kids']

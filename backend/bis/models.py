@@ -529,8 +529,7 @@ class Qualification(Model):
         category = event.category.slug
 
         qualification_required_for_categories = {'internal__general_meeting', 'internal__section_meeting',
-                                                 'public__volunteering__only_volunteering',
-                                                 'public__volunteering__with_experience', 'public__only_experiential',
+                                                 'public__volunteering', 'public__only_experiential',
                                                  'public__sports', 'public__educational__course',
                                                  'public__educational__ohb', 'public__other__for_public', }
         if not age:
