@@ -231,6 +231,7 @@ class EventExportSerializer(ModelSerializer):
             'is_canceled',
             'is_closed',
             'start',
+            'start_time',
             'end',
             'get_date',
             'duration',

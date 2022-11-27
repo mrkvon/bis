@@ -85,7 +85,7 @@ class DashboardItem(Model):
             event = application.event_registration.event
             dashboard_items.append(
                 DashboardItem(
-                    date=event.start.date(),
+                    date=event.start,
                     name=f'Začíná ti akce {event.name}'
                 )
             )
@@ -93,7 +93,7 @@ class DashboardItem(Model):
         for event in user.events_where_was_organizer.filter(start__gte=today(), is_canceled=False):
             dashboard_items.append(
                 DashboardItem(
-                    date=event.start.date(),
+                    date=event.start,
                     name=f'Organizuješ akci {event.name}'
                 )
             )
@@ -101,7 +101,7 @@ class DashboardItem(Model):
         for event in user.events_where_was_organizer.filter(is_canceled=False, is_closed=False):
             dashboard_items.append(
                 DashboardItem(
-                    date=event.start.date() + timedelta(days=20),
+                    date=event.start + timedelta(days=20),
                     name=f'Deadline pro uzavření akce {event.name}'
                 )
             )

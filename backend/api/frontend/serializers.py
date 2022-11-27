@@ -442,6 +442,7 @@ class EventSerializer(ModelSerializer):
             'is_canceled',
             'is_closed',
             'start',
+            'start_time',
             'end',
             'number_of_sub_events',
             'location',

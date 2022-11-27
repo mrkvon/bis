@@ -108,7 +108,7 @@ class EventRecordAdmin(PermissionMixin, NestedStackedInline):
 
     @admin.display(description='Statistika věku účastníků k začátku akce')
     def get_participants_age_stats_event_start(self, obj):
-        return AgeStats('účastníků', obj.participants.all(), obj.event.start.date()).as_table()
+        return AgeStats('účastníků', obj.participants.all(), obj.event.start).as_table()
 
     @admin.display(description='Statistika věku účastníků k začátku roku')
     def get_participants_age_stats_year_start(self, obj):

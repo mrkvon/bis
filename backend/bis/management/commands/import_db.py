@@ -488,7 +488,8 @@ class Command(BaseCommand):
 
             event = Event.objects.update_or_create(_import_id=id, defaults=dict(
                 name=item['nazev'][:63],
-                start=start,
+                start=start.date(),
+                start_time=start.time(),
                 end=end,
                 is_canceled=is_canceled,
                 is_closed=start.year <= 2021,

@@ -38,7 +38,8 @@ class Event(Model):
     name = CharField(max_length=63)
     is_canceled = BooleanField(default=False)
     is_closed = BooleanField(default=False)
-    start = DateTimeField()
+    start = DateField()
+    start_time = TimeField(blank=True, null=True)
     end = DateField()
     number_of_sub_events = PositiveIntegerField(default=1)
     location = ForeignKey(Location, on_delete=PROTECT, related_name='events', null=True, blank=True)
@@ -87,19 +88,16 @@ class Event(Model):
 
     @admin.display(description='Termín akce')
     def get_date(self):
-        time = timezone.localtime(self.start)
-        start_date = timezone.localdate(self.start)
-        end_date = self.end
         result = f'{self.end.day}. {self.end.month}. {self.end.year}'
 
-        if start_date != end_date:
+        if self.start != self.end:
             result = '- ' + result
-            if start_date.year != end_date.year:
-                result = f"{start_date.year}. " + result
-            if start_date.month != end_date.month:
-                result = f"{start_date.month}. " + result
-            if start_date.day != end_date.day:
-                result = f"{start_date.day}. " + result
+            if self.start.year != self.end.year:
+                result = f"{self.start.year}. " + result
+            if self.start.month != self.end.month:
+                result = f"{self.start.month}. " + result
+            if self.start.day != self.end.day:
+                result = f"{self.start.day}. " + result
 
         # if time.hour != 0:
         #     result += f' {time.hour}:{time.minute:02d}'
@@ -301,7 +299,7 @@ class EventRecord(Model):
         participants_count = self.get_participants_count()
         if not participants_count: return '0%'
         under_26 = len([p for p in self.participants.all() if
-                        p.birthday and relativedelta(self.event.start.date(), p.birthday).years <= 26])
+                        p.birthday and relativedelta(self.event.start, p.birthday).years <= 26])
         under_26 = self.number_of_participants_under_26 or under_26
         return f"{int(under_26 / participants_count * 100)}%"
 

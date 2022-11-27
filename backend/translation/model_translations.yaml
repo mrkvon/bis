@@ -164,6 +164,7 @@ Event:
     is_canceled: 'Zrušena?'
     is_closed: 'Uzavřena?'
     start: 'Začátek akce'
+    start_time: 'Čas začátku akce'
     end: 'Konec akce'
     duration: 'Délka trvání akce'
     online_link:

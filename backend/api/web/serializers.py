@@ -146,6 +146,7 @@ class EventSerializer(ModelSerializer):
             'id',
             'name',
             'start',
+            'start_time',
             'end',
             'duration',
             'location',

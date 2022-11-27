@@ -23,10 +23,10 @@ class Command(BaseCommand):
                 dates.append(qualification.valid_since)
 
             for event in user.events_where_was_organizer.all():
-                dates.append(event.start.date())
+                dates.append(event.start)
 
             for event in user.participated_in_events.all():
-                dates.append(event.event.start.date())
+                dates.append(event.event.start)
 
             dates.sort()
             if user.date_joined != dates[0]:
