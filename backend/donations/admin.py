@@ -43,15 +43,17 @@ class VariableSymbolInline(PermissionMixin, NestedTabularInline):
 @admin.register(Donor)
 class DonorAdmin(PermissionMixin, NestedModelAdmin):
     actions = [export_to_xlsx]
-    list_display = 'user', 'subscribed_to_newsletter', 'is_public', \
-                   'regional_center_support', 'basic_section_support', \
-                   'date_joined', 'get_donations_sum'
+    list_display = 'user', 'get_user_email', 'get_user_phone', 'get_user_sex', \
+                   'date_joined', 'get_donations_sum', 'get_last_donation', 'get_donations_sources', \
+                   'regional_center_support', 'basic_section_support', 'subscribed_to_newsletter', 'is_public'
 
-    list_select_related = 'user', 'regional_center_support', 'basic_section_support'
+    list_select_related = 'user', 'user__sex', 'regional_center_support', 'basic_section_support'
     inlines = VariableSymbolInline, DonationAdminInline,
     search_fields = 'user__all_emails__email', 'user__phone', 'user__first_name', 'user__last_name', 'user__nickname', 'user__birth_name'
     list_filter = (
-        'user__sex', 'subscribed_to_newsletter', 'is_public', 'has_recurrent_donation',
+        'user__sex',
+        ('user__roles', MultiSelectRelatedDropdownFilter),
+        'subscribed_to_newsletter', 'is_public', 'has_recurrent_donation',
         ('date_joined', DateRangeFilter),
         AutocompleteFilterFactory('Podporující RC', 'regional_center_support'),
         AutocompleteFilterFactory('Podporující ZČ', 'basic_section_support'),
@@ -78,11 +80,32 @@ class DonorAdmin(PermissionMixin, NestedModelAdmin):
         super().save_formset(request, form, formset, change)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('donations')
+        return super().get_queryset(request).prefetch_related('donations__donation_source')
 
     @admin.display(description='Suma darů')
     def get_donations_sum(self, obj):
         return sum([donation.amount for donation in obj.donations.all()])
+
+    @admin.display(description='Poslední dar')
+    def get_last_donation(self, obj):
+        if obj.donations.all():
+            return list(obj.donations.all())[-1].donated_at
+
+    @admin.display(description='E-mail')
+    def get_user_email(self, obj):
+        return obj.user.email
+
+    @admin.display(description='Telefon')
+    def get_user_phone(self, obj):
+        return obj.user.phone
+
+    @admin.display(description='Pohlaví')
+    def get_user_sex(self, obj):
+        return obj.user.sex
+
+    @admin.display(description='Darovací kampaně')
+    def get_donations_sources(self, obj):
+        return list(set(donation.donation_source for donation in obj.donations.all()))
 
 
 @admin.register(UploadBankRecords)
