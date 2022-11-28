@@ -297,6 +297,7 @@ class UserSerializer(ModelSerializer):
         model = User
         fields = (
             'id',
+            '_search_id',
             'first_name',
             'last_name',
             'nickname',
