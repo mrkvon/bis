@@ -492,7 +492,7 @@ class Command(BaseCommand):
                 start_time=start.time(),
                 end=end,
                 is_canceled=is_canceled,
-                is_completed=start.year <= 2021,
+                is_complete=start.year <= 2021,
                 is_closed=start.year <= 2021,
                 location=location,
                 group=self.event_group_category_map[group],

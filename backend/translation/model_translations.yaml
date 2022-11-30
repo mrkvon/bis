@@ -162,7 +162,7 @@ Event:
       - 'Lokalita'
       - 'Zobrazí se na webu jako místo konání akce'
     is_canceled: 'Zrušena?'
-    is_completed: 'Vše vyplněno?'
+    is_complete: 'Vše vyplněno?'
     is_closed: 'Uzavřena?'
     start: 'Začátek akce'
     start_time: 'Čas začátku akce'

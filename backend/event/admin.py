@@ -137,7 +137,7 @@ class EventAdmin(PermissionMixin, NestedModelAdmin):
         'propagation__is_shown_on_web',
         ('intended_for', MultiSelectRelatedDropdownFilter),
         'is_canceled',
-        'is_completed',
+        'is_complete',
         'is_closed',
         'is_internal',
         'registration__is_registration_required',
