@@ -37,6 +37,7 @@ class Event(Model):
     # general
     name = CharField(max_length=63)
     is_canceled = BooleanField(default=False)
+    is_completed = BooleanField(default=False)
     is_closed = BooleanField(default=False)
     start = DateField()
     start_time = TimeField(blank=True, null=True)
