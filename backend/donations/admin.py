@@ -54,7 +54,6 @@ class DonorAdmin(PermissionMixin, NestedModelAdmin):
         'user__sex',
         ('user__roles', MultiSelectRelatedDropdownFilter),
         'subscribed_to_newsletter', 'is_public', 'has_recurrent_donation',
-        ('date_joined', DateRangeFilter),
         AutocompleteFilterFactory('Podporující RC', 'regional_center_support'),
         AutocompleteFilterFactory('Podporující ZČ', 'basic_section_support'),
         ('donations__donation_source', MultiSelectRelatedDropdownFilter),
