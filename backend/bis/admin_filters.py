@@ -126,6 +126,12 @@ class ParticipatedInEventRangeFilter(CustomDateRangeFilter):
     cache_name = 'participated_in_event_range_query_cache'
 
 
+class FirstParticipatedInEventRangeFilter(CustomDateRangeFilter):
+    custom_title = 'Dle: První účast na akci v rozmezí'
+    annotate_fn = Min("participated_in_events__event__start")
+    custom_field_path = 'first_participated_in_event'
+
+
 MainOrganizerOfEventOfAdministrationUnitFilter = event_of_administration_unit_filter_factory(
     'Hlavní org akcí vybraného článku',
     'events_where_was_as_main_organizer__administration_units',
