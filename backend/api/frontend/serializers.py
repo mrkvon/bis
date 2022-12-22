@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
+from django.db.models import ManyToManyField
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField, CharField, DateField, IntegerField, UUIDField
 from rest_framework.permissions import SAFE_METHODS
@@ -54,7 +55,10 @@ class ModelSerializer(DRFModelSerializer):
     @property
     def m2m_fields(self):
         info = model_meta.get_field_info(self.Meta.model)
-        return [field_name for field_name, relation_info in info.relations.items() if relation_info.to_many]
+        return [field_name for field_name, relation_info in info.relations.items() if (
+                isinstance(relation_info.model_field, ManyToManyField) or
+                isinstance(getattr(relation_info.related_model, relation_info.to_field, None), ManyToManyField)
+        )]
 
     @property
     def nested_serializers(self):
@@ -409,13 +413,21 @@ class RegistrationSerializer(ModelSerializer):
             'questionnaire',
         )
 
+
+class UpdatableListSerializer(ListSerializer):
+    def update(self, instance, validated_data):
+        instance.all().delete()
+        return self.create(validated_data)
+
+
 class EventContactSerializer(BaseContactSerializer):
     class Meta(BaseContactSerializer.Meta):
         model = EventContact
+        list_serializer_class = UpdatableListSerializer
 
 
 class RecordSerializer(ModelSerializer):
-    contacts = EventContactSerializer(many=True)
+    contacts = EventContactSerializer(many=True, required=False)
 
     class Meta:
         model = EventRecord

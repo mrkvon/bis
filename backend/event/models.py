@@ -304,10 +304,13 @@ class EventRecord(Model):
 
 @translate_model
 class EventContact(BaseContact):
-    record = OneToOneField(EventRecord, on_delete=CASCADE, related_name='contacts')
+    record = ForeignKey(EventRecord, on_delete=CASCADE, related_name='contacts')
 
     def has_edit_permission(self, user):
         return self.record.has_edit_permission(user)
+
+    def clean(self):
+        pass
 
 
 @translate_model
