@@ -643,6 +643,7 @@ class EventApplicationSerializer(ModelSerializer):
         fields = (
             'id',
             'user',
+            'state',
             'first_name',
             'last_name',
             'nickname',
@@ -657,13 +658,18 @@ class EventApplicationSerializer(ModelSerializer):
             'answers',
             'note',
         )
-        read_only_fields = 'user',
 
     @catch_related_object_does_not_exist
     def create(self, validated_data):
         validated_data['event_registration'] = \
             Event.objects.get(id=self.context['view'].kwargs['event_id']).registration
         return super().create(validated_data)
+
+    @catch_related_object_does_not_exist
+    def update(self, instance, validated_data):
+        if not all([key in ['user', 'state'] for key in validated_data]):
+            raise ValidationError("Only user and state are editable")
+        return super().update(instance, validated_data)
 
 
 class UserSearchSerializer(ModelSerializer):

@@ -120,7 +120,7 @@ class Permissions:
         # common for organizers and board members
         if self.user.is_organizer or self.user.is_board_member:
             if self.model in [Location, LocationContactPerson,  LocationPatron,Event, Opportunity, Questionnaire,
-                              Question] \
+                              Question, EventApplication] \
                     or self.model._meta.app_label in ['event']:
                 if not obj or obj.has_edit_permission(self.user):
                     return True

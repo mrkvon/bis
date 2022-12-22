@@ -7,6 +7,7 @@ from questionnaire.models import *
 @receiver(pre_save, sender=EventApplication, dispatch_uid='set_event_application_user')
 def set_event_application_user(instance: EventApplication, **kwargs):
     instance.user = (
+            instance.user or
             instance.birthday and User.objects.filter(first_name=instance.first_name,
                                                       last_name=instance.last_name,
                                                       birthday=instance.birthday).first() or

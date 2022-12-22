@@ -12,6 +12,12 @@ from translation.translate import translate_model
 class EventApplication(Model):
     event_registration = ForeignKey(EventRegistration, related_name='applications', on_delete=PROTECT)
     user = ForeignKey(User, related_name='applications', on_delete=PROTECT, null=True, blank=True)
+    state = CharField(max_length=15, choices=[
+        ('pending', 'Čeká na schválení'),
+        ('cancelled', 'Zrušena'),
+        ('rejected', 'Zamítnuta'),
+        ('approved', 'Potvrzena'),
+    ])
 
     first_name = CharField(max_length=63)
     last_name = CharField(max_length=63)
