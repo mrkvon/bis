@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.gis.db.models import *
 from django.core.exceptions import ValidationError
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 from phonenumber_field.modelfields import PhoneNumberField
 from tinymce.models import HTMLField
@@ -15,6 +14,7 @@ from bis.helpers import permission_cache, update_roles, filter_queryset_with_mul
 from bis.models import Location, User, Qualification
 from categories.models import GrantCategory, EventIntendedForCategory, DietCategory, \
     EventCategory, EventProgramCategory, EventGroupCategory
+from common.abstract_models import BaseContact
 from common.thumbnails import ThumbnailImageField
 from translation.translate import translate_model
 
@@ -300,6 +300,14 @@ class EventRecord(Model):
                         p.birthday and relativedelta(self.event.start, p.birthday).years <= 26])
         under_26 = self.number_of_participants_under_26 or under_26
         return f"{int(under_26 / participants_count * 100)}%"
+
+
+@translate_model
+class EventContact(BaseContact):
+    record = OneToOneField(EventRecord, on_delete=CASCADE, related_name='contacts')
+
+    def has_edit_permission(self, user):
+        return self.record.has_edit_permission(user)
 
 
 @translate_model

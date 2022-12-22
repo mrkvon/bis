@@ -275,7 +275,11 @@ EventRecord:
     number_of_participants_under_26:
       - 'Počet účastníků pod 26 let'
       - 'Vyplň pouze pokud nejsou vyplnění konkrétní účastníci'
-
+EventContact:
+  name: 'Kontakt z akce'
+  name_plural: 'Kontakty z akce'
+  fields:
+    record: 'Záznam z události'
 
 EventPropagationImage:
   name: 'Obrázek k propagaci'
@@ -295,6 +299,7 @@ EventApplication:
   name_plural: 'Přihlášky na akci'
   fields:
     event_registration: 'Registrace k události'
+    state: 'Stav'
 EventApplicationClosePerson:
   name: 'Rodič / blízká osoba'
   name_plural: 'Rodič / blízká osoba'

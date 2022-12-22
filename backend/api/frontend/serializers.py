@@ -18,7 +18,7 @@ from categories.serializers import DonationSourceCategorySerializer, EventProgra
     EventGroupCategorySerializer
 from donations.models import Donor, Donation
 from event.models import Event, EventFinance, EventPropagation, EventRegistration, EventRecord, EventFinanceReceipt, \
-    EventPropagationImage, EventPhoto, VIPEventPropagation, EventDraft
+    EventPropagationImage, EventPhoto, VIPEventPropagation, EventDraft, EventContact
 from opportunities.models import Opportunity, OfferedHelp
 from other.models import DashboardItem
 from questionnaire.models import Questionnaire, Question, EventApplication, EventApplicationClosePerson, \
@@ -409,8 +409,14 @@ class RegistrationSerializer(ModelSerializer):
             'questionnaire',
         )
 
+class EventContactSerializer(BaseContactSerializer):
+    class Meta(BaseContactSerializer.Meta):
+        model = EventContact
+
 
 class RecordSerializer(ModelSerializer):
+    contacts = EventContactSerializer(many=True)
+
     class Meta:
         model = EventRecord
         fields = (
@@ -421,6 +427,7 @@ class RecordSerializer(ModelSerializer):
             'number_of_participants',
             'number_of_participants_under_26',
             'note',
+            'contacts',
         )
 
 
