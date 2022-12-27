@@ -58,7 +58,7 @@ class EventApplicationAddress(BaseAddress):
 
 @translate_model
 class Questionnaire(Model):
-    # one to one relationship to event
+    # one-to-one relationship to event
     # holds relations to its questions and answers
     event_registration = OneToOneField(EventRegistration, on_delete=CASCADE, related_name='questionnaire')
     introduction = TextField(blank=True)

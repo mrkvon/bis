@@ -259,6 +259,7 @@ EventRegistration:
     is_registration_required: 'Je požadována registrace?'
     is_event_full: 'Je akce plná?'
     questionnaire: 'Dotazník'
+    alternative_registration_link: 'Alternativní adresa pro přihlášení'
 
 EventRecord:
   name: 'Záznam z události'

@@ -243,9 +243,8 @@ class EventRegistration(Model):
     event = OneToOneField(Event, related_name='registration', on_delete=CASCADE)
 
     is_registration_required = BooleanField(default=True)
+    alternative_registration_link = URLField(blank=True)
     is_event_full = BooleanField(default=False)
-
-    # filled answers as part of questionary
 
     class Meta:
         ordering = 'id',
