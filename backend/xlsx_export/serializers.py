@@ -165,6 +165,7 @@ class RegistrationExportSerializer(ModelSerializer):
         model = EventRegistration
         fields = (
             'is_registration_required',
+            'alternative_registration_link',
             'is_event_full',
         )
 
