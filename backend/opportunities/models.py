@@ -24,7 +24,7 @@ class Opportunity(Model):
     description = HTMLField()
     location_benefits = HTMLField(blank=True)
     personal_benefits = HTMLField()
-    requirements = HTMLField()
+    requirements = HTMLField(blank=True)
 
     contact_person = ForeignKey(User, on_delete=PROTECT, related_name='opportunities')
     contact_name = CharField(max_length=63, blank=True)
