@@ -11,9 +11,10 @@ from questionnaire.models import Answer, Questionnaire, Question, EventApplicati
 
 
 class Permissions:
-    def __init__(self, user, model):
+    def __init__(self, user, model, source):
         self.user = user
         self.model = model
+        self.source = source
 
     def raise_error(self, method):
         raise RuntimeError(f'Uncheck {method} permission for user {self.user}, model {self.model}')
@@ -37,7 +38,7 @@ class Permissions:
         if self.model in [BrontosaurusMovement]:
             return queryset
 
-        queryset = self.model.filter_queryset(queryset, self.user)
+        queryset = self.model.filter_queryset(queryset, self)
 
         return queryset
 
@@ -84,14 +85,21 @@ class Permissions:
 
         # common for organizers and board members
         if self.user.is_organizer or self.user.is_board_member:
-            if self.model in [Location, LocationPhoto, LocationContactPerson, LocationPatron, Event, User, Opportunity,
+            if self.model in [Location, LocationPhoto, LocationContactPerson, LocationPatron, User, Opportunity,
                               Questionnaire, Question] \
                     or self.model._meta.app_label in ['event']:
                 if not obj or obj.has_edit_permission(self.user):
                     return True
 
+        # common for qualified organizers and board members
+        if self.user.is_qualified_organizer or self.user.is_board_member:
+            if self.model in [Event]:
+                if not obj or obj.has_edit_permission(self.user):
+                    return True
+
         if self.user.is_board_member:
-            if self.model in [Donor, DuplicateUser, Membership, AdministrationUnitAddress, AdministrationUnitContactAddress, GeneralMeeting]:
+            if self.model in [Donor, DuplicateUser, Membership, AdministrationUnitAddress,
+                              AdministrationUnitContactAddress, GeneralMeeting]:
                 if not obj or obj.has_edit_permission(self.user):
                     return True
 
@@ -119,7 +127,7 @@ class Permissions:
 
         # common for organizers and board members
         if self.user.is_organizer or self.user.is_board_member:
-            if self.model in [Location, LocationContactPerson,  LocationPatron,Event, Opportunity, Questionnaire,
+            if self.model in [Location, LocationContactPerson, LocationPatron, Event, Opportunity, Questionnaire,
                               Question, EventApplication] \
                     or self.model._meta.app_label in ['event']:
                 if not obj or obj.has_edit_permission(self.user):

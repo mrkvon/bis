@@ -38,8 +38,8 @@ class EventApplication(Model):
         return f'Přihláška na akci'
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
-        events = Event.filter_queryset(Event.objects.all(), user)
+    def filter_queryset(cls, queryset, perm):
+        events = Event.filter_queryset(Event.objects.all(), perm)
         return queryset.filter(event_registration__event__in=events)
 
     def has_edit_permission(self, user):
@@ -88,8 +88,8 @@ class Question(Model):
         return self.question
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
-        events = Event.filter_queryset(Event.objects.all(), user)
+    def filter_queryset(cls, queryset, perm):
+        events = Event.filter_queryset(Event.objects.all(), perm)
         return queryset.filter(questionnaire__event_registration__event__in=events)
 
     def has_edit_permission(self, user):
@@ -113,6 +113,6 @@ class Answer(Model):
         return False
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
-        events = Event.filter_queryset(Event.objects.all(), user)
+    def filter_queryset(cls, queryset, perm):
+        events = Event.filter_queryset(Event.objects.all(), perm)
         return queryset.filter(application__event_registration__event__in=events)

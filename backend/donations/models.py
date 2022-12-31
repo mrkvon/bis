@@ -67,14 +67,14 @@ class Donor(Model):
         other.delete()
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
+    def filter_queryset(cls, queryset, perm):
         queries = [
-            Q(user=user)
+            Q(user=perm.user)
         ]
-        if user.is_board_member:
+        if perm.user.is_board_member:
             queries += [
-                Q(regional_center_support__in=user.administration_units.all()),
-                Q(basic_section_support__in=user.administration_units.all())
+                Q(regional_center_support__in=perm.user.administration_units.all()),
+                Q(basic_section_support__in=perm.user.administration_units.all())
             ]
 
         return filter_queryset_with_multiple_or_queries(queryset, queries)
@@ -114,10 +114,12 @@ class Donation(Model):
         ordering = '-donated_at',
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
-        return queryset.filter(
-            Q(donor__regional_center_support__in=user.administration_units.all()) |
-            Q(donor__basic_section_support__in=user.administration_units.all()))
+    def filter_queryset(cls, queryset, perm):
+        return filter_queryset_with_multiple_or_queries(queryset, [
+            Q(donor__regional_center_support__in=perm.user.administration_units.all()),
+            Q(donor__basic_section_support__in=perm.user.administration_units.all())
+        ])
+
 
 
 @translate_model

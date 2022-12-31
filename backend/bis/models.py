@@ -188,6 +188,10 @@ class User(AbstractBaseUser):
         return self.roles.filter(slug='organizer').exists()
 
     @cached_property
+    def is_qualified_organizer(self):
+        return self.roles.filter(slug='qualified_organizer').exists()
+
+    @cached_property
     def is_member_only(self):
         return not self.roles.exclude(slug='any').exists()
 
@@ -372,33 +376,34 @@ class User(AbstractBaseUser):
         return get_admin_edit_url(getattr(self, 'donor'))
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
-        if user.is_education_member:
+    def filter_queryset(cls, queryset, perm):
+        if perm.user.is_education_member:
             return queryset
 
-        queries = [
-            # ja
-            Q(id=user.id),
-            # orgove akci, kde user byl ucastnik
-            Q(events_where_was_organizer__record__participants=user),
-        ]
+        queries = [Q(id=perm.user.id)]  # me
 
-        if user.is_organizer:
+        if perm.source != 'backend':
             queries += [
-                # lidi kolem akci, kde user byl organizer
-                Q(participated_in_events__event__other_organizers=user),
-                Q(events_where_was_organizer__other_organizers=user),
-                Q(applications__event_registration__event__other_organizers=user),
+                # orgove akci, kde perm.user byl ucastnik
+                Q(events_where_was_organizer__record__participants=perm.user),
             ]
 
-        if user.is_board_member:
+            if perm.user.is_organizer:
+                queries += [
+                    # lidi kolem akci, kde perm.user byl organizer
+                    Q(participated_in_events__event__other_organizers=perm.user),
+                    Q(events_where_was_organizer__other_organizers=perm.user),
+                    Q(applications__event_registration__event__other_organizers=perm.user),
+                ]
+
+        if perm.user.is_board_member:
             queries += [
-                # lidi kolem akci od clanku kde user je board member
-                Q(participated_in_events__event__administration_units__board_members=user),
-                Q(events_where_was_organizer__administration_units__board_members=user),
-                Q(applications__event_registration__event__administration_units__board_members=user),
+                # lidi kolem akci od clanku kde perm.user je board member
+                Q(participated_in_events__event__administration_units__board_members=perm.user),
+                Q(events_where_was_organizer__administration_units__board_members=perm.user),
+                Q(applications__event_registration__event__administration_units__board_members=perm.user),
                 # clenove meho clanku
-                Q(memberships__administration_unit__board_members=user),
+                Q(memberships__administration_unit__board_members=perm.user),
             ]
         return filter_queryset_with_multiple_or_queries(queryset, queries)
 
@@ -441,6 +446,8 @@ class User(AbstractBaseUser):
             roles += ['main_organizer']
         if self.events_where_was_organizer.exists():
             roles += ['organizer']
+        if self.get_qualifications():
+            roles += ['qualified_organizer']
 
         roles = [RoleCategory.objects.get(slug=role) for role in roles]
 
@@ -515,11 +522,9 @@ class Qualification(Model):
     def user_has_required_qualification(cls, user, required_one_of):
         qualifications = user.get_qualifications()
         for qualification in qualifications:
-            category = qualification.category
-            while category is not None:
-                if category.slug in required_one_of:
+            for slug in qualification.category.get_slugs():
+                if slug in required_one_of:
                     return True
-                category = category.parent
 
     @classmethod
     def validate_main_organizer(cls, event, main_organizer: User):
@@ -572,4 +577,3 @@ class Qualification(Model):
                 categories = [str(QualificationCategory.objects.get(slug=slug)) for slug in required_one_of]
                 raise ValidationError(f'Hlavní organizátor {main_organizer} musí mít kvalifikaci '
                                       f'{" nebo ".join(categories)} nebo kvalifikaci nadřazenou.')
-

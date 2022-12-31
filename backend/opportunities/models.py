@@ -48,8 +48,8 @@ class Opportunity(Model):
         ordering = 'id',
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
-        visible_users = User.filter_queryset(User.objects.all(), user)
+    def filter_queryset(cls, queryset, perm):
+        visible_users = User.filter_queryset(User.objects.all(), perm)
         return queryset.filter(contact_person__in=visible_users)
 
     def has_edit_permission(self, user):

@@ -1,8 +1,9 @@
-from django.db.models.signals import post_save, post_delete
+from dateutil.relativedelta import relativedelta
+from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
-from bis.models import User, Location, UserEmail
+from bis.models import User, Location, UserEmail, Qualification
 from project import settings
 from regions.models import Region
 
@@ -15,7 +16,7 @@ def create_auth_token_for_all_users(instance: User, created, **kwargs):
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL, dispatch_uid='set_unique_str')
 def set_unique_str(instance: User, **kwargs):
-    data = {'': list(User.objects.all())}
+    data = {'': list(User.objects.all().select_related('address'))}
     new_data = {}
 
     f1 = lambda user: user.get_name()
@@ -56,6 +57,13 @@ def set_region_for_location(instance: Location, created, **kwargs):
         if region != instance.region:
             instance.region = region
             instance.save()
+
+
+@receiver(pre_save, sender=Qualification, dispatch_uid='set_qualification_end_date')
+def set_qualification_end_date(instance: Qualification, **kwargs):
+    instance.valid_till = instance.valid_since + relativedelta(years=5)
+    if instance.category.slug == 'weekend_organizer':
+        instance.valid_till = instance.valid_since + relativedelta(years=100)
 
 
 @receiver(post_save, sender=User, dispatch_uid='set_primary_email')

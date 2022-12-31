@@ -23,8 +23,8 @@ class DuplicateUser(Model):
         super().save(force_insert, force_update, using, update_fields)
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
-        visible_users = User.filter_queryset(User.objects.all(), user)
+    def filter_queryset(cls, queryset, perm):
+        visible_users = User.filter_queryset(User.objects.all(), perm)
         return queryset.filter(user__in=visible_users, other__in=visible_users)
 
     def can_be_merged_by(self, user):
@@ -48,8 +48,8 @@ class Feedback(Model):
     created_at = DateTimeField(auto_now=True)
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
-        return queryset.filter(user=user)
+    def filter_queryset(cls, queryset, perm):
+        return queryset.filter(user=perm.user)
 
     def __str__(self):
         return 'Zpětná vazba'

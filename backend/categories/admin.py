@@ -21,7 +21,11 @@ class DietCategoryAdmin(PermissionMixin, admin.ModelAdmin):
 
 @admin.register(QualificationCategory)
 class QualificationCategoryAdmin(PermissionMixin, admin.ModelAdmin):
-    list_display = 'name', 'parent'
+    list_display = 'name', 'get_parents'
+
+    @admin.display(description="Nadřazené kvalifikace")
+    def get_parents(self, instance):
+        return list(instance.parents.all())
 
 
 @admin.register(AdministrationUnitCategory)

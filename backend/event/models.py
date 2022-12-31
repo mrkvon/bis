@@ -28,8 +28,8 @@ class EventDraft(Model):
         return user == self.owner
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
-        return queryset.filter(owner=user)
+    def filter_queryset(cls, queryset, perm):
+        return queryset.filter(owner=perm.user)
 
 
 @translate_model
@@ -102,24 +102,27 @@ class Event(Model):
         return result
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
+    def filter_queryset(cls, queryset, perm):
+        if perm.source == 'backend':
+            return queryset.filter(administration_units__board_members=perm.user)
+
         queries = [
             # ucast na akci
-            Q(record__participants=user),
+            Q(record__participants=perm.user),
             # registrace na akci
-            Q(registration__applications__user=user),
+            Q(registration__applications__user=perm.user),
         ]
 
-        if user.is_organizer:
+        if perm.user.is_organizer:
             queries += [
                 # kde jsem byl org
-                Q(other_organizers=user),
+                Q(other_organizers=perm.user),
             ]
 
-        if user.is_board_member:
+        if perm.user.is_board_member:
             queries += [
                 # pod mym clankem
-                Q(administration_units__board_members=user)
+                Q(administration_units__board_members=perm.user)
             ]
         return filter_queryset_with_multiple_or_queries(queryset, queries)
 
@@ -163,8 +166,8 @@ class EventFinanceReceipt(Model):
         return basename(self.receipt.name)
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
-        events = Event.filter_queryset(Event.objects.all(), user)
+    def filter_queryset(cls, queryset, perm):
+        events = Event.filter_queryset(Event.objects.all(), perm)
         return queryset.filter(finance__event__in=events)
 
     @permission_cache
@@ -329,8 +332,8 @@ class EventPropagationImage(Model):
         return basename(self.image.name)
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
-        events = Event.filter_queryset(Event.objects.all(), user)
+    def filter_queryset(cls, queryset, perm):
+        events = Event.filter_queryset(Event.objects.all(), perm)
         return queryset.filter(propagation__event__in=events)
 
     def has_edit_permission(self, user):
@@ -353,8 +356,8 @@ class EventPhoto(Model):
         return basename(self.photo.name)
 
     @classmethod
-    def filter_queryset(cls, queryset, user):
-        events = Event.filter_queryset(Event.objects.all(), user)
+    def filter_queryset(cls, queryset, perm):
+        events = Event.filter_queryset(Event.objects.all(), perm)
         return queryset.filter(record__event__in=events)
 
     def has_edit_permission(self, user):

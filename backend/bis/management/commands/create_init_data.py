@@ -43,32 +43,32 @@ class Command(BaseCommand):
         EventIntendedForCategory.objects.update_or_create(slug='for_first_time_participant',
                                                           defaults=dict(name='pro prvoúčastníky'))
 
-        p = QualificationCategory.objects.update_or_create(
-            slug='consultant',
-            defaults=dict(name='Konzultant', parent=None))[0]
-        p = QualificationCategory.objects.update_or_create(
-            slug='instructor',
-            defaults=dict(name='Instruktor', parent=p))[0]
-        p = QualificationCategory.objects.update_or_create(
-            slug='organizer',
-            defaults=dict(name='Organizátor (OHB)', parent=p))[0]
-        QualificationCategory.objects.update_or_create(
-            slug='weekend_organizer',
-            defaults=dict(name='Organizátor víkendovek (OvHB)', parent=p))
+        QualificationCategory.objects.update_or_create(slug='consultant', defaults=dict(name='Konzultant'))
+        QualificationCategory.objects.update_or_create(slug='instructor', defaults=dict(name='Instruktor'))
+        QualificationCategory.objects.update_or_create(slug='organizer', defaults=dict(name='Organizátor (OHB)'))
+        QualificationCategory.objects.update_or_create(slug='weekend_organizer',
+                                                       defaults=dict(name='Organizátor víkendovek (OvHB)'))
+        QualificationCategory.objects.update_or_create(slug='consultant_for_kids',
+                                                       defaults=dict(name='Konzultant Brďo'))
+        QualificationCategory.objects.update_or_create(slug='kids_leader', defaults=dict(name='Vedoucí Brďo'))
+        QualificationCategory.objects.update_or_create(slug='kids_intern', defaults=dict(name='Praktikant Brďo'))
+        QualificationCategory.objects.update_or_create(slug='main_leader_of_kids_camps',
+                                                       defaults=dict(name='Hlavní vedoucí dětských táborů (HVDT)'))
+        QualificationCategory.objects.update_or_create(slug='organizer_without_education',
+                                                       defaults=dict(name='Organizátor nevzdělaný'))
 
-        p = QualificationCategory.objects.update_or_create(
-            slug='consultant_for_kids',
-            defaults=dict(name='Konzultant Brďo', parent=None))[0]
-        p = QualificationCategory.objects.update_or_create(
-            slug='kids_leader',
-            defaults=dict(name='Vedoucí Brďo', parent=p))[0]
-        QualificationCategory.objects.update_or_create(
-            slug='kids_intern',
-            defaults=dict(name='Praktikant Brďo', parent=p))
-
-        QualificationCategory.objects.update_or_create(
-            slug='main_leader_of_kids_camps',
-            defaults=dict(name='Hlavní vedoucí dětských táborů (HVDT)'))
+        qualification_parents = {
+            'instructor': ['consultant'],
+            'organizer': ['instructor'],
+            'weekend_organizer': ['organizer'],
+            'kids_leader': ['consultant_for_kids'],
+            'kids_intern': ['kids_leader'],
+            'organizer_without_education': ['weekend_organizer', 'kids_intern'],
+        }
+        for slug, parent_slugs in qualification_parents.items():
+            QualificationCategory.objects.get(slug=slug).parents.set(
+                [QualificationCategory.objects.get(slug=parent_slug) for parent_slug in parent_slugs]
+            )
 
         AdministrationUnitCategory.objects.update_or_create(slug="basic_section", defaults=dict(name='Základní článek'))
         AdministrationUnitCategory.objects.update_or_create(slug="headquarter", defaults=dict(name='Ústředí'))
@@ -168,7 +168,8 @@ class Command(BaseCommand):
         LocationProgramCategory.objects.update_or_create(slug='monuments', defaults=dict(name='APAM - Akce památky'))
 
         LocationAccessibilityCategory.objects.update_or_create(slug='good', defaults=dict(name='Snadná (0-1,5h)'))
-        LocationAccessibilityCategory.objects.update_or_create(slug='ok', defaults=dict(name='Středně obtížná (1,5-3h)'))
+        LocationAccessibilityCategory.objects.update_or_create(slug='ok',
+                                                               defaults=dict(name='Středně obtížná (1,5-3h)'))
         LocationAccessibilityCategory.objects.update_or_create(slug='bad', defaults=dict(name='Obtížná (více než 3h)'))
 
         RoleCategory.objects.update_or_create(slug='director', defaults=dict(name='Ředitel'))
@@ -183,6 +184,8 @@ class Command(BaseCommand):
         RoleCategory.objects.update_or_create(slug='board_member', defaults=dict(name='Člen představenstva'))
         RoleCategory.objects.update_or_create(slug='main_organizer', defaults=dict(name='Hlavní organizátor'))
         RoleCategory.objects.update_or_create(slug='organizer', defaults=dict(name='Organizátor'))
+        RoleCategory.objects.update_or_create(slug='qualified_organizer',
+                                              defaults=dict(name='Organizátor s kvalifikací'))
         RoleCategory.objects.update_or_create(slug='any', defaults=dict(name='Kdokoli'))
 
         HealthInsuranceCompany.objects.update_or_create(slug='VZP', defaults=dict(

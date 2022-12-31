@@ -350,7 +350,7 @@ QualificationCategory:
   name: 'Typ kvalifikace'
   name_plural: 'Typy kvalifikací'
   fields:
-    parent: 'Nadřazená kvalifikace'
+    parents: 'Nadřazené kvalifikace'
 
 AdministrationUnitCategory:
   name: 'Typ organizující jednotky'

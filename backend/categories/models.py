@@ -43,8 +43,12 @@ class DietCategory(Model):
 class QualificationCategory(Model):
     name = CharField(max_length=63)
     slug = SlugField(unique=True)
-    parent = ForeignKey('QualificationCategory', on_delete=CASCADE, related_name='included_qualifications', blank=True,
-                        null=True)
+    parents = ManyToManyField('QualificationCategory', related_name='included_qualifications')
+
+    def get_slugs(self):
+        yield self.slug
+        for parent in self.parents.all():
+            yield from parent.get_slugs()
 
     class Meta:
         ordering = 'id',
