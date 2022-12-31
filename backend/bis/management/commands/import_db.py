@@ -500,7 +500,6 @@ class Command(BaseCommand):
                 program=self.event_program_category_map[item['program']],
                 intended_for=self.event_intended_for_category_map[item['prokoho']],
                 main_organizer=self.user_map.get(item.get('odpovedna')),
-                is_internal=item['zamereno_na_cleny'] == '1',
                 number_of_sub_events=item['pocet'],
                 internal_note=item['poznamka'] or '',
             ))[0]

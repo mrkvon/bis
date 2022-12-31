@@ -248,7 +248,6 @@ class EventExportSerializer(ModelSerializer):
             'main_organizer',
             'other_organizers',
             'is_attendance_list_required',
-            'is_internal',
             'internal_note',
             'finance',
             'propagation',

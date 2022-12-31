@@ -139,7 +139,6 @@ class EventAdmin(PermissionMixin, NestedModelAdmin):
         'is_canceled',
         'is_complete',
         'is_closed',
-        'is_internal',
         'registration__is_registration_required',
         'registration__is_event_full',
         'is_attendance_list_required',

@@ -56,7 +56,6 @@ class Event(Model):
     other_organizers = ManyToManyField(User, related_name='events_where_was_organizer', blank=True)
 
     is_attendance_list_required = BooleanField(default=False)
-    is_internal = BooleanField(default=False)
     internal_note = TextField(blank=True)
 
     _import_id = CharField(max_length=15, default='')
