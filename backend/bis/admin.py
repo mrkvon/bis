@@ -204,7 +204,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
 
     readonly_fields = 'is_superuser', 'last_login', 'date_joined', 'get_all_emails', \
                       'get_events_where_was_organizer', 'get_participated_in_events', \
-                      'roles', 'get_donor'
+                      'roles', 'get_donor', 'get_board_member_of'
     exclude = 'groups', 'user_permissions', 'password', 'is_superuser', '_str'
 
     fieldsets = (
@@ -219,7 +219,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
             'fields': ('get_events_where_was_organizer', 'get_participated_in_events')
         }),
         ['Interní data', {
-            'fields': ['roles', 'is_active', 'last_login', 'date_joined'],
+            'fields': ['roles', 'is_active', 'last_login', 'date_joined', 'get_board_member_of'],
             'classes': ('collapse',)
         }]
     )
@@ -304,3 +304,7 @@ class UserAdmin(PermissionMixin, NestedModelAdminMixin, NumericFilterModelAdmin)
             'memberships__administration_unit', 'qualifications__category',
             'events_where_was_organizer', 'participated_in_events__event', 'memberships__category'
         )
+
+    @admin.display(description='V předsednictvu článků')
+    def get_board_member_of(self, obj):
+        return mark_safe(', '.join([get_admin_edit_url(item) for item in obj.administration_units.all()]))
