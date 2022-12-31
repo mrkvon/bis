@@ -32,6 +32,8 @@ from translation.translate import translate_model
 class Location(Model):
     name = CharField(max_length=63)
     description = TextField(blank=True)
+    address = CharField(max_length=255, blank=True)
+    gps_location = PointField(null=True)
 
     for_beginners = BooleanField(default=False)
     is_full = BooleanField(default=False)
@@ -50,8 +52,6 @@ class Location(Model):
     facilities = TextField(blank=True)
 
     web = URLField(blank=True)
-    address = CharField(max_length=255, blank=True)
-    gps_location = PointField(null=True)
     region = ForeignKey('regions.Region', related_name='locations', on_delete=PROTECT, null=True, editable=False)
 
     _import_id = CharField(max_length=15, default='')
