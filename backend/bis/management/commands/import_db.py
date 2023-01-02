@@ -479,6 +479,8 @@ class Command(BaseCommand):
                 if not location.address and item['gps']:
                     location.address = item['gps']
                     location.save()
+            if not location:
+                location = Location.objects.get_or_create(name="Neznámá")[0]
 
             if group is None:
                 group = 'other'

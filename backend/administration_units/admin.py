@@ -70,9 +70,6 @@ class AdministrationUnitAdmin(PermissionMixin, NestedModelAdmin):
 
 @admin.register(BrontosaurusMovement)
 class BrontosaurusMovementAdmin(PermissionMixin, SingletonModelAdmin):
-    filter_horizontal = 'bis_administrators', 'office_workers', 'audit_committee', \
-                        'executive_committee', 'education_members',
-
     autocomplete_fields = 'director', 'finance_director', 'bis_administrators', 'office_workers', 'audit_committee', \
                           'executive_committee', 'education_members'
     readonly_fields = 'history',
